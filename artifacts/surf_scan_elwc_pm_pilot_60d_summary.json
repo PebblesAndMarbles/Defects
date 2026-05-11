@@ -1,0 +1,60 @@
+{
+  "generated_at": "2026-04-29T17:16:21.523113",
+  "lookback_days": 60,
+  "input_metrics": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_METRICS.csv",
+  "output_metrics_pilot": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_METRICS_ELWC_PM_PILOT_60D.csv",
+  "output_stage": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_ELWC_STAGE_PM_60D.csv",
+  "surf_rows": 1831,
+  "elwc_event_rows": 2014,
+  "staged_rows": 2014,
+  "elwc_match_rows": 1831,
+  "elwc_recipe_fallback_rows": 0,
+  "elwc_counter_fallback_rows": 9,
+  "elwc_recipe_filter_prefixes": [
+    "M_GO_ALL_SEG",
+    "M_GO_C_SEG",
+    "M_GO_E_SEG",
+    "M_GO_M_SEG",
+    "M_LIFT10X_SEG",
+    "M_MECH_CYCLE_SEG",
+    "M_SFV10X_SEG",
+    "M_SS_L100"
+  ],
+  "elwc_pm_non_null": {
+    "FULLPM": 1831,
+    "FULLPM_RF": 1831,
+    "MINIPM": 1831,
+    "MINIPM_RF": 1831,
+    "CNTR_SS": 1831
+  },
+  "elwc_recipe_samples": {
+    "SEQ_RECIPE": [
+      "M_GO_ALL_SEG",
+      "M_GO_C_SEG",
+      "M_GO_E_SEG",
+      "M_GO_M_SEG",
+      "M_LIFT10X_SEG",
+      "M_MECH_CYCLE_SEG",
+      "M_SFV10X_SEG",
+      "M_SS_L100"
+    ],
+    "WAFER_RECIPE": [
+      "M_GO_ALL_SEG",
+      "M_GO_C_SEG",
+      "M_GO_E_SEG",
+      "M_GO_M_SEG",
+      "M_LIFT10X_SEG",
+      "M_MECH_CYCLE_SEG",
+      "M_SFV10X_SEG",
+      "M_SS_L100"
+    ],
+    "OPER_SHORT_DESC": [
+      "E #AMETWI"
+    ]
+  },
+  "notes": [
+    "Pilot-only script: does not modify production SS_METRICS.csv/SS_COORDINATES.csv.",
+    "ELWC templates were used as query references only; no ELWC file edits.",
+    "Attachment rule: latest SUBENTITY_EVENT_TIME <= INSPECTION_TIME."
+  ]
+}

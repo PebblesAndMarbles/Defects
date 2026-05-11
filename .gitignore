@@ -1,0 +1,37 @@
+# .gitignore for BE Workspace
+
+# Exclude all images
+images/
+
+# Exclude common large file types
+*.zip
+*.tar
+*.gz
+*.7z
+*.rar
+*.iso
+*.bin
+*.exe
+*.dll
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wav
+*.mp3
+*.bak
+*.tmp
+*.log
+
+# Exclude outputs and debug logs
+outputs/
+debug_logs/
+
+# Allow manifest and artifacts
+!artifacts/*.json
+
+# Node, Python, and editor junk
+__pycache__/
+*.pyc
+.vscode/
+~$*

@@ -1,0 +1,242 @@
+// Y by X Bivariate wafer maps with circle outline.
+// Set this once and both BY() and title post-processing will follow it.
+Names Default To Here( 1 );
+
+dt = Current Data Table();
+by_group_col = "";
+
+// Axis limits for full wafer coverage
+wafer_min = -155;
+wafer_max =  155;
+wafer_frame_size = 300;
+
+ARRANGEINROWS=4;
+
+Print( "SS_Wafermaps_BivReport BUILD: 2026-04-27I" );
+
+debug_log_path = "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\SS_Wafermaps_BivReport_debug.txt";
+debug_log = "";
+
+Log_Debug = Function( {msg},
+    _line = Char( Today() ) || " | " || msg;
+    Print( _line );
+    debug_log ||= _line || "\!N";
+);
+
+cols = dt << Get Column Names( "String" );
+has_by_col = Contains( cols, by_group_col );
+Log_Debug( "Rows in active table: " || Char( N Row( dt ) ) );
+Log_Debug( "BY column configured: " || by_group_col || " | present=" || Char( has_by_col ) );
+
+If( has_by_col,
+    by_vals = Column( dt, by_group_col ) << Get Values;
+    by_levels = Associative Array( by_vals ) << Get Keys;
+    n_levels = N Items( by_levels );
+    Log_Debug( "Distinct BY levels: " || Char( n_levels ) );
+
+    by_levels_sample = {};
+    sample_n = Min( 20, n_levels );
+    For( i = 1, i <= sample_n, i++,
+        Insert Into( by_levels_sample, Char( by_levels[i] ) );
+    );
+    Log_Debug( "BY level sample (up to 20): " || Char( by_levels_sample ) );
+,
+    Log_Debug( "ERROR: BY column not found; plotting will collapse to a single panel." );
+);
+
+
+// Only get by_col_ref if by_group_col is present
+If( has_by_col,
+    by_col_ref = Column( dt, by_group_col );
+    Log_Debug( "BY column reference: " || Char( by_col_ref ) );
+, // else
+    by_col_ref = .;
+    Log_Debug( "No BY column reference; will plot all data in one panel." );
+);
+
+Extract_By_Value = Function( {title_text, by_col_name},
+    label = by_col_name || "=";
+    label_pos = Contains( title_text, label );
+
+    If( label_pos > 0,
+        value_start = label_pos + Length( label );
+        tail = Substr( title_text, value_start );
+        comma_pos = Contains( tail, "," );
+        If( comma_pos > 0,
+            value = Trim( Substr( tail, 1, comma_pos - 1 ) ),
+            value = Trim( tail )
+        );
+        Return( value );
+    );
+
+    // Fallback: use current title if pattern is not found.
+    Return( title_text );
+);
+
+// Create the plot
+
+// Create the plot, with or without BY column
+If( has_by_col,
+    fg = Fit Group(
+        biv = dt << Bivariate(
+            Y( :WAFER_Y_MM ),
+            X( :WAFER_X_MM ),
+            By( by_col_ref ),
+            SendToReport(
+                Dispatch(
+                    {},
+                    "WAFER_X_MM",
+                    ScaleBox,
+                    {Minor Ticks( 0 ),
+                     Label Row(
+                         {Show Major Labels( 0 ), Show Major Ticks( 0 ),
+                          Show Minor Ticks( 0 )}
+                     )}
+                ),
+                Dispatch(
+                    {},
+                    "WAFER_Y_MM",
+                    ScaleBox,
+                    {Minor Ticks( 0 ),
+                     Label Row(
+                         {Show Major Labels( 0 ), Show Major Ticks( 0 ),
+                          Show Minor Ticks( 0 )}
+                     )}
+                ),
+                Dispatch( {}, "WAFER_X_MM", TextEditBox, {Set Text( "" )} ),
+                Dispatch( {}, "WAFER_Y_MM", TextEditBox, {Set Text( "" )} ),
+                Dispatch(
+                    {},
+                    "Bivar Plot",
+                    FrameBox,
+                    {Frame Size( 300, 300 ),
+                     Add Graphics Script(
+                         Description( "Wafer Boundary" ),
+                         // Draw wafer circle outline
+                         Pen Color( "Black" );
+                         Pen Size( 2 );
+                         For( i = 0, i < 360, i += 5,
+                             x1 = 150 * Cos( i * Pi() / 180 );
+                             y1 = 150 * Sin( i * Pi() / 180 );
+                             x2 = 150 * Cos( (i + 5) * Pi() / 180 );
+                             y2 = 150 * Sin( (i + 5) * Pi() / 180 );
+                             Line( {x1, y1}, {x2, y2} );
+                         );
+                     )}
+                )
+            )
+        )
+    );
+, // else: no BY column
+    fg = Fit Group(
+        biv = dt << Bivariate(
+            Y( :WAFER_Y_MM ),
+            X( :WAFER_X_MM ),
+            SendToReport(
+                Dispatch(
+                    {},
+                    "WAFER_X_MM",
+                    ScaleBox,
+                    {Minor Ticks( 0 ),
+                     Label Row(
+                         {Show Major Labels( 0 ), Show Major Ticks( 0 ),
+                          Show Minor Ticks( 0 )}
+                     )}
+                ),
+                Dispatch(
+                    {},
+                    "WAFER_Y_MM",
+                    ScaleBox,
+                    {Minor Ticks( 0 ),
+                     Label Row(
+                         {Show Major Labels( 0 ), Show Major Ticks( 0 ),
+                          Show Minor Ticks( 0 )}
+                     )}
+                ),
+                Dispatch( {}, "WAFER_X_MM", TextEditBox, {Set Text( "" )} ),
+                Dispatch( {}, "WAFER_Y_MM", TextEditBox, {Set Text( "" )} ),
+                Dispatch(
+                    {},
+                    "Bivar Plot",
+                    FrameBox,
+                    {Frame Size( 300, 300 ),
+                     Add Graphics Script(
+                         Description( "Wafer Boundary" ),
+                         // Draw wafer circle outline
+                         Pen Color( "Black" );
+                         Pen Size( 2 );
+                         For( i = 0, i < 360, i += 5,
+                             x1 = 150 * Cos( i * Pi() / 180 );
+                             y1 = 150 * Sin( i * Pi() / 180 );
+                             x2 = 150 * Cos( (i + 5) * Pi() / 180 );
+                             y2 = 150 * Sin( (i + 5) * Pi() / 180 );
+                             Line( {x1, y1}, {x2, y2} );
+                         );
+                     )}
+                )
+            )
+        )
+    );
+);
+
+Log_Debug( "Bivariate object created: " || Char( biv ) );
+
+
+
+Apply_Report_Postprocessing = Function( {report_obj},
+    current_title = (report_obj << Get Title);
+    If( has_by_col,
+        new_title = Extract_By_Value( current_title, by_group_col );
+        processed_reports += 1;
+        If( processed_reports <= 30,
+            Log_Debug( "Panel " || Char( processed_reports ) || " title: " || Char( current_title ) || " -> " || Char( new_title ) );
+        );
+        report_obj << Set Title( new_title );
+    ,
+        processed_reports += 1;
+        If( processed_reports <= 30,
+            Log_Debug( "Panel " || Char( processed_reports ) || " title: " || Char( current_title ) || " (no BY column)" );
+        );
+        // Optionally, set a generic title or leave as is
+    );
+
+    // AxisBox(1) = Y axis, AxisBox(2) = X axis in a Bivariate plot
+    Try( report_obj[AxisBox(1)] << Axis Settings( {Min( wafer_min ), Max( wafer_max ), Minor Ticks( 0 )} ) );
+    Try( report_obj[AxisBox(2)] << Axis Settings( {Min( wafer_min ), Max( wafer_max ), Minor Ticks( 0 )} ) );
+    Try( report_obj[AxisBox(1)] << Show Label( 0 ) );
+    Try( report_obj[AxisBox(2)] << Show Label( 0 ) );
+
+    // Reclaim visual space after hiding axis labels/ticks.
+    Try( report_obj[FrameBox(1)] << Frame Size( wafer_frame_size, wafer_frame_size ) );
+    Try( report_obj[1][FrameBox(1)] << Frame Size( wafer_frame_size, wafer_frame_size ) );
+);
+
+// Customize titles and fix axis limits on every panel
+biv_reports = biv << Report;
+If( Is List( biv_reports ),
+    Log_Debug( "biv << Report returned LIST with count=" || Char( N Items( biv_reports ) ) );
+,
+    Log_Debug( "biv << Report returned SINGLE object with title=" || Char( biv_reports << Get Title ) );
+);
+
+biv_outline_boxes = biv << XPath( "//OutlineBox" );
+If( Is List( biv_outline_boxes ),
+    Log_Debug( "biv XPath OutlineBox count=" || Char( N Items( biv_outline_boxes ) ) );
+,
+    Log_Debug( "biv XPath OutlineBox returned non-list" );
+);
+
+processed_reports = 0;
+If( Is List( biv_reports ),
+    For Each( {report_obj}, biv_reports,
+        Apply_Report_Postprocessing( report_obj );
+    ),
+    Apply_Report_Postprocessing( biv_reports )
+);
+
+Log_Debug( "Processed report objects total: " || Char( processed_reports ) );
+
+fg << Arrange in Rows( ARRANGEINROWS );
+
+Save Text File( debug_log_path, debug_log );
+Print( "Debug log saved to: " || debug_log_path );

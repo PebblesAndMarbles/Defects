@@ -1,0 +1,9 @@
+3861345168 | Rows in active table: 1374
+3861345168 | BY column configured:  | present=0
+3861345168 | ERROR: BY column not found; plotting will collapse to a single panel.
+3861345168 | No BY column reference; will plot all data in one panel.
+3861345168 | Bivariate object created: Bivariate[]
+3861345168 | biv << Report returned SINGLE object with title=Bivariate Fit of WAFER_Y_MM By WAFER_X_MM
+3861345168 | biv XPath OutlineBox count=1
+3861345168 | Panel 1 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM (no BY column)
+3861345168 | Processed report objects total: 1

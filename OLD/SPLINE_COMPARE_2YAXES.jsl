@@ -1,0 +1,122 @@
+Names Default To Here(1);
+
+// Column specifications - modify these as needed
+xcol = "UNW_12HRS
+
+";
+ycol_left = "P_ORDER
+
+";      //
+ycol_right = "P_ORDER
+
+";       //
+bycol = "LAYER
+";
+groupcol1 = "ZERO_BEEP
+";  // Left side grouping
+groupcol2 = "ZERO_SMP
+";   // Right side grouping
+
+// Close any existing windows with the same title
+window_title = "Side-by-Side Different Y Charts";
+Try(
+    existing_windows = Get Window List();
+    For(i = 1, i <= N Items(existing_windows), i++,
+        If(existing_windows[i] << Get Window Title == window_title,
+            existing_windows[i] << Close Window;
+        );
+    );
+);
+
+// Get current data table
+dt = Current Data Table();
+
+// Create the report window
+report_win = New Window(window_title,
+    V List Box(
+        H List Box(
+            // Left side - First Y variable
+            dt << FitGroup(
+                biv_left = Bivariate(
+                    Y(Column(ycol_left)), 
+                    X(Column(xcol)),
+                    By(Column(bycol)),
+                    GroupBy(Column(groupcol1)),
+                    Fit Spline(0.1, Standardized, {Report(0)})
+                ),
+                SendToReport(
+                    Dispatch({}, "Fit Group", OutlineBox, 
+                        {Set Title("Y = " || ycol_left || " (Grouped by " || groupcol1 || ")"), Close(0)}
+                    )
+                )
+            ),
+            
+            // Right side - Second Y variable
+            dt << FitGroup(
+                biv_right = Bivariate(
+                    Y(Column(ycol_right)), 
+                    X(Column(xcol)),
+                    By(Column(bycol)),
+                    GroupBy(Column(groupcol2)),
+                    Fit Spline(0.1, Standardized, {Report(0)})
+                ),
+                SendToReport(
+                    Dispatch({}, "Fit Group", OutlineBox, 
+                        {Set Title("Y = " || ycol_right || " (Grouped by " || groupcol2 || ")"), Close(0)}
+                    )
+                )
+            )
+        )
+    )
+);
+
+// Get reports and hide fit details
+left_reports = biv_left << Report;
+right_reports = biv_right << Report;
+
+// Process left side reports
+For Each({rpt}, left_reports,
+    current_title = rpt << Get Title;
+    
+    // Add grids
+    axisbox = rpt[AxisBox(1)]; 
+    axisbox << Show Major Grid(1);
+    axisbox << Show Minor Grid(1);
+    axisbox = rpt[AxisBox(2)]; 
+    axisbox << Show Major Grid(1);
+    axisbox << Show Minor Grid(1);
+    
+    // Hide spline fit details
+    Try(rpt[BorderBox(4)] << Visibility("Collapse"));
+    
+    // Set frame size
+    Try(
+        rpt[FrameBox(1)] << Set Height(355);
+        rpt[FrameBox(1)] << Set Width(600);
+    );
+);
+
+// Process right side reports
+For Each({rpt}, right_reports,
+    current_title = rpt << Get Title;
+    
+    // Add grids
+    axisbox = rpt[AxisBox(1)]; 
+    axisbox << Show Major Grid(1);
+    axisbox << Show Minor Grid(1);
+    axisbox = rpt[AxisBox(2)]; 
+    axisbox << Show Major Grid(1);
+    axisbox << Show Minor Grid(1);
+    
+    // Hide spline fit details
+    Try(rpt[BorderBox(4)] << Visibility("Collapse"));
+    
+    // Set frame size
+    Try(
+        rpt[FrameBox(1)] << Set Height(355);
+        rpt[FrameBox(1)] << Set Width(600);
+    );
+);
+
+// Maximize the window
+report_win << Maximize Window(1);

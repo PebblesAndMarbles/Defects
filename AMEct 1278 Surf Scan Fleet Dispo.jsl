@@ -1,0 +1,886 @@
+//!
+Names Default To Here( 1 );
+
+metrics_path = "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\surf_scan\SS_METRICS.csv";
+coords_path = "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\surf_scan\SS_COORDINATES.csv";
+images_folder = "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\images\surf_scan";
+
+window_title = "Surf Scan Fleet Report";
+bycol = "EVENT";
+xcol = "INSPECTION_TIME";
+ycol = "ADDER_DEFECTS";
+legendcol1 = "PRIMARY_EQUIP";
+vcol = "PRIMARY_EQUIP";
+
+ymin = -1;
+ymax = 10;
+inc = 5;
+varchart_group_width = 20;
+
+seg_events = {"M_GO_ALL_SEG", "M_GO_C_SEG", "M_GO_E_SEG", "M_GO_M_SEG", "M_LIFT10X_SEG", "M_MECH_CYCLE_SEG", "M_SFV10X_SEG"};
+ss_events = {"SS0", "SS1", "SS7"};
+
+Get_Source_Columns = Function({source_path}, {Default Local},
+    _preview_cols = {};
+    Try(
+        _preview_dt = Open(source_path, Invisible);
+        _preview_cols = _preview_dt << Get Column Names("String");
+        Close(_preview_dt, NoSave);
+    ,
+        _preview_cols = {};
+    );
+    _preview_cols;
+);
+
+Build_Available_Columns = Function({}, {Default Local},
+    _cols = Get_Source_Columns(metrics_path);
+    If(N Items(_cols) == 0,
+        _cols = {"PRIMARY_EQUIP", "EVENT", "ACTUAL_LOT", "LOT7", "LAYER", "PILOT"};
+    );
+    If(Contains(_cols, "PRIMARY_EQUIP"),
+        Remove From(_cols, Contains(_cols, "PRIMARY_EQUIP"));
+        Insert Into(_cols, "PRIMARY_EQUIP", 1);
+    );
+    If(!Contains(_cols, "PILOT"),
+        Insert Into(_cols, "PILOT");
+    );
+    _cols;
+);
+
+Ensure_Pilot_Column = Function({table_obj},
+    _cols = table_obj << Get Column Names("String");
+    If(Contains(_cols, "PILOT"),
+        Return();
+    );
+
+    _has_srcip = Contains(_cols, "SRCIP");
+    _has_ccmr2 = Contains(_cols, "CCMR2");
+    _has_iccr2 = Contains(_cols, "ICCR2");
+
+    If(_has_srcip & _has_ccmr2 & _has_iccr2,
+        table_obj << New Column("PILOT", Character, Nominal,
+            Set Each Value(
+                _srcip = Char(Column(table_obj, "SRCIP")[Row()]);
+                _ccmr2 = Char(Column(table_obj, "CCMR2")[Row()]);
+                _iccr2 = Char(Column(table_obj, "ICCR2")[Row()]);
+                If(_srcip == "ON",
+                    "SRCIP",
+                    _ccmr2 == "ON",
+                    "CCMR2",
+                    _srcip == "OFF" & _ccmr2 == "OFF" & _iccr2 == "ON",
+                    "ICCR2",
+                    "POR"
+                )
+            )
+        );
+    ,
+        table_obj << New Column("PILOT", Character, Nominal, Set Each Value(""));
+    );
+);
+
+available_cols = Build_Available_Columns();
+
+val_cb_close_reports_and_windows = 0;
+val_no_splines = 0;
+val_black_wafermap_markers = 0;
+val_hide_status = 4;
+val_source_index = 1;
+val_legendcol1 = "PRIMARY_EQUIP";
+val_event_mode = 1;
+val_debug_layout = 0;
+selected_source_name = "Most recent 60 days";
+val_yymm_lookback_periods = 12;
+yymm_cutoff_value = .;
+
+Normalize_YYMM_Value = Function({raw_value}, {Default Local},
+    _raw_char = Trim(Char(raw_value));
+    If(_raw_char == "" | _raw_char == ".",
+        Return(.);
+    );
+    _num = Num(_raw_char);
+    If(Is Missing(_num),
+        Return(.);
+    );
+    Round(_num, 1);
+);
+
+YYMM_To_Period_Index = Function({yymm_value}, {Default Local},
+    _yymm_num = Normalize_YYMM_Value(yymm_value);
+    If(Is Missing(_yymm_num),
+        Return(.);
+    );
+    _yy = Floor(_yymm_num / 100);
+    _mm = Mod(_yymm_num, 100);
+    If(_mm < 1 | _mm > 12,
+        Return(.);
+    );
+    (_yy * 12) + (_mm - 1);
+);
+
+Period_Index_To_YYMM = Function({period_index}, {Default Local},
+    If(Is Missing(period_index),
+        Return(.);
+    );
+    _yy = Floor(period_index / 12);
+    _mm = Mod(period_index, 12) + 1;
+    (_yy * 100) + _mm;
+);
+
+Parse_Lookback_Periods = Function({raw_text, default_value}, {Default Local},
+    _text_num = Num(Trim(Char(raw_text)));
+    If(Is Missing(_text_num) | _text_num < 1,
+        Return(default_value);
+    );
+    Max(1, Floor(_text_num));
+);
+
+Get_Max_YYMM_From_Table = Function({table_obj}, {Default Local},
+    _cols = table_obj << Get Column Names("String");
+    If(!Contains(_cols, "YYMM"),
+        Return(.);
+    );
+    _max_period_index = .;
+    For(_r = 1, _r <= N Rows(table_obj), _r++,
+        _period_index = YYMM_To_Period_Index(Column(table_obj, "YYMM")[_r]);
+        If(!Is Missing(_period_index),
+            If(Is Missing(_max_period_index),
+                _max_period_index = _period_index,
+                _max_period_index = Max(_max_period_index, _period_index)
+            );
+        );
+    );
+    Period_Index_To_YYMM(_max_period_index);
+);
+
+Apply_YYMM_Lookback_Filter = Function({table_obj, cutoff_period_index}, {Default Local},
+    _cols = table_obj << Get Column Names("String");
+    If(!Contains(_cols, "YYMM") | Is Missing(cutoff_period_index),
+        Return(0);
+    );
+    table_obj << Select Where(
+        Is Missing(YYMM_To_Period_Index(Column(table_obj, "YYMM")[Row()])) |
+        YYMM_To_Period_Index(Column(table_obj, "YYMM")[Row()]) < cutoff_period_index
+    );
+    _n_removed = N Row(table_obj << Get Selected Rows);
+    If(_n_removed > 0,
+        table_obj << Delete Rows;
+    );
+    table_obj << Clear Select;
+    _n_removed;
+);
+
+Print(
+    "SURF SCAN FLEET BUILD: 2026-04-27E | event_mode_default=" || Char(val_event_mode) ||
+    " | debug_layout=" || Char(val_debug_layout) ||
+    " | varchart_group_width=" || Char(varchart_group_width)
+);
+
+result = New Window( "Surf Scan Fleet Report Options", <<Modal, <<Return Result,
+    V List Box(
+        Lineup Box(N Col(1),
+            Panel Box("CSV SOURCE",
+                rbSource = Radio Box(
+                    {"Most recent 60 days", "Full integrated", "YYMM lookback"}
+                ),
+                H List Box(
+                    Text Box("YYMM periods:"),
+                    yymmLookbackTB = Text Edit Box("12", <<Set Width(40))
+                )
+            ),
+            Panel Box("LEGEND / GROUP + VARIABILITY COLUMN",
+                H List Box(
+                    Text Box("Use this column for trend grouping and variability X: "),
+                    cb_legend = Combo Box( available_cols )
+                )
+            ),
+            Panel Box("OPTIONS",
+                cb_close_reports_and_windows = Check Box( "Close Reports & Windows" ),
+                cb_no_splines = Check Box( "No Splines" ),
+                cb_black_wafermap_markers = Check Box( "Black Wafermap Markers" )
+            ),
+            Panel Box("EVENT MODE",
+                rbEventMode = Radio Box(
+                    {"SS only", "SEG only", "SS and SEG"}
+                )
+            ),
+            Panel Box("HIGHFLIER / BASELINE FILTER",
+                rbHideStatus = Radio Box(
+                    {"Hide Highfliers NOT in selected scope",
+                     "Hide ALL Highfliers",
+                     "Hide BASELINE rows",
+                     "Hide / Exclude nothing (show all rows)"}
+                )
+            ),
+            Button Box( "OK",
+                val_cb_close_reports_and_windows = cb_close_reports_and_windows << Get;
+                val_no_splines = cb_no_splines << Get;
+                val_black_wafermap_markers = cb_black_wafermap_markers << Get;
+                val_hide_status = rbHideStatus << Get;
+                val_source_index = rbSource << Get;
+                val_event_mode = rbEventMode << Get;
+                val_yymm_lookback_periods = Parse_Lookback_Periods(yymmLookbackTB << Get Text, 12);
+                val_legendcol1 = available_cols[cb_legend << Get];
+
+                legendcol1 = val_legendcol1;
+                vcol = val_legendcol1;
+
+                If(val_source_index == 2,
+                    selected_source_name = "Full integrated";
+                ,
+                    If(val_source_index == 3,
+                        selected_source_name = "YYMM lookback (" || Char(val_yymm_lookback_periods) || " periods)";
+                    ,
+                        selected_source_name = "Most recent 60 days";
+                    );
+                );
+
+                {val_cb_close_reports_and_windows, val_hide_status, val_no_splines, val_source_index, val_black_wafermap_markers, val_event_mode, val_yymm_lookback_periods}
+            )
+        )
+    )
+);
+
+If(Is List(result) & N Items(result) == 7,
+    val_cb_close_reports_and_windows = result[1];
+    val_hide_status = result[2];
+    val_no_splines = result[3];
+    val_source_index = result[4];
+    val_black_wafermap_markers = result[5];
+    val_event_mode = result[6];
+    val_yymm_lookback_periods = result[7];
+);
+
+If(val_cb_close_reports_and_windows == 1,
+    Close All( "Reports", "NoSave" );
+    Close All( "Data Tables", "NoSave" );
+);
+
+dt = Open(metrics_path);
+dt = Current Data Table();
+dt_coords = Open(coords_path, Invisible);
+dt_coords << Set Name("SS Coordinates");
+
+If(val_source_index == 1,
+    cutoff_dt = Date Increment(Today(), "Day", -60);
+    dt << Select Where(:INSPECTION_TIME >= cutoff_dt);
+    dt_recent = dt << Subset(Selected Rows, Output Table("SS Metrics - Recent 60 Days"), Invisible);
+    dt << Clear Select;
+    Close(dt, NoSave);
+    dt = dt_recent;
+
+    dt_coords << Select Where(:INSPECTION_TIME >= cutoff_dt);
+    dt_coords_recent = dt_coords << Subset(Selected Rows, Output Table("SS Coordinates - Recent 60 Days"), Invisible);
+    dt_coords << Clear Select;
+    Close(dt_coords, NoSave);
+    dt_coords = dt_coords_recent;
+,
+    If(val_source_index == 3,
+        _max_yymm = Get_Max_YYMM_From_Table(dt);
+        _max_period_index = YYMM_To_Period_Index(_max_yymm);
+        If(!Is Missing(_max_period_index),
+            _yymm_cutoff_period_index = _max_period_index - (val_yymm_lookback_periods - 1);
+            yymm_cutoff_value = Period_Index_To_YYMM(_yymm_cutoff_period_index);
+            _removed_dt_rows = Apply_YYMM_Lookback_Filter(dt, _yymm_cutoff_period_index);
+            _removed_coord_rows = Apply_YYMM_Lookback_Filter(dt_coords, _yymm_cutoff_period_index);
+            Print(
+                "YYMM lookback filter applied - periods=" || Char(val_yymm_lookback_periods) ||
+                " max_yymm=" || Char(_max_yymm) ||
+                " cutoff_yymm=" || Char(yymm_cutoff_value) ||
+                " removed_rows(metrics,coords)=(" || Char(_removed_dt_rows) || "," || Char(_removed_coord_rows) || ")"
+            );
+            selected_source_name = selected_source_name || " cutoff>= " || Char(yymm_cutoff_value);
+        ,
+            Print("YYMM lookback requested but no valid YYMM values were found; leaving tables unfiltered.");
+        );
+    );
+);
+
+Ensure_Pilot_Column(dt);
+
+selected_events = {};
+If(val_event_mode == 1,
+    selected_events = ss_events;
+,
+    If(val_event_mode == 2,
+        selected_events = seg_events;
+    ,
+        selected_events = Concat(ss_events, seg_events);
+    );
+);
+
+dt << Select Where(!Contains(selected_events, Char(:EVENT)));
+_n_event_filtered_metrics = N Row(dt << Get Selected Rows);
+If(_n_event_filtered_metrics > 0,
+    dt << Delete Rows;
+);
+dt << Clear Select;
+
+dt_coords << Select Where(!Contains(selected_events, Char(:EVENT)));
+_n_event_filtered_coords = N Row(dt_coords << Get Selected Rows);
+If(_n_event_filtered_coords > 0,
+    dt_coords << Delete Rows;
+);
+dt_coords << Clear Select;
+
+Print(
+    "EVENT MODE filter applied - mode=" || Char(val_event_mode) ||
+    " kept_events=" || Char(selected_events) ||
+    " removed_rows(metrics,coords)=(" || Char(_n_event_filtered_metrics) || "," || Char(_n_event_filtered_coords) || ")"
+);
+
+// Ignore blank EVENT rows.
+dt << Select Where(Trim(Char(:EVENT)) == "");
+_n_blank_metrics = N Row(dt << Get Selected Rows);
+If(_n_blank_metrics > 0,
+    dt << Delete Rows;
+);
+dt << Clear Select;
+
+dt_coords << Select Where(Trim(Char(:EVENT)) == "");
+_n_blank_coords = N Row(dt_coords << Get Selected Rows);
+If(_n_blank_coords > 0,
+    dt_coords << Delete Rows;
+);
+dt_coords << Clear Select;
+Print("Blank EVENT rows removed - metrics: " || Char(_n_blank_metrics) || " coords: " || Char(_n_blank_coords));
+
+dt << New Column("ORIGINAL_ROW_NUMBER", Numeric, Continuous,
+    Set Each Value(Row())
+);
+
+// Build mapping from metrics to coords by wafer+event.
+_key_map = Associative Array();
+For(_r = 1, _r <= N Rows(dt), _r++,
+    _key_map[Char(Column(dt, "WAFER_KEY")[_r]) || "|" || Char(Column(dt, "EVENT")[_r]) || "|" || Char(Column(dt, "INSPECTION_TIME")[_r])] = _r;
+);
+
+dt_coords << New Column("ORIGINAL_ROW_NUMBER", Numeric, Continuous);
+For(_r = 1, _r <= N Rows(dt_coords), _r++,
+    _k = Char(Column(dt_coords, "WAFER_KEY")[_r]) || "|" || Char(Column(dt_coords, "EVENT")[_r]) || "|" || Char(Column(dt_coords, "INSPECTION_TIME")[_r]);
+    _v = _key_map[_k];
+    If(!Is Missing(_v),
+        Column(dt_coords, "ORIGINAL_ROW_NUMBER")[_r] = _v;
+    );
+);
+
+// Status filter (4 options per requested scope).
+If(val_hide_status == 1,
+    dt << Select Where(:STATUS == "HIGHFLIER" & :ADDER_DEFECTS <= 0);
+    dt << Hide and Exclude;
+    dt << Clear Select;
+
+    dt_coords << Select Where(:STATUS == "HIGHFLIER" & :ADDER_DEFECTS <= 0);
+    dt_coords << Hide and Exclude;
+    dt_coords << Clear Select;
+,
+    If(val_hide_status == 2,
+        dt << Select Where(:STATUS == "HIGHFLIER");
+        dt << Hide and Exclude;
+        dt << Clear Select;
+
+        dt_coords << Select Where(:STATUS == "HIGHFLIER");
+        dt_coords << Hide and Exclude;
+        dt_coords << Clear Select;
+    ,
+        If(val_hide_status == 3,
+            dt << Select Where(:STATUS == "BASELINE");
+            dt << Hide and Exclude;
+            dt << Clear Select;
+
+            dt_coords << Select Where(:STATUS == "BASELINE");
+            dt_coords << Hide and Exclude;
+            dt_coords << Clear Select;
+        );
+    );
+);
+
+dt_coords << New Column("_INCLUDE", Numeric, Continuous,
+    Set Each Value(
+        If(val_hide_status == 1,
+            !(:STATUS == "HIGHFLIER" & :ADDER_DEFECTS <= 0),
+            If(val_hide_status == 2,
+                :STATUS != "HIGHFLIER",
+                If(val_hide_status == 3,
+                    :STATUS != "BASELINE",
+                    1
+                )
+            )
+        )
+    )
+);
+
+Apply_Wafermap_Point_Styling = Function({coord_table},
+    coord_table << Select Where(:CLASS == "BEEP");
+    coord_table << Markers(1);
+    coord_table << Clear Select;
+
+    coord_table << Select Where(:CLASS == "SMALL_PARTICLE");
+    coord_table << Markers(Dot);
+    coord_table << Clear Select;
+
+    If(val_black_wafermap_markers == 1,
+        coord_table << Select All Rows;
+        coord_table << Colors(Black);
+        coord_table << Clear Select;
+    );
+);
+
+Is_Usable_Table = Function({table_obj},
+    _ok = 0;
+    Try(
+        _nm = table_obj << Get Name;
+        _ok = 1;
+    ,
+        _ok = 0;
+    );
+    _ok;
+);
+
+Safe_Table_NRows = Function({table_obj},
+    _n = 0;
+    If(!Is_Usable_Table(table_obj), Return(0));
+    Try(
+        _n = N Rows(table_obj);
+    ,
+        _n = 0;
+    );
+    _n;
+);
+
+Unique_Events_From_Table = Function({table_obj}, {Default Local},
+    _events = {};
+    _nrows = Safe_Table_NRows(table_obj);
+    If(_nrows == 0, Return(_events));
+    For(_r = 1, _r <= _nrows, _r++,
+        _ev = Trim(Char(Column(table_obj, "EVENT")[_r]));
+        If(_ev != "" & !Contains(_events, _ev),
+            Insert Into(_events, _ev);
+        );
+    );
+    _events;
+);
+
+Keep_Only_Events = Function({table_obj, events_to_keep},
+    If(!Is_Usable_Table(table_obj), Return());
+    If(N Items(events_to_keep) == 0, Return());
+    table_obj << Select Where(!Contains(events_to_keep, Char(:EVENT)));
+    _n_drop = N Row(table_obj << Get Selected Rows);
+    If(_n_drop > 0,
+        table_obj << Delete Rows;
+    );
+    table_obj << Clear Select;
+);
+
+Metric_Row_Included = Function({table_obj, row_idx},
+    _status = Char(Column(table_obj, "STATUS")[row_idx]);
+    _adder = Column(table_obj, "ADDER_DEFECTS")[row_idx];
+    If(val_hide_status == 1,
+        !(_status == "HIGHFLIER" & _adder <= 0),
+        If(val_hide_status == 2,
+            _status != "HIGHFLIER",
+            If(val_hide_status == 3,
+                _status != "BASELINE",
+                1
+            )
+        )
+    );
+);
+
+Build_Metric_Usable_Events = Function({table_obj, xcol_name, ycol_name}, {Default Local},
+    _events = {};
+    _nrows = Safe_Table_NRows(table_obj);
+    For(_r = 1, _r <= _nrows, _r++,
+        _ev = Trim(Char(Column(table_obj, "EVENT")[_r]));
+        If(
+            _ev != "" &
+            Metric_Row_Included(table_obj, _r) &
+            !Is Missing(Column(table_obj, xcol_name)[_r]) &
+            !Is Missing(Column(table_obj, ycol_name)[_r]) &
+            !Contains(_events, _ev),
+            Insert Into(_events, _ev)
+        );
+    );
+    _events;
+);
+
+Count_Metric_Usable_Rows = Function({table_obj, xcol_name, ycol_name}, {Default Local},
+    _n = 0;
+    _nrows = Safe_Table_NRows(table_obj);
+    For(_r = 1, _r <= _nrows, _r++,
+        If(
+            Metric_Row_Included(table_obj, _r) &
+            !Is Missing(Column(table_obj, xcol_name)[_r]) &
+            !Is Missing(Column(table_obj, ycol_name)[_r]),
+            _n = _n + 1
+        );
+    );
+    _n;
+);
+
+dt_view = dt;
+
+dt_coords << Select Where(:_INCLUDE == 1 & !Is Missing(:WAFER_X_MM) & !Is Missing(:WAFER_Y_MM));
+dt_coords_view = dt_coords << Subset(Selected Rows, Output Table("SS Coords - Event View"), Invisible);
+dt_coords << Clear Select;
+
+_trend_events = Build_Metric_Usable_Events(dt_view, xcol, ycol);
+_var_events = Build_Metric_Usable_Events(dt_view, vcol, ycol);
+_wmap_events = Unique_Events_From_Table(dt_coords_view);
+
+_display_events = {};
+For(_i = 1, _i <= N Items(selected_events), _i++,
+    _ev = selected_events[_i];
+    If(
+        Contains(_trend_events, _ev) &
+        Contains(_var_events, _ev) &
+        Contains(_wmap_events, _ev),
+        Insert Into(_display_events, _ev)
+    );
+);
+
+If(N Items(_display_events) > 0,
+    Keep_Only_Events(dt_view, _display_events);
+    Keep_Only_Events(dt_coords_view, _display_events);
+);
+
+Print(
+    "EVENT usable intersection - trend=" || Char(_trend_events) ||
+    " var=" || Char(_var_events) ||
+    " wmap=" || Char(_wmap_events) ||
+    " display=" || Char(_display_events)
+);
+
+If(Is_Usable_Table(dt_view),
+    dt_view << Color or Mark by Column(Column(legendcol1), Color Theme("JMP Vibrant"(1)), Marker Theme("Solid"), Continuous Scale(0));
+);
+If(Is_Usable_Table(dt_coords_view),
+    Apply_Wafermap_Point_Styling(dt_coords_view);
+);
+
+If(Is_Usable_Table(dt_view) & Is_Usable_Table(dt_coords_view),
+    ::_dt_summary_view = dt_view;
+    ::_dt_coords_view = dt_coords_view;
+    ::_prev_summary_sel = [];
+    ::_sync_handler = ::_dt_summary_view << Make Row State Handler(
+        Function({rows}, {Default Local},
+            _sel = ::_dt_summary_view << Get Selected Rows;
+
+            If(
+                N Row(_sel) == N Row(::_prev_summary_sel) &
+                (N Row(_sel) == 0 | All(_sel == ::_prev_summary_sel)),
+                Return();
+            );
+            ::_prev_summary_sel = _sel;
+
+            If(N Row(_sel) == 0,
+                ::_dt_coords_view << Clear Select;
+                Return();
+            );
+
+            _sel_list = {};
+            For(_j = 1, _j <= N Row(_sel), _j++,
+                _sr = _sel[_j];
+                _orn = Round(Column(::_dt_summary_view, "ORIGINAL_ROW_NUMBER")[_sr], 0);
+                If(!Is Missing(_orn) & !Contains(_sel_list, _orn),
+                    Insert Into(_sel_list, _orn);
+                );
+            );
+
+            ::_dt_coords_view << Clear Select;
+            ::_dt_coords_view << Select Where(
+                Contains(_sel_list, Round(Column(::_dt_coords_view, "ORIGINAL_ROW_NUMBER")[Row()], 0))
+            );
+        )
+    );
+);
+
+_event_keys = selected_events;
+
+As_Report_List = Function({report_obj},
+    If(Is List(report_obj),
+        report_obj,
+        {report_obj}
+    )
+);
+
+Can_Get_Report = Function({obj},
+    _ok = 0;
+    Try(
+        _tmp = obj << Report;
+        _ok = 1;
+    ,
+        _ok = 0;
+    );
+    _ok;
+);
+
+Get_Report_Height = Function({rpt},
+    _h = .;
+    Try(
+        _sz = rpt << Get Size;
+        If(Is List(_sz) & N Items(_sz) >= 2 & _sz[2] > 0,
+            _h = _sz[2];
+        );
+    );
+    Try(_h = rpt << Get Height);
+    If(Is Missing(_h) | _h <= 0,
+        Try(
+            _sz = rpt[FrameBox(1)] << Get Size;
+            If(Is List(_sz) & N Items(_sz) >= 2,
+                _h = _sz[2];
+            );
+        );
+    );
+    _h
+);
+
+Apply_Target_Report_Height = Function({rpt, target_h, log_prefix, event_label, row_label},
+    If(Is Missing(target_h), Return());
+    _current_h = Get_Report_Height(rpt);
+    If(Is Missing(_current_h), Return());
+
+    If(val_debug_layout == 1,
+        Print(
+            log_prefix || " pre EVENT=" || Char(event_label) ||
+            " row=" || Char(row_label) ||
+            " current=" || Char(_current_h) ||
+            " target=" || Char(target_h)
+        );
+    );
+
+    If(_current_h < target_h,
+        _delta_h = target_h - _current_h;
+        Try(rpt << Set Height(target_h));
+        Try(rpt << Append(Spacer Box(Size(1, _delta_h))));
+        If(val_debug_layout == 1,
+            Try(_post_h = Get_Report_Height(rpt), _post_h = .);
+            Print(
+                log_prefix || " post EVENT=" || Char(event_label) ||
+                " row=" || Char(row_label) ||
+                " delta=" || Char(_delta_h) ||
+                " post=" || Char(_post_h)
+            );
+        );
+    ,
+        If(_current_h > target_h,
+            Try(rpt << Set Height(target_h));
+            If(val_debug_layout == 1,
+                Try(_post_h = Get_Report_Height(rpt), _post_h = .);
+                Print(
+                    log_prefix || " shrink EVENT=" || Char(event_label) ||
+                    " row=" || Char(row_label) ||
+                    " delta=" || Char(_current_h - target_h) ||
+                    " post=" || Char(_post_h)
+                );
+            );
+        );
+    );
+);
+
+Align_Event_Panel_Row_Heights = Function({event_label, trend_obj, var_obj, wmap_obj},
+    If(!Can_Get_Report(trend_obj) | !Can_Get_Report(var_obj) | !Can_Get_Report(wmap_obj),
+        Return();
+    );
+    _tr_reports = As_Report_List(trend_obj << Report);
+    _vr_reports = As_Report_List(var_obj << Report);
+    _wr_reports = As_Report_List(wmap_obj << Report);
+
+    _n_rows = Min(N Items(_tr_reports), N Items(_vr_reports), N Items(_wr_reports));
+    For(_ri = 1, _ri <= _n_rows, _ri++,
+        _tr = _tr_reports[_ri];
+        _vr = _vr_reports[_ri];
+        _wr = _wr_reports[_ri];
+
+        _row_label = _tr << Get Title;
+        _target_h = .;
+        Try(_th = Get_Report_Height(_tr), _th = .);
+        Try(_vh = Get_Report_Height(_vr), _vh = .);
+        Try(_wh = Get_Report_Height(_wr), _wh = .);
+        If(!Is Missing(_th), _target_h = _th);
+        If(!Is Missing(_vh),
+            If(Is Missing(_target_h), _target_h = _vh, _target_h = Max(_target_h, _vh));
+        );
+        If(!Is Missing(_wh),
+            If(Is Missing(_target_h), _target_h = _wh, _target_h = Max(_target_h, _wh));
+        );
+        If(Is Missing(_target_h), Continue());
+
+        Apply_Target_Report_Height(_tr, _target_h, "FLEET LAYOUT DEBUG TREND APPLY", event_label, _row_label);
+        Apply_Target_Report_Height(_vr, _target_h, "FLEET LAYOUT DEBUG VAR APPLY", event_label, _row_label);
+        Apply_Target_Report_Height(_wr, _target_h, "FLEET LAYOUT DEBUG WMAP APPLY", event_label, _row_label);
+    );
+);
+
+Format_Trend_Charts = Function({trend_chart_object},
+    If(!Can_Get_Report(trend_chart_object),
+        Return();
+    );
+    _reports = trend_chart_object << Report;
+    If(Is List(_reports),
+        _rlist = _reports,
+        _rlist = {_reports}
+    );
+    For Each({rpt}, _rlist,
+        _current_by_value = Char(rpt << Get Title);
+        _event_value = Word(-1, _current_by_value, "=");
+        rpt << Set Title("TREND EVENT " || _event_value);
+        Try(rpt[BorderBox(3)] << Visibility("Collapse"));
+        rpt[1][Frame Box(1)] << Row Legend(Column(legendcol1),
+            Color(0), Color Theme(""),
+            Marker(0), Marker Theme(""),
+            Continuous Scale(0), Reverse Scale(0), Excluded Rows(0)
+        );
+        rpt[1][Frame Box(1)] << {Marker Drawing Mode("Outlined")};
+        rpt[AxisBox(1)] << Axis Settings({Min(ymin), Max(ymax), Inc(inc), Minor Ticks(0)});
+        Try(If(val_no_splines == 0, rpt[BorderBox(3)] << Visibility("Collapse")));
+        rpt[FrameBox(1)] << Set Width(500);
+    );
+);
+
+Format_Variability_Charts = Function({var_chart_object, ycol_label},
+    If(!Can_Get_Report(var_chart_object),
+        Return();
+    );
+
+    // Match defects behavior: ensure box plots are shown on variability charts.
+    Try(var_chart_object << Show Box Plots(1));
+
+    _reports = var_chart_object << Report;
+    If(Is List(_reports),
+        _rlist = _reports,
+        _rlist = {_reports}
+    );
+    For Each({rpt}, _rlist,
+        _current_by_value = Char(rpt << Get Title);
+        _event_value = Word(-1, _current_by_value, "=");
+        rpt << Set Title("VARIABILITY EVENT " || _event_value);
+        rpt[1][OutlineBox(1)] << Set Title("ANALYSIS");
+        rpt[1][TextBox(2)] << Set Text("");
+        Try(rpt[BorderBox(3)] << Visibility("Collapse"));
+        rpt[1][Frame Box(1)] << {Marker Drawing Mode("Outlined")};
+        rpt[AxisBox(1)] << Axis Settings({Min(ymin), Max(ymax), Inc(inc), Minor Ticks(0)});
+        Try(axisbox = rpt[Axis Box(1)]; axisbox << Show Major Grid(1); axisbox << Show Minor Grid(1));
+        Try(axisbox = rpt[Axis Box(2)]; axisbox << Show Major Grid(1); axisbox << Show Minor Grid(1));
+
+        // Force box-plot strokes to black and slightly thicker for readability.
+        Try(
+            _box_segs = rpt[FrameBox(1)] << Find Segs;
+            _boxplot_segs = Filter Each({seg}, (_box_segs), (seg << Class Name) == "BoxPlotSeg");
+            _boxplot_segs << Set Line Color("Black");
+            _boxplot_segs << Set Line Width(2);
+        );
+
+        Try(varchart_groups = rpt[AxisBox(2)] << Get Max, varchart_groups = .);
+        If(!Is Missing(varchart_groups) & varchart_groups > 0,
+            varchart_width = varchart_groups * varchart_group_width;
+            Try(framebox = rpt[FrameBox(1)]; framebox << Set Width(varchart_width));
+        ,
+            Try(rpt[FrameBox(1)] << Set Width(500));
+        );
+        Try(rpt[FrameBox(1)] << Set Height(230));
+        Try(varchart_axisbox = rpt[AxisBox(2)]; varchart_axisbox << Set Height(80));
+    );
+);
+
+Format_Wafermap = Function({wmap_obj},
+    If(!Can_Get_Report(wmap_obj),
+        Return();
+    );
+    _reports = wmap_obj << Report;
+    If(Is List(_reports),
+        _rlist = _reports,
+        _rlist = {_reports}
+    );
+    For Each({rpt}, _rlist,
+        _current_by_value = Char(rpt << Get Title);
+        _event_value = Word(-1, _current_by_value, "=");
+        rpt << Set Title("WAFERMAP EVENT " || _event_value);
+        rpt[1][FrameBox(1)] << Frame Size(330, 330);
+        rpt[1][AxisBox(1)] << Axis Settings({Min(-165), Max(165), Inc(50), Minor Ticks(0)});
+        rpt[1][AxisBox(2)] << Axis Settings({Min(-165), Max(165), Inc(50), Minor Ticks(0)});
+        rpt[1][FrameBox(1)] << Add Graphics Script(2,
+            Pen Color("Dark Gray");
+            Pen Size(2);
+            Oval(-150, -150, 150, 150);
+        );
+        // Intentionally no wafermap legends in fleet report.
+        rpt[1][FrameBox(1)] << {Marker Drawing Mode("Normal")};
+    );
+);
+
+_view_rows = Count_Metric_Usable_Rows(dt_view, xcol, ycol);
+_var_rows = Count_Metric_Usable_Rows(dt_view, vcol, ycol);
+_coords_rows = Safe_Table_NRows(dt_coords_view);
+
+If(_view_rows == 0 | _var_rows == 0 | _coords_rows == 0,
+    _main_body = Text Box(
+        "No rows after filters for requested EVENT set. " ||
+        "Counts trend/var/wmap=(" || Char(_view_rows) || "," || Char(_var_rows) || "," || Char(_coords_rows) || ")"
+    );
+,
+    _main_body = H List Box(
+        fg_trend = dt_view << FitGroup(
+            trend = If(val_no_splines == 1,
+                dt_view << Bivariate(
+                    Y(Column(ycol)), X(Column(xcol)), By(Column(bycol)),
+                    GroupBy(Column(legendcol1))
+                ),
+                dt_view << Bivariate(
+                    Y(Column(ycol)), X(Column(xcol)), By(Column(bycol)),
+                    GroupBy(Column(legendcol1)),
+                    Fit Spline(0.1, Standardized, {Report(0), Line Width(0.1)})
+                )
+            ),
+            SendToReport(Dispatch({}, "Fit Group", OutlineBox, {Set Title("TREND BY EVENT")}))
+        ),
+        fg_wmap = dt_coords_view << FitGroup(
+            wmap = dt_coords_view << Bivariate(Y(:WAFER_Y_MM), X(:WAFER_X_MM), By(:EVENT)),
+            SendToReport(Dispatch({}, "Fit Group", OutlineBox, {Set Title("WAFERMAP BY EVENT")}))
+        ),
+        fg_var = dt_view << FitGroup(
+            var = dt_view << Variability Chart(Y(Column(ycol)), X(Column(vcol)), By(Column(bycol))),
+            SendToReport(Dispatch({}, "Fit Group", OutlineBox, {Set Title("VARIABILITY BY EVENT")}))
+        )
+    );
+
+    Try(Format_Trend_Charts(trend));
+    Try(Format_Wafermap(wmap));
+    Try(Format_Variability_Charts(var, "ADDER DEFECTS"));
+);
+
+NCDD_win = New Window(window_title || " - GroupBy " || legendcol1,
+    V List Box(
+        H List Box(
+            Button Box("Open SurfScan Images Folder",
+                Run Program(
+                    Executable("cmd.exe"),
+                    Options({"/c", "start", "", images_folder})
+                );
+            ),
+            Text Box("Source: " || selected_source_name)
+        ),
+        _main_body
+    )
+);
+
+NCDD_win << Maximize Window;
+
+Wait(0);
+If(_view_rows > 0 & _var_rows > 0 & _coords_rows > 0,
+    Try(Align_Event_Panel_Row_Heights("ALL", trend, var, wmap));
+);
+
+log_path = "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\backups\SURF_SCAN_FLEET_log.txt";
+track_usage = Function({},
+    Try(
+        timestamp = Char(Today());
+        log_entry = timestamp || " - Surf scan fleet script usage" || "\!n";
+        If(File Exists(log_path),
+            current_content = Load Text File(log_path);
+            Save Text File(log_path, current_content || log_entry);
+        ,
+            Save Text File(log_path, log_entry);
+        );
+    );
+);
+track_usage();

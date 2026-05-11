@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-04-28T16:28:45.792581",
+  "metrics": {
+    "path": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_METRICS.csv",
+    "rows": 7798,
+    "event_wafer_non_null_before": 7798,
+    "event_wafer_non_null_after": 7798
+  },
+  "coordinates": {
+    "path": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_COORDINATES.csv",
+    "rows": 110887,
+    "event_wafer_non_null_before": 110887,
+    "event_wafer_non_null_after": 110887
+  },
+  "sample": {
+    "lookback_days": 90,
+    "generated_at": "2026-04-28T16:29:29.986845",
+    "rows_metrics_sample": 2456,
+    "rows_coords_sample": 72921,
+    "missing_slot_metrics": 2456,
+    "missing_event_wafer_metrics": 0,
+    "missing_slot_coords": 0,
+    "missing_event_wafer_coords": 0,
+    "metrics_output": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SAMPLES_90D\\SS_METRICS_EVENT_WAFER_SAMPLE_90D.csv",
+    "coords_output": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SAMPLES_90D\\SS_COORDINATES_EVENT_WAFER_SAMPLE_90D.csv",
+    "summary_output": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SAMPLES_90D\\SS_EVENT_WAFER_SAMPLE_90D_SUMMARY.json"
+  }
+}

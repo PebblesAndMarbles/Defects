@@ -1,0 +1,98 @@
+Names Default To Here( 1 );
+
+///////USER INPUT REQUIRED:  TIME AND SUBENTITY COLUMN NAMES.
+time_column_name = "INSPECTION_TIME";
+subentity_column_name = "PRIMARY_EQUIP";
+
+
+
+//ALSO WORKS FOR COLUMNS WITH SPECIAL CHARS, E.G. @ SYMBOLS
+/*time_column_name = "END_TIME@CHAMBER@NTSC@Process-1@ETCHER@E_8M6_HM_ETCH";
+subentity_column_name = "SUBENTITY@NTSC@Process-1@AME@E_8M6_HM_ETCH";*/
+
+
+
+//COLUMNS CREATED WITH ON/OFF STATUS W.R.T PILOT TURN-ON DATES
+cols_to_create={"CCMR2","ICCR2","GF","CV","SRCIP","TS"};
+//COMBINED PILOT_STATUS COLUMN ALSO GETS CREATED.
+
+
+
+dt=currentdatatable();
+
+pilot_on_time_dt = Open(
+    "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\BE_AME_PILOT_TURN_ON_DATES.csv",
+);
+
+
+
+
+For(col_idx = 1, col_idx <= N Items(cols_to_create), col_idx++,
+    col_to_create = cols_to_create[col_idx];
+
+    // Create a new column in the main data table
+    dt << New Column(col_to_create, Character, "Nominal");
+
+    // Get the number of rows in the main data table
+    n_rows = dt << Get Rows Where(1);
+    n_rows = N Items(n_rows);
+
+    // Loop through each row in the main data table
+    For(i = 1, i <= n_rows, i++,
+        current_subentity = As Column(dt, subentity_column_name)[i];
+        current_data_time = As Column(dt, time_column_name)[i];
+        pilot_on_time_dt << Current Data Table();
+        apc_rows = pilot_on_time_dt << Get Rows Where(:SUBENTITY == current_subentity);
+        dt << Current Data Table();
+        If(N Items(apc_rows) > 0,
+            apc_time = Column(pilot_on_time_dt, col_to_create)[apc_rows[1]];
+            dt << Current Data Table(); // Switch back to original table
+
+            If(Is Missing(apc_time),
+                As Column(dt,col_to_create)[i] = "OFF",
+                If(apc_time >= current_data_time,
+                    As Column(dt,col_to_create)[i] = "OFF",
+                    As Column(dt,col_to_create)[i] = "ON"
+                )
+            );
+        ,
+            As Column(dt,col_to_create)[i] = "OFF";
+        );
+    );
+);
+
+
+
+Close(pilot_on_time_dt, No Save);
+
+
+
+
+
+
+// Create new column with formula - Updated to handle SRCIP priority
+dt << New Column("PILOT_STATUS", Character, "Nominal", 
+    Formula(
+        // Check SRCIP first - if ON, return only "SRCIP"
+        If(:SRCIP == "ON", "SRCIP",
+            // Otherwise, use the original logic
+            (
+                // First determine base status from CCMR2 and ICCR2
+                base_status = If(:CCMR2 == "OFF" & :ICCR2 == "OFF", "POR",
+                    :CCMR2 == "ON" & :ICCR2 == "OFF", "CCMR2",
+                    :CCMR2 == "OFF" & :ICCR2 == "ON", "ICCR2",
+                    :CCMR2 == "ON" & :ICCR2 == "ON", "CCMR2+ICCR2",
+                    "ERROR" // fallback case
+                );
+                
+                // Then add CV and/or GF suffixes
+                cv_suffix = If(:CV == "ON", "+CV", "");
+                gf_suffix = If(:GF == "ON", "+GF", "");
+                
+                // Combine base status with suffixes
+                final_status = base_status || cv_suffix || gf_suffix;
+                final_status
+            )
+        )
+    )
+);

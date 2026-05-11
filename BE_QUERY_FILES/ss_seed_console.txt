@@ -1,0 +1,160 @@
+onfig/etch/AME/tbatson/Defects/BE/BE_QUERY_FILES/surf_scan_seed.py"
+[surf] Running legacy SS coordinate query with consolidated outputs...
+  PROCESS_EQUIP_ID filter: ['AME401_PM1', 'AME401_PM2', 'AME401_PM3', 'AME403_PM1', 'AME403_PM2', 'AME403_PM3', 'AME403_PM4', 'AME403_PM5', 'AME403_PM6', 'AME409_PM1', 'AME409_PM2', 'AME409_PM3', 'AME409_PM4', 'AME409_PM5', 'AME409_PM6', 'AME411_PM1', 'AME411_PM2', 'AME411_PM3', 'AME411_PM4', 'AME417_PM1', 'AME417_PM2', 'AME417_PM3', 'AME417_PM4', 'AME417_PM5', 'AME417_PM6', 'AME419_PM3', 'AME419_PM4', 'AME419_PM5', 'AME419_PM6', 'AME421_PM1', 'AME421_PM2', 'AME421_PM3', 'AME421_PM4', 'AME421_PM5', 'AME421_PM6', 'AME423_PM1', 'AME423_PM2', 'AME423_PM3', 'AME423_PM4', 'AME423_PM5', 'AME423_PM6', 'AME425_PM1', 'AME425_PM2', 'AME425_PM3', 'AME425_PM4', 'AME425_PM5', 'AME425_PM6', 'AME427_PM1', 'AME427_PM2', 'AME427_PM3', 'AME427_PM4', 'AME427_PM5', 'AME427_PM6']
+  Lookback window: 730 days from today
+
+Step 1: Querying INSP_WAFER_SUMMARY
+  Layer filter: ['6BARE_L029_PST']
+
+--- LAYER_ID distribution for selected scribe IDs ---
+           LAYER_ID    CNT
+     6BARE_L024_PRE 7487.0
+     6BARE_L029_PST 6337.0
+  MAMEBARE_L024_PRE 1575.0
+  MAMEBARE_L029_PST 1323.0
+   6BARE_L024_PRE_H 1174.0
+MAMEBARE_L024_PRE_H  294.0
+  MAMEBARE_H015_PRE  180.0
+  MAMEBARE_M020_PST  142.0
+      6BACKSIDE-PRE  141.0
+      6BACKSIDE-PST   11.0
+    MFGBACKSIDE-PST    5.0
+  6BARESIO_E029_PST    1.0
+
+  [INSP_WAFER_SUMMARY] chamber=['AME401_PM1', 'AME401_PM2', 'AME401_PM3', 'AME403_PM1', 'AME403_PM2', 'AME403_PM3', 'AME403_PM4', 'AME403_PM5', 'AME403_PM6', 'AME409_PM1', 'AME409_PM2', 'AME409_PM3', 'AME409_PM4', 'AME409_PM5', 'AME409_PM6', 'AME411_PM1', 'AME411_PM2', 'AME411_PM3', 'AME411_PM4', 'AME417_PM1', 'AME417_PM2', 'AME417_PM3', 'AME417_PM4', 'AME417_PM5', 'AME417_PM6', 'AME419_PM3', 'AME419_PM4', 'AME419_PM5', 'AME419_PM6', 'AME421_PM1', 'AME421_PM2', 'AME421_PM3', 'AME421_PM4', 'AME421_PM5', 'AME421_PM6', 'AME423_PM1', 'AME423_PM2', 'AME423_PM3', 'AME423_PM4', 'AME423_PM5', 'AME423_PM6', 'AME425_PM1', 'AME425_PM2', 'AME425_PM3', 'AME425_PM4', 'AME425_PM5', 'AME425_PM6', 'AME427_PM1', 'AME427_PM2', 'AME427_PM3', 'AME427_PM4', 'AME427_PM5', 'AME427_PM6'], layer=['6BARE_L029_PST'], lookback=730d
+    -> 6337 rows
+  Total PST inspection records: 6337
+  Unique LAYER_IDs found: ['6BARE_L029_PST']
+  Wafers per chamber-lot run (distribution): {1: 2208, 3: 805, 5: 3, 6: 1, 8: 1, 10: 166, 25: 1}
+
+Step 1b: Querying SEG INSP_WAFER_SUMMARY
+  SEG layer filter: ['MAMEBARE_L029_PST']
+  [INSP_WAFER_SUMMARY] chamber=['AME401_PM1', 'AME401_PM2', 'AME401_PM3', 'AME403_PM1', 'AME403_PM2', 'AME403_PM3', 'AME403_PM4', 'AME403_PM5', 'AME403_PM6', 'AME409_PM1', 'AME409_PM2', 'AME409_PM3', 'AME409_PM4', 'AME409_PM5', 'AME409_PM6', 'AME411_PM1', 'AME411_PM2', 'AME411_PM3', 'AME411_PM4', 'AME417_PM1', 'AME417_PM2', 'AME417_PM3', 'AME417_PM4', 'AME417_PM5', 'AME417_PM6', 'AME419_PM3', 'AME419_PM4', 'AME419_PM5', 'AME419_PM6', 'AME421_PM1', 'AME421_PM2', 'AME421_PM3', 'AME421_PM4', 'AME421_PM5', 'AME421_PM6', 'AME423_PM1', 'AME423_PM2', 'AME423_PM3', 'AME423_PM4', 'AME423_PM5', 'AME423_PM6', 'AME425_PM1', 'AME425_PM2', 'AME425_PM3', 'AME425_PM4', 'AME425_PM5', 'AME425_PM6', 'AME427_PM1', 'AME427_PM2', 'AME427_PM3', 'AME427_PM4', 'AME427_PM5', 'AME427_PM6'], layer=['MAMEBARE_L029_PST'], lookback=730d
+    -> 1323 rows
+  1323 SEG inspection records; recipe distribution: {'M_GO_ALL_SEG': 189, 'M_GO_C_SEG': 189, 'M_GO_E_SEG': 189, 'M_GO_M_SEG': 189, 'M_LIFT10X_SEG': 189, 'M_MECH_CYCLE_SEG': 189, 'M_SFV10X_SEG': 189}
+
+Step 2: Querying INSP_DEFECT for 801 PST wafer inspections (6337 rows)
+  [INSP_DEFECT] chunk 1: 500 wafer inspections...
+    -> 2048 defect records
+  [INSP_DEFECT] chunk 2: 500 wafer inspections...
+    -> 1695 defect records
+  [INSP_DEFECT] chunk 3: 500 wafer inspections...
+    -> 2154 defect records
+  [INSP_DEFECT] chunk 4: 500 wafer inspections...
+    -> 9767 defect records
+  [INSP_DEFECT] chunk 5: 500 wafer inspections...
+    -> 3095 defect records
+  [INSP_DEFECT] chunk 6: 500 wafer inspections...
+    -> 4444 defect records
+  [INSP_DEFECT] chunk 7: 500 wafer inspections...
+    -> 1059 defect records
+  [INSP_DEFECT] chunk 8: 500 wafer inspections...
+    -> 1731 defect records
+  [INSP_DEFECT] chunk 9: 500 wafer inspections...
+    -> 2924 defect records
+  [INSP_DEFECT] chunk 10: 500 wafer inspections...
+    -> 1862 defect records
+  [INSP_DEFECT] chunk 11: 500 wafer inspections...
+    -> 911 defect records
+  [INSP_DEFECT] chunk 12: 500 wafer inspections...
+    -> 1038 defect records
+  [INSP_DEFECT] chunk 13: 337 wafer inspections...
+    -> 412 defect records
+
+Total adder defect records: 33140
+
+Step 2b: Querying INSP_DEFECT for 497 SEG wafer inspections (1323 rows)
+  [INSP_DEFECT] chunk 1: 500 wafer inspections...
+    -> 9124 defect records
+  [INSP_DEFECT] chunk 2: 500 wafer inspections...
+    -> 12638 defect records
+  [INSP_DEFECT] chunk 3: 323 wafer inspections...
+    -> 55179 defect records
+  Combined SS + SEG defect records: 110081
+
+Step 2b: Querying INSP_ELEMENT (EDX) for 7354 imaged defects across 1192 inspection event(s)...
+  [INSP_ELEMENT] chunk 1: 50 inspection event(s)...
+    -> 319 EDX records
+  [INSP_ELEMENT] chunk 2: 50 inspection event(s)...
+    -> 198 EDX records
+  [INSP_ELEMENT] chunk 3: 50 inspection event(s)...
+    -> 295 EDX records
+  [INSP_ELEMENT] chunk 4: 50 inspection event(s)...
+    -> 319 EDX records
+  [INSP_ELEMENT] chunk 5: 50 inspection event(s)...
+    -> 253 EDX records
+  [INSP_ELEMENT] chunk 6: 50 inspection event(s)...
+    -> 239 EDX records
+  [INSP_ELEMENT] chunk 7: 50 inspection event(s)...
+    -> 228 EDX records
+  [INSP_ELEMENT] chunk 8: 50 inspection event(s)...
+    -> 170 EDX records
+  [INSP_ELEMENT] chunk 9: 50 inspection event(s)...
+    -> 228 EDX records
+  [INSP_ELEMENT] chunk 10: 50 inspection event(s)...
+    -> 386 EDX records
+  [INSP_ELEMENT] chunk 11: 50 inspection event(s)...
+    -> 343 EDX records
+  [INSP_ELEMENT] chunk 12: 50 inspection event(s)...
+    -> 214 EDX records
+  [INSP_ELEMENT] chunk 13: 50 inspection event(s)...
+    -> 265 EDX records
+  [INSP_ELEMENT] chunk 14: 50 inspection event(s)...
+    -> 328 EDX records
+  [INSP_ELEMENT] chunk 15: 50 inspection event(s)...
+    -> 256 EDX records
+  [INSP_ELEMENT] chunk 16: 50 inspection event(s)...
+    -> 280 EDX records
+  [INSP_ELEMENT] chunk 17: 50 inspection event(s)...
+    -> 286 EDX records
+  [INSP_ELEMENT] chunk 18: 50 inspection event(s)...
+    -> 270 EDX records
+  [INSP_ELEMENT] chunk 19: 50 inspection event(s)...
+    -> 219 EDX records
+  [INSP_ELEMENT] chunk 20: 50 inspection event(s)...
+    -> 288 EDX records
+  [INSP_ELEMENT] chunk 21: 50 inspection event(s)...
+    -> 247 EDX records
+  [INSP_ELEMENT] chunk 22: 50 inspection event(s)...
+    -> 341 EDX records
+  [INSP_ELEMENT] chunk 23: 50 inspection event(s)...
+    -> 309 EDX records
+  [INSP_ELEMENT] chunk 24: 42 inspection event(s)...
+    -> 172 EDX records
+\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE_60day\BE_60day_QUERY_FILES\SS_COORDINATES_QUERY.py:410: FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
+  return pd.concat(all_chunks, ignore_index=True)
+  Saved 6453 EDX records (87 columns) -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\surf_scan\SS_EDX.csv
+  Merged 84 EDX_ELEM columns into main defect table.
+Saved 7660 records -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\surf_scan\SS_METRICS.csv
+Saved 110081 records -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\surf_scan\SS_COORDINATES.csv
+
+Sample output (first 10 rows):
+   YYMM     INSPECTION_TIME PRIMARY_EQUIP EVENT ACTUAL_LOT      WAFER_ID DEFECT_ID  WAFER_X_MM  WAFER_Y_MM  SIZE_D_UM         CLASS       FINEBIN  N_DEFECTS  ADDER_DEFECTS     STATUS           LAYER SCAN_TYPE  WAFER_KEY     LOT7  IMAGE_COUNT  EDX_ELEM6_CARBON  EDX_ELEM7_NITROGEN  EDX_ELEM14_SILICON  EDX_ELEM13_ALUMINIUM  EDX_ELEM1_HYDROGEN  EDX_ELEM2_HELIUM  EDX_ELEM3_LITHIUM  EDX_ELEM4_BERYLLIUM  EDX_ELEM5_BORON  EDX_ELEM9_FLUORINE  EDX_ELEM10_NEON  EDX_ELEM11_SODIUM  EDX_ELEM12_MAGNESIUM  EDX_ELEM15_PHOSPHORUS  EDX_ELEM16_SULFUR  EDX_ELEM17_CHLORINE  EDX_ELEM18_ARGON  EDX_ELEM19_POTASSIUM  EDX_ELEM20_CALCIUM  EDX_ELEM21_SCANDIUM  EDX_ELEM22_TITANIUM  EDX_ELEM23_VANADIUM  EDX_ELEM24_CHROMIUM  EDX_ELEM25_MANGANESE  EDX_ELEM26_IRON  EDX_ELEM27_COBALT  EDX_ELEM28_NICKEL  EDX_ELEM29_COPPER  EDX_ELEM30_ZINC  EDX_ELEM31_GALLIUM  EDX_ELEM32_GERMANIUM  EDX_ELEM33_ARSENIC  EDX_ELEM34_SELENIUM  EDX_ELEM35_BROMINE  EDX_ELEM36_KRYPTON  EDX_ELEM37_RUBIDIUM  EDX_ELEM38_STRONTIUM  EDX_ELEM39_YTTRIUM  EDX_ELEM40_ZIRCONIUM  EDX_ELEM41_NIOBIUM  EDX_ELEM42_MOLYBDENUM  EDX_ELEM43_TECHNETIUM  EDX_ELEM44_RUTHENIUM  EDX_ELEM45_RHODIUM  EDX_ELEM46_PALLADIUM  EDX_ELEM47_SILVER  EDX_ELEM48_CADMIUM  EDX_ELEM49_INDIUM  EDX_ELEM50_TIN  EDX_ELEM51_ANTIMONY  EDX_ELEM52_TELLURIUM  EDX_ELEM53_IODINE  EDX_ELEM54_XENON  EDX_ELEM55_CAESIUM  EDX_ELEM56_BARIUM  EDX_ELEM57_LANTHANUM  EDX_ELEM58_CERIUM  EDX_ELEM59_PRASEODYMIUM  EDX_ELEM60_NEODYMIUM  EDX_ELEM61_PROMETHIUM  EDX_ELEM62_SAMARIUM  EDX_ELEM63_EUROPIUM  EDX_ELEM64_GADOLINIUM  EDX_ELEM65_TERBIUM  EDX_ELEM66_DYSPROSIUM  EDX_ELEM67_HOLMIUM  EDX_ELEM68_ERBIUM  EDX_ELEM69_THULIUM  EDX_ELEM70_YTTEBIUM  EDX_ELEM71_LUTETIUM  EDX_ELEM72_HAFNIUM  EDX_ELEM73_TANTALUM  EDX_ELEM74_TUNGSTEN  EDX_ELEM75_RHENIUM  EDX_ELEM76_OSMIUM  EDX_ELEM77_IRIDIUM  EDX_ELEM78_PLATINUM  EDX_ELEM79_GOLD  EDX_ELEM80_MERCURY  EDX_ELEM81_THALLIUM  EDX_ELEM82_LEAD  EDX_ELEM83_BISMUTH  EDX_ELEM84_POLONIUM  EDX_ELEM8_OXYGEN  N_WAFERS_IN_RUN
+0  2405 2024-05-29 01:03:20    AME401_PM1   SS1   D317TJX0  3HPR2023SLH0         4  114.647061  -39.384690      0.070  UNCLASSIFIED  UNCLASSIFIED         41             37  HIGHFLIER  6BARE_L029_PST      POST    4435877  D317TJX            0               NaN                 NaN                 NaN                   NaN                 NaN               NaN                NaN                  NaN              NaN                 NaN              NaN                NaN                   NaN                    NaN                NaN                  NaN               NaN                   NaN                 NaN                  NaN                  NaN                  NaN                  NaN                   NaN              NaN                NaN                NaN                NaN              NaN                 NaN                   NaN                 NaN                  NaN                 NaN                 NaN                  NaN                   NaN                 NaN                   NaN                 NaN                    NaN                    NaN                   NaN                 NaN                   NaN                NaN                 NaN                NaN             NaN                  NaN                   NaN                NaN               NaN                 NaN                NaN                   NaN                NaN                      NaN                   NaN                    NaN                  NaN                  NaN                    NaN                 NaN                    NaN                 NaN                NaN                 NaN                  NaN                  NaN                 NaN                  NaN                  NaN                 NaN                NaN                 NaN                  NaN              NaN                 NaN                  NaN              NaN                 NaN                  NaN               NaN                3
+1  2405 2024-05-29 01:03:20    AME401_PM1   SS1   D317TJX0  3HPR2023SLH0         2  109.494112  -31.628390    100.000  UNCLASSIFIED  UNCLASSIFIED         41             37  HIGHFLIER  6BARE_L029_PST      POST    4435877  D317TJX            0               NaN                 NaN                 NaN                   NaN                 NaN               NaN                NaN                  NaN              NaN                 NaN              NaN                NaN                   NaN                    NaN                NaN                  NaN               NaN                   NaN                 NaN                  NaN                  NaN                  NaN                  NaN                   NaN              NaN                NaN                NaN                NaN              NaN                 NaN                   NaN                 NaN                  NaN                 NaN                 NaN                  NaN                   NaN                 NaN                   NaN                 NaN                    NaN                    NaN                   NaN                 NaN                   NaN                NaN                 NaN                NaN             NaN                  NaN                   NaN                NaN               NaN                 NaN                NaN                   NaN                NaN                      NaN                   NaN                    NaN                  NaN                  NaN                    NaN                 NaN                    NaN                 NaN                NaN                 NaN                  NaN                  NaN                 NaN                  NaN                  NaN                 NaN                NaN                 NaN                  NaN              NaN                 NaN                  NaN              NaN                 NaN                  NaN               NaN                3
+2  2405 2024-05-29 01:03:20    AME401_PM1   SS1   D317TJX0  3HPR2023SLH0         3  112.669554  -39.892126    100.000  UNCLASSIFIED  UNCLASSIFIED         41             37  HIGHFLIER  6BARE_L029_PST      POST    4435877  D317TJX            0               NaN                 NaN                 NaN                   NaN                 NaN               NaN                NaN                  NaN              NaN                 NaN              NaN                NaN                   NaN                    NaN                NaN                  NaN               NaN                   NaN                 NaN                  NaN                  NaN                  NaN                  NaN                   NaN              NaN                NaN                NaN                NaN              NaN                 NaN                   NaN                 NaN                  NaN                 NaN                 NaN                  NaN                   NaN                 NaN                   NaN                 NaN                    NaN                    NaN                   NaN                 NaN                   NaN                NaN                 NaN                NaN             NaN                  NaN                   NaN                NaN               NaN                 NaN                NaN                   NaN                NaN                      NaN                   NaN                    NaN                  NaN                  NaN                    NaN                 NaN                    NaN                 NaN                NaN                 NaN                  NaN                  NaN                 NaN                  NaN                  NaN                 NaN                NaN                 NaN                  NaN              NaN                 NaN                  NaN              NaN                 NaN                  NaN               NaN                3
+3  2405 2024-05-29 01:03:20    AME401_PM1   SS1   D317TJX0  3HPR2023SLH0         5  114.914162  -40.147449      0.129  UNCLASSIFIED  UNCLASSIFIED         41             37  HIGHFLIER  6BARE_L029_PST      POST    4435877  D317TJX            0               NaN                 NaN                 NaN                   NaN                 NaN               NaN                NaN                  NaN              NaN                 NaN              NaN                NaN                   NaN                    NaN                NaN                  NaN               NaN                   NaN                 NaN                  NaN                  NaN                  NaN                  NaN                   NaN              NaN                NaN                NaN                NaN              NaN                 NaN                   NaN                 NaN                  NaN                 NaN                 NaN                  NaN                   NaN                 NaN                   NaN                 NaN                    NaN                    NaN                   NaN                 NaN                   NaN                NaN                 NaN                NaN             NaN                  NaN                   NaN                NaN               NaN                 NaN                NaN                   NaN                NaN                      NaN                   NaN                    NaN                  NaN                  NaN                    NaN                 NaN                    NaN                 NaN                NaN                 NaN                  NaN                  NaN                 NaN                  NaN                  NaN                 NaN                NaN                 NaN                  NaN              NaN                 NaN                  NaN              NaN                 NaN                  NaN               NaN                3
+4  2405 2024-05-29 01:03:20    AME401_PM1   SS1   D317TJX0  3HPR2023SLH0         6  104.325966  -63.307756      0.114  UNCLASSIFIED  UNCLASSIFIED         41             37  HIGHFLIER  6BARE_L029_PST      POST    4435877  D317TJX            0               NaN                 NaN                 NaN                   NaN                 NaN               NaN                NaN                  NaN              NaN                 NaN              NaN                NaN                   NaN                    NaN                NaN                  NaN               NaN                   NaN                 NaN                  NaN                  NaN                  NaN                  NaN                   NaN              NaN                NaN                NaN                NaN              NaN                 NaN                   NaN                 NaN                  NaN                 NaN                 NaN                  NaN                   NaN                 NaN                   NaN                 NaN                    NaN                    NaN                   NaN                 NaN                   NaN                NaN                 NaN                NaN             NaN                  NaN                   NaN                NaN               NaN                 NaN                NaN                   NaN                NaN                      NaN                   NaN                    NaN                  NaN                  NaN                    NaN                 NaN                    NaN                 NaN                NaN                 NaN                  NaN                  NaN                 NaN                  NaN                  NaN                 NaN                NaN                 NaN                  NaN              NaN                 NaN                  NaN              NaN                 NaN                  NaN               NaN                3
+5  2405 2024-05-29 01:03:20    AME401_PM1   SS1   D317TJX0  3HPR2023SLH0         7  121.454607  -19.948776      0.121  UNCLASSIFIED  UNCLASSIFIED         41             37  HIGHFLIER  6BARE_L029_PST      POST    4435877  D317TJX            0               NaN                 NaN                 NaN                   NaN                 NaN               NaN                NaN                  NaN              NaN                 NaN              NaN                NaN                   NaN                    NaN                NaN                  NaN               NaN                   NaN                 NaN                  NaN                  NaN                  NaN                  NaN                   NaN              NaN                NaN                NaN                NaN              NaN                 NaN                   NaN                 NaN                  NaN                 NaN                 NaN                  NaN                   NaN                 NaN                   NaN                 NaN                    NaN                    NaN                   NaN                 NaN                   NaN                NaN                 NaN                NaN             NaN                  NaN                   NaN                NaN               NaN                 NaN                NaN                   NaN                NaN                      NaN                   NaN                    NaN                  NaN                  NaN                    NaN                 NaN                    NaN                 NaN                NaN                 NaN                  NaN                  NaN                 NaN                  NaN                  NaN                 NaN                NaN                 NaN                  NaN              NaN                 NaN                  NaN              NaN                 NaN                  NaN               NaN                3
+6  2405 2024-05-29 01:03:20    AME401_PM1   SS1   D317TJX0  3HPR2023SLH0         8  125.956902  -15.987844      0.091  UNCLASSIFIED  UNCLASSIFIED         41             37  HIGHFLIER  6BARE_L029_PST      POST    4435877  D317TJX            0               NaN                 NaN                 NaN                   NaN                 NaN               NaN                NaN                  NaN              NaN                 NaN              NaN                NaN                   NaN                    NaN                NaN                  NaN               NaN                   NaN                 NaN                  NaN                  NaN                  NaN                  NaN                   NaN              NaN                NaN                NaN                NaN              NaN                 NaN                   NaN                 NaN                  NaN                 NaN                 NaN                  NaN                   NaN                 NaN                   NaN                 NaN                    NaN                    NaN                   NaN                 NaN                   NaN                NaN                 NaN                NaN             NaN                  NaN                   NaN                NaN               NaN                 NaN                NaN                   NaN                NaN                      NaN                   NaN                    NaN                  NaN                  NaN                    NaN                 NaN                    NaN                 NaN                NaN                 NaN                  NaN                  NaN                 NaN                  NaN                  NaN                 NaN                NaN                 NaN                  NaN              NaN                 NaN                  NaN              NaN                 NaN                  NaN               NaN                3
+7  2405 2024-05-29 01:03:20    AME401_PM1   SS1   D317TJX0  3HPR2023SLH0         9  105.121612  -73.468521      0.062  UNCLASSIFIED  UNCLASSIFIED         41             37  HIGHFLIER  6BARE_L029_PST      POST    4435877  D317TJX            0               NaN                 NaN                 NaN                   NaN                 NaN               NaN                NaN                  NaN              NaN                 NaN              NaN                NaN                   NaN                    NaN                NaN                  NaN               NaN                   NaN                 NaN                  NaN                  NaN                  NaN                  NaN                   NaN              NaN                NaN                NaN                NaN              NaN                 NaN                   NaN                 NaN                  NaN                 NaN                 NaN                  NaN                   NaN                 NaN                   NaN                 NaN                    NaN                    NaN                   NaN                 NaN                   NaN                NaN                 NaN                NaN             NaN                  NaN                   NaN                NaN               NaN                 NaN                NaN                   NaN                NaN                      NaN                   NaN                    NaN                  NaN                  NaN                    NaN                 NaN                    NaN                 NaN                NaN                 NaN                  NaN                  NaN                 NaN                  NaN                  NaN                 NaN                NaN                 NaN                  NaN              NaN                 NaN                  NaN              NaN                 NaN                  NaN               NaN                3
+8  2405 2024-05-29 01:03:20    AME401_PM1   SS1   D317TJX0  3HPR2023SLH0        10  124.552869  -32.758623      0.132  UNCLASSIFIED  UNCLASSIFIED         41             37  HIGHFLIER  6BARE_L029_PST      POST    4435877  D317TJX            0               NaN                 NaN                 NaN                   NaN                 NaN               NaN                NaN                  NaN              NaN                 NaN              NaN                NaN                   NaN                    NaN                NaN                  NaN               NaN                   NaN                 NaN                  NaN                  NaN                  NaN                  NaN                   NaN              NaN                NaN                NaN                NaN              NaN                 NaN                   NaN                 NaN                  NaN                 NaN                 NaN                  NaN                   NaN                 NaN                   NaN                 NaN                    NaN                    NaN                   NaN                 NaN                   NaN                NaN                 NaN                NaN             NaN                  NaN                   NaN                NaN               NaN                 NaN                NaN                   NaN                NaN                      NaN                   NaN                    NaN                  NaN                  NaN                    NaN                 NaN                    NaN                 NaN                NaN                 NaN                  NaN                  NaN                 NaN                  NaN                  NaN                 NaN                NaN                 NaN                  NaN              NaN                 NaN                  NaN              NaN                 NaN                  NaN               NaN                3
+9  2405 2024-05-29 01:03:20    AME401_PM1   SS1   D317TJX0  3HPR2023SLH0        11  127.163251  -20.531405    100.000  UNCLASSIFIED  UNCLASSIFIED         41             37  HIGHFLIER  6BARE_L029_PST      POST    4435877  D317TJX            0               NaN                 NaN                 NaN                   NaN                 NaN               NaN                NaN                  NaN              NaN                 NaN              NaN                NaN                   NaN                    NaN                NaN                  NaN               NaN                   NaN                 NaN                  NaN                  NaN                  NaN                  NaN                   NaN              NaN                NaN                NaN                NaN              NaN                 NaN                   NaN                 NaN                  NaN                 NaN                 NaN                  NaN                   NaN                 NaN                   NaN                 NaN                    NaN                    NaN                   NaN                 NaN                   NaN                NaN                 NaN                NaN             NaN                  NaN                   NaN                NaN               NaN                 NaN                NaN                   NaN                NaN                      NaN                   NaN                    NaN                  NaN                  NaN                    NaN                 NaN                    NaN                 NaN                NaN                 NaN                  NaN                  NaN                 NaN                  NaN                  NaN                 NaN                NaN                 NaN                  NaN              NaN                 NaN                  NaN              NaN                 NaN                  NaN               NaN                3
+
+Unique LAYER values in defect output:
+LAYER
+MAMEBARE_L029_PST    76941
+6BARE_L029_PST       33140
+
+[surf] Consolidated run summary
+{
+  "mode": "seed",
+  "lookback_days": 730,
+  "run_images": false,
+  "rows_coordinates": 110081,
+  "rows_metrics": 7660,
+  "rows_stacked": 21210,
+  "rows_stacked_y": 560,
+  "files_pruned": 0,
+  "prune_cutoff_utc": "2026-02-25T04:42:41.659114+00:00"
+}

@@ -1,0 +1,1261 @@
+//!
+Names Default To Here( 1 );
+
+metrics_path = "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\surf_scan\SS_METRICS.csv";
+coords_path = "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\surf_scan\SS_COORDINATES.csv";
+images_folder = "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\images\surf_scan";
+
+window_title = "Surf Scan Chamber Report";
+bycol = "EVENT";
+xcol = "INSPECTION_TIME";
+ycol = "ADDER_DEFECTS";
+vcol = "CHAMBER";
+legendcol = "CHAMBER";
+
+ymin = -1;
+ymax = 10;
+inc = 5;
+trend_frame_height = 330;
+
+seg_events = {"M_GO_ALL_SEG", "M_GO_C_SEG", "M_GO_E_SEG", "M_GO_M_SEG", "M_LIFT10X_SEG", "M_MECH_CYCLE_SEG", "M_SFV10X_SEG"};
+ss_events = {"SS0", "SS1", "SS7"};
+
+Ensure_Pilot_Column = Function({table_obj},
+    _cols = table_obj << Get Column Names("String");
+    If(Contains(_cols, "PILOT"),
+        Return();
+    );
+
+    _has_srcip = Contains(_cols, "SRCIP");
+    _has_ccmr2 = Contains(_cols, "CCMR2");
+    _has_iccr2 = Contains(_cols, "ICCR2");
+
+    If(_has_srcip & _has_ccmr2 & _has_iccr2,
+        table_obj << New Column("PILOT", Character, Nominal,
+            Set Each Value(
+                _srcip = Char(Column(table_obj, "SRCIP")[Row()]);
+                _ccmr2 = Char(Column(table_obj, "CCMR2")[Row()]);
+                _iccr2 = Char(Column(table_obj, "ICCR2")[Row()]);
+                If(_srcip == "ON",
+                    "SRCIP",
+                    _ccmr2 == "ON",
+                    "CCMR2",
+                    _srcip == "OFF" & _ccmr2 == "OFF" & _iccr2 == "ON",
+                    "ICCR2",
+                    "POR"
+                )
+            )
+        );
+    ,
+        table_obj << New Column("PILOT", Character, Nominal, Set Each Value(""));
+    );
+);
+
+val_cb_close_reports_and_windows = 0;
+val_show_fleet = 0;
+val_black_wafermap_markers = 0;
+val_hide_status = 4;
+val_source_index = 1;
+val_event_mode = 1;
+selected_source_name = "Most recent 60 days";
+val_yymm_lookback_periods = 12;
+yymm_cutoff_value = .;
+val_debug_sync = 0;
+val_debug_layout = 0;
+wmap_height_reduce_points = 0;
+trend_height_add_points = 0;
+trend_height_add_points_runtime = trend_height_add_points;
+nontrend_baseline_pad_points_runtime = 0;
+legend_wrapper_points_per_extra_level = 0;
+trend_axis_label_padding_points_first_display_row = 0;
+varchart_group_width = 20;
+
+Normalize_YYMM_Value = Function({raw_value}, {Default Local},
+    _raw_char = Trim(Char(raw_value));
+    If(_raw_char == "" | _raw_char == ".",
+        Return(.);
+    );
+    _num = Num(_raw_char);
+    If(Is Missing(_num),
+        Return(.);
+    );
+    Round(_num, 1);
+);
+
+YYMM_To_Period_Index = Function({yymm_value}, {Default Local},
+    _yymm_num = Normalize_YYMM_Value(yymm_value);
+    If(Is Missing(_yymm_num),
+        Return(.);
+    );
+    _yy = Floor(_yymm_num / 100);
+    _mm = Mod(_yymm_num, 100);
+    If(_mm < 1 | _mm > 12,
+        Return(.);
+    );
+    (_yy * 12) + (_mm - 1);
+);
+
+Period_Index_To_YYMM = Function({period_index}, {Default Local},
+    If(Is Missing(period_index),
+        Return(.);
+    );
+    _yy = Floor(period_index / 12);
+    _mm = Mod(period_index, 12) + 1;
+    (_yy * 100) + _mm;
+);
+
+Parse_Lookback_Periods = Function({raw_text, default_value}, {Default Local},
+    _text_num = Num(Trim(Char(raw_text)));
+    If(Is Missing(_text_num) | _text_num < 1,
+        Return(default_value);
+    );
+    Max(1, Floor(_text_num));
+);
+
+Get_Max_YYMM_From_Table = Function({table_obj}, {Default Local},
+    _cols = table_obj << Get Column Names("String");
+    If(!Contains(_cols, "YYMM"),
+        Return(.);
+    );
+    _max_period_index = .;
+    For(_r = 1, _r <= N Rows(table_obj), _r++,
+        _period_index = YYMM_To_Period_Index(Column(table_obj, "YYMM")[_r]);
+        If(!Is Missing(_period_index),
+            If(Is Missing(_max_period_index),
+                _max_period_index = _period_index,
+                _max_period_index = Max(_max_period_index, _period_index)
+            );
+        );
+    );
+    Period_Index_To_YYMM(_max_period_index);
+);
+
+Apply_YYMM_Lookback_Filter = Function({table_obj, cutoff_period_index}, {Default Local},
+    _cols = table_obj << Get Column Names("String");
+    If(!Contains(_cols, "YYMM") | Is Missing(cutoff_period_index),
+        Return(0);
+    );
+    table_obj << Select Where(
+        Is Missing(YYMM_To_Period_Index(Column(table_obj, "YYMM")[Row()])) |
+        YYMM_To_Period_Index(Column(table_obj, "YYMM")[Row()]) < cutoff_period_index
+    );
+    _n_removed = N Row(table_obj << Get Selected Rows);
+    If(_n_removed > 0,
+        table_obj << Delete Rows;
+    );
+    table_obj << Clear Select;
+    _n_removed;
+);
+
+Print(
+    "SURF SCAN CHAMBER BUILD: 2026-04-27C | trend_height_add_points_base=" || Char(trend_height_add_points) ||
+    " | wmap_height_reduce_points=" || Char(wmap_height_reduce_points) ||
+    " | nontrend_baseline_pad_points_runtime=" || Char(nontrend_baseline_pad_points_runtime) ||
+    " | legend_wrapper_points_per_extra_level=" || Char(legend_wrapper_points_per_extra_level) ||
+    " | trend_axis_label_padding_points_first_display_row=" || Char(trend_axis_label_padding_points_first_display_row) ||
+    " | varchart_group_width=" || Char(varchart_group_width)
+);
+
+SUBENTITY_STR = "";
+CHAMBER_STR = "";
+
+chamber_data = {
+    {"Trey",    {"AME409_PM1","AME409_PM2","AME409_PM3","AME409_PM4","AME409_PM5","AME409_PM6","AME421_PM3","AME421_PM4"}},
+    {"Kayden",  {"AME403_PM1","AME403_PM2","AME403_PM3","AME403_PM4","AME403_PM5","AME403_PM6","AME421_PM1","AME421_PM2"}},
+    {"Chang",   {"AME401_PM1","AME401_PM2","AME401_PM3","AME401_PM4","AME401_PM5","AME401_PM6","AME423_PM1","AME423_PM2"}},
+    {"Adi",     {"AME403_PM1","AME403_PM2","AME403_PM3","AME403_PM4","AME403_PM5","AME403_PM6","AME421_PM5","AME421_PM6"}},
+    {"Travis",  {"AME405_PM1","AME405_PM2","AME405_PM3","AME405_PM4","AME405_PM5","AME405_PM6","AME423_PM5","AME423_PM6"}},
+    {"Tyler",   {"AME411_PM1","AME411_PM2","AME411_PM3","AME411_PM4","AME411_PM5","AME411_PM6"}},
+    {"Mathius", {"AME417_PM1","AME417_PM2","AME417_PM3","AME417_PM4","AME417_PM5","AME417_PM6","AME423_PM3","AME423_PM4"}},
+    {"Sashank", {"AME419_PM1","AME419_PM2","AME419_PM3","AME419_PM4","AME419_PM5","AME419_PM6"}},
+    {"William", {"AME425_PM1","AME425_PM2","AME425_PM3","AME425_PM4","AME425_PM5","AME425_PM6"}},
+    {"Minog",   {"AME427_PM1","AME427_PM2","AME427_PM3","AME427_PM4","AME427_PM5","AME427_PM6"}}
+};
+
+result = New Window( "Surf Scan Chamber Report Options", <<Modal, <<Return Result,
+    V List Box(
+        Lineup Box(N Col(1),
+            Panel Box("CSV SOURCE",
+                rbSource = Radio Box(
+                    {"Most recent 60 days", "Full integrated", "YYMM lookback"}
+                ),
+                H List Box(
+                    Text Box("YYMM periods:"),
+                    yymmLookbackTB = Text Edit Box("12", <<Set Width(40))
+                )
+            ),
+            Panel Box("SELECT TEAM MEMBER",
+                rbChamber = Radio Box( {"Trey", "Kayden", "Chang", "Adi", "Travis", "Tyler", "Mathius", "Sashank", "William", "Minog"} )
+            ),
+            Panel Box("SINGLE CHAMBER OVERRIDE (supersedes team member selection)",
+                Lineup Box(N Col(7),
+                    Text Box( "AME4" ), ENTITY_TB = Text Edit Box( "", <<Set Width( 25 ) ),
+                    Text Box( "_PM" ), PM_TB = Text Edit Box( "", <<Set Width( 12 ) ),
+                    Spacer Box(Size(10, 10)),
+                    Text Box( "  or full PRIMARY_EQUIP list:" ), SUBENTITY_TB = Text Edit Box( "", <<Set Width( 150 ) )
+                )
+            ),
+            Panel Box("OPTIONS",
+                cb_close_reports_and_windows = Check Box( "Close Reports & Windows" ),
+                cb_show_fleet = Check Box( "Show FLEET Coordinates" ),
+                cb_black_wafermap_markers = Check Box( "Black Wafermap Markers" )
+            ),
+            Panel Box("EVENT MODE",
+                rbEventMode = Radio Box(
+                    {"SS only", "SEG only", "SS and SEG"}
+                )
+            ),
+            Panel Box("HIGHFLIER / BASELINE FILTER",
+                rbHideStatus = Radio Box(
+                    {"Hide Highfliers NOT in chamber list",
+                     "Hide ALL Highfliers",
+                     "Hide BASELINE rows",
+                     "Hide / Exclude nothing (show all rows)"}
+                )
+            ),
+            Button Box( "OK",
+                val_cb_close_reports_and_windows = cb_close_reports_and_windows << Get;
+                val_show_fleet = cb_show_fleet << Get;
+                val_black_wafermap_markers = cb_black_wafermap_markers << Get;
+                val_hide_status = rbHideStatus << Get;
+                val_source_index = rbSource << Get;
+                val_event_mode = rbEventMode << Get;
+                val_yymm_lookback_periods = Parse_Lookback_Periods(yymmLookbackTB << Get Text, 12);
+
+                If(val_source_index == 2,
+                    selected_source_name = "Full integrated";
+                ,
+                    If(val_source_index == 3,
+                        selected_source_name = "YYMM lookback (" || Char(val_yymm_lookback_periods) || " periods)";
+                    ,
+                        selected_source_name = "Most recent 60 days";
+                    );
+                );
+
+                SUBENTITY_STR = Trim(SUBENTITY_TB << Get Text());
+                If(SUBENTITY_STR != "",
+                    chamber_list = Words(SUBENTITY_STR, ",");
+                    For(i = 1, i <= N Items(chamber_list), i++,
+                        chamber_list[i] = Trim(chamber_list[i]);
+                    );
+                    selected_member = "CUSTOM: " || SUBENTITY_STR;
+                ,
+                    ENTITY_STR = Trim(ENTITY_TB << Get Text());
+                    PM_STR = Trim(PM_TB << Get Text());
+                    If(ENTITY_STR != "" & PM_STR != "",
+                        CHAMBER_STR = "AME4" || ENTITY_STR || "_PM" || PM_STR;
+                        chamber_list = {};
+                        Insert Into(chamber_list, CHAMBER_STR);
+                        selected_member = "CUSTOM: " || CHAMBER_STR;
+                    ,
+                        val_chamber_index = rbChamber << Get;
+                        chamber_list = chamber_data[val_chamber_index][2];
+                        selected_member = chamber_data[val_chamber_index][1];
+                    );
+                );
+
+                {val_cb_close_reports_and_windows, val_hide_status, val_show_fleet, val_source_index, val_black_wafermap_markers, val_event_mode, val_yymm_lookback_periods}
+            )
+        )
+    )
+);
+
+If(Is List(result) & N Items(result) == 7,
+    val_cb_close_reports_and_windows = result[1];
+    val_hide_status = result[2];
+    val_show_fleet = result[3];
+    val_source_index = result[4];
+    val_black_wafermap_markers = result[5];
+    val_event_mode = result[6];
+    val_yymm_lookback_periods = result[7];
+);
+
+If(val_cb_close_reports_and_windows == 1,
+    Close All( "Reports", "NoSave" );
+    Close All( "Data Tables", "NoSave" );
+);
+
+dt = Open(metrics_path);
+dt = Current Data Table();
+dt_coords = Open(coords_path, Invisible);
+dt_coords << Set Name("SS Coordinates");
+
+If(val_source_index == 1,
+    cutoff_dt = Date Increment(Today(), "Day", -60);
+    dt << Select Where(:INSPECTION_TIME >= cutoff_dt);
+    dt_recent = dt << Subset(Selected Rows, Output Table("SS Metrics - Recent 60 Days"), Invisible);
+    dt << Clear Select;
+    Close(dt, NoSave);
+    dt = dt_recent;
+
+    dt_coords << Select Where(:INSPECTION_TIME >= cutoff_dt);
+    dt_coords_recent = dt_coords << Subset(Selected Rows, Output Table("SS Coordinates - Recent 60 Days"), Invisible);
+    dt_coords << Clear Select;
+    Close(dt_coords, NoSave);
+    dt_coords = dt_coords_recent;
+,
+    If(val_source_index == 3,
+        _max_yymm = Get_Max_YYMM_From_Table(dt);
+        _max_period_index = YYMM_To_Period_Index(_max_yymm);
+        If(!Is Missing(_max_period_index),
+            _yymm_cutoff_period_index = _max_period_index - (val_yymm_lookback_periods - 1);
+            yymm_cutoff_value = Period_Index_To_YYMM(_yymm_cutoff_period_index);
+            _removed_dt_rows = Apply_YYMM_Lookback_Filter(dt, _yymm_cutoff_period_index);
+            _removed_coord_rows = Apply_YYMM_Lookback_Filter(dt_coords, _yymm_cutoff_period_index);
+            Print(
+                "YYMM lookback filter applied - periods=" || Char(val_yymm_lookback_periods) ||
+                " max_yymm=" || Char(_max_yymm) ||
+                " cutoff_yymm=" || Char(yymm_cutoff_value) ||
+                " removed_rows(metrics,coords)=(" || Char(_removed_dt_rows) || "," || Char(_removed_coord_rows) || ")"
+            );
+            selected_source_name = selected_source_name || " cutoff>= " || Char(yymm_cutoff_value);
+        ,
+            Print("YYMM lookback requested but no valid YYMM values were found; leaving tables unfiltered.");
+        );
+    );
+);
+
+Ensure_Pilot_Column(dt);
+
+selected_events = {};
+If(val_event_mode == 1,
+    selected_events = ss_events;
+,
+    If(val_event_mode == 2,
+        selected_events = seg_events;
+    ,
+        selected_events = Concat(ss_events, seg_events);
+    );
+);
+
+dt << Select Where(!Contains(selected_events, Char(:EVENT)));
+_n_event_filtered_metrics = N Row(dt << Get Selected Rows);
+If(_n_event_filtered_metrics > 0,
+    dt << Delete Rows;
+);
+dt << Clear Select;
+
+dt_coords << Select Where(!Contains(selected_events, Char(:EVENT)));
+_n_event_filtered_coords = N Row(dt_coords << Get Selected Rows);
+If(_n_event_filtered_coords > 0,
+    dt_coords << Delete Rows;
+);
+dt_coords << Clear Select;
+
+Print(
+    "EVENT MODE filter applied - mode=" || Char(val_event_mode) ||
+    " kept_events=" || Char(selected_events) ||
+    " removed_rows(metrics,coords)=(" || Char(_n_event_filtered_metrics) || "," || Char(_n_event_filtered_coords) || ")"
+);
+
+// Ignore blank EVENT rows.
+dt << Select Where(Trim(Char(:EVENT)) == "");
+_n_blank_metrics = N Row(dt << Get Selected Rows);
+If(_n_blank_metrics > 0,
+    dt << Delete Rows;
+);
+dt << Clear Select;
+
+dt_coords << Select Where(Trim(Char(:EVENT)) == "");
+_n_blank_coords = N Row(dt_coords << Get Selected Rows);
+If(_n_blank_coords > 0,
+    dt_coords << Delete Rows;
+);
+dt_coords << Clear Select;
+Print("Blank EVENT rows removed - metrics: " || Char(_n_blank_metrics) || " coords: " || Char(_n_blank_coords));
+
+dt << New Column("ORIGINAL_ROW_NUMBER", Numeric, Continuous,
+    Set Each Value(Row())
+);
+
+// Build CHAMBER/FLEET partition from PRIMARY_EQUIP.
+dt << New Column("CHAMBER", Character,
+    Set Each Value(If(Contains(chamber_list, :PRIMARY_EQUIP), :PRIMARY_EQUIP, "FLEET"))
+);
+dt << Color or Mark by Column(:CHAMBER, Color Theme("JMP Vibrant"(1)), Marker Theme("Solid"), Continuous Scale(0));
+dt << Select Where(:CHAMBER == "FLEET");
+dt << Colors(Gray);
+dt << Markers(Dot);
+dt << Clear Select;
+
+_key_map = Associative Array();
+For(_r = 1, _r <= N Rows(dt), _r++,
+    _key_map[
+        Char(Column(dt, "WAFER_KEY")[_r]) || "|" ||
+        Char(Column(dt, "EVENT")[_r]) || "|" ||
+        Char(Column(dt, "INSPECTION_TIME")[_r])
+    ] = _r;
+);
+
+dt_coords << New Column("ORIGINAL_ROW_NUMBER", Numeric, Continuous);
+For(_r = 1, _r <= N Rows(dt_coords), _r++,
+    _k =
+        Char(Column(dt_coords, "WAFER_KEY")[_r]) || "|" ||
+        Char(Column(dt_coords, "EVENT")[_r]) || "|" ||
+        Char(Column(dt_coords, "INSPECTION_TIME")[_r]);
+    _v = _key_map[_k];
+    If(!Is Missing(_v),
+        Column(dt_coords, "ORIGINAL_ROW_NUMBER")[_r] = _v;
+    );
+);
+
+dt_coords << New Column("CHAMBER", Character,
+    Set Each Value(
+        _orn = Column(dt_coords, "ORIGINAL_ROW_NUMBER")[Row()];
+        If(!Is Missing(_orn), Column(dt, "CHAMBER")[_orn], "FLEET")
+    )
+);
+dt_coords << Color or Mark by Column(:CHAMBER, Color Theme("JMP Vibrant"(1)), Continuous Scale(0));
+dt_coords << Select Where(:CHAMBER == "FLEET");
+dt_coords << Colors(Gray);
+dt_coords << Markers(Dot);
+dt_coords << Clear Select;
+
+If(val_show_fleet == 0,
+    dt_coords << Select Where(:CHAMBER == "FLEET");
+    dt_coords << Hide and Exclude;
+    dt_coords << Clear Select;
+);
+
+// Apply status filters.
+If(val_hide_status == 1,
+    dt << Select Where(:STATUS == "HIGHFLIER" & !Contains(chamber_list, :PRIMARY_EQUIP));
+    dt << Hide and Exclude;
+    dt << Clear Select;
+
+    dt_coords << Select Where(:STATUS == "HIGHFLIER" & !Contains(chamber_list, :PRIMARY_EQUIP));
+    dt_coords << Hide and Exclude;
+    dt_coords << Clear Select;
+,
+    If(val_hide_status == 2,
+        dt << Select Where(:STATUS == "HIGHFLIER");
+        dt << Hide and Exclude;
+        dt << Clear Select;
+
+        dt_coords << Select Where(:STATUS == "HIGHFLIER");
+        dt_coords << Hide and Exclude;
+        dt_coords << Clear Select;
+    ,
+        If(val_hide_status == 3,
+            dt << Select Where(:STATUS == "BASELINE");
+            dt << Hide and Exclude;
+            dt << Clear Select;
+
+            dt_coords << Select Where(:STATUS == "BASELINE");
+            dt_coords << Hide and Exclude;
+            dt_coords << Clear Select;
+        );
+    );
+);
+
+// Build include column on coords.
+dt_coords << New Column("_INCLUDE", Numeric, Continuous,
+    Set Each Value(
+        _fleet_ok = (val_show_fleet == 1 | :CHAMBER != "FLEET");
+        _status_ok = If(val_hide_status == 1,
+            !(:STATUS == "HIGHFLIER" & !Contains(chamber_list, :PRIMARY_EQUIP)),
+            If(val_hide_status == 2,
+                :STATUS != "HIGHFLIER",
+                If(val_hide_status == 3,
+                    :STATUS != "BASELINE",
+                    1
+                )
+            )
+        );
+        _fleet_ok & _status_ok
+    )
+);
+
+Apply_Wafermap_Point_Styling = Function({coord_table},
+    coord_table << Select Where(:CLASS == "BEEP");
+    coord_table << Markers(1);
+    coord_table << Clear Select;
+
+    coord_table << Select Where(:CLASS == "SMALL_PARTICLE");
+    coord_table << Markers(Dot);
+    coord_table << Clear Select;
+
+    If(val_black_wafermap_markers == 1,
+        coord_table << Select All Rows;
+        coord_table << Colors(Black);
+        coord_table << Clear Select;
+    ,
+        coord_table << Select Where(:CHAMBER == "FLEET");
+        coord_table << Colors(Gray);
+        coord_table << Markers(Dot);
+        coord_table << Clear Select;
+    );
+);
+
+_event_order_all = {
+    "SS0",
+    "SS1",
+    "SS7",
+    "M_GO_ALL_SEG",
+    "M_GO_C_SEG",
+    "M_GO_E_SEG",
+    "M_GO_M_SEG",
+    "M_LIFT10X_SEG",
+    "M_MECH_CYCLE_SEG",
+    "M_SFV10X_SEG"
+};
+
+_event_keys = {};
+For(_i = 1, _i <= N Items(_event_order_all), _i++,
+    _ev = _event_order_all[_i];
+    If(Contains(selected_events, _ev),
+        Insert Into(_event_keys, _ev);
+    );
+);
+
+Apply_Event_By_Order = Function({target_table, event_order},
+    Try(Column(target_table, "EVENT") << Set Modeling Type("Ordinal"));
+    Try(Column(target_table, "EVENT") << Set Property("Value Ordering", {"Custom Order", event_order}));
+);
+
+dt << New Column("_INCLUDE_SUM", Numeric, Continuous,
+    Set Each Value(
+        If(val_hide_status == 1,
+            !(:STATUS == "HIGHFLIER" & !Contains(chamber_list, :PRIMARY_EQUIP)),
+            If(val_hide_status == 2,
+                :STATUS != "HIGHFLIER",
+                If(val_hide_status == 3,
+                    :STATUS != "BASELINE",
+                    1
+                )
+            )
+        )
+    )
+);
+
+dt << Select Where(:_INCLUDE_SUM == 1 & Contains(_event_keys, Char(:EVENT)));
+dt_view = dt << Subset(Selected Rows, Output Table("SS Metrics - Event View"), Invisible);
+dt << Clear Select;
+
+dt_coords << Select Where(:_INCLUDE == 1 & Contains(_event_keys, Char(:EVENT)));
+dt_coords_view = dt_coords << Subset(Selected Rows, Output Table("SS Coords - Event View"), Invisible);
+dt_coords << Clear Select;
+
+_coords_event_keys = Associative Array(dt_coords_view:EVENT) << Get Keys;
+_missing_coord_events = {};
+For(_i = 1, _i <= N Items(_event_keys), _i++,
+    _ev = _event_keys[_i];
+    If(!Contains(_coords_event_keys, _ev),
+        Insert Into(_missing_coord_events, _ev);
+    );
+);
+
+If(N Items(_missing_coord_events) > 0,
+    _dt_coords_padded = dt_coords_view << Subset(All Rows, Output Table("SS Coords - Event View Padded"), Invisible);
+    For(_i = 1, _i <= N Items(_missing_coord_events), _i++,
+        _ev = _missing_coord_events[_i];
+        _dt_coords_padded << Add Rows(1);
+        _rnew = N Rows(_dt_coords_padded);
+        Column(_dt_coords_padded, "EVENT")[_rnew] = _ev;
+        Column(_dt_coords_padded, "CHAMBER")[_rnew] = "FLEET";
+        Column(_dt_coords_padded, "WAFER_X_MM")[_rnew] = .;
+        Column(_dt_coords_padded, "WAFER_Y_MM")[_rnew] = .;
+        Column(_dt_coords_padded, "ORIGINAL_ROW_NUMBER")[_rnew] = .;
+        Column(_dt_coords_padded, "_INCLUDE")[_rnew] = 1;
+    );
+    dt_coords_view = _dt_coords_padded;
+);
+
+Apply_Event_By_Order(dt_view, _event_keys);
+Apply_Event_By_Order(dt_coords_view, _event_keys);
+
+dt_view << Set Label Columns(:ACTUAL_LOT, :WAFER_ID);
+dt_coords_view << Set Label Columns(:ACTUAL_LOT, :WAFER_ID);
+
+Try(_mapped_coords_rows = N Row(dt_coords_view << Get Rows Where(!Is Missing(:ORIGINAL_ROW_NUMBER))), _mapped_coords_rows = 0);
+Try(_unmapped_coords_rows = N Row(dt_coords_view << Get Rows Where(Is Missing(:ORIGINAL_ROW_NUMBER))), _unmapped_coords_rows = 0);
+If(val_debug_sync == 1,
+    Print("SYNC DEBUG mapping coverage - mapped coords rows: " || Char(_mapped_coords_rows) || " unmapped coords rows: " || Char(_unmapped_coords_rows));
+    If(N Items(_missing_coord_events) > 0,
+        Print("SYNC DEBUG added placeholder coord rows for missing EVENTS: " || Char(_missing_coord_events));
+    );
+);
+
+dt_view << Color or Mark by Column(:CHAMBER, Color Theme("JMP Vibrant"(1)), Marker Theme("Solid"), Continuous Scale(0));
+dt_view << Select Where(:CHAMBER == "FLEET");
+dt_view << Colors(Gray);
+dt_view << Markers(Dot);
+dt_view << Clear Select;
+
+Apply_Wafermap_Point_Styling(dt_coords_view);
+
+Print("Event view rows - metrics: " || Char(N Rows(dt_view)) || " coords: " || Char(N Rows(dt_coords_view)));
+
+trend_row_heights = Associative Array();
+var_row_heights = Associative Array();
+wmap_row_heights = Associative Array();
+row_target_heights = Associative Array();
+nontrend_target_heights = Associative Array();
+
+trend_reports_by_event = Associative Array();
+var_reports_by_event = Associative Array();
+wmap_reports_by_event = Associative Array();
+trend_legend_levels_by_event = Associative Array();
+trend_first_display_event = "";
+
+Build_Row_Height_Key = Function({event_label},
+    "EVENT=" || Trim(Char(event_label))
+);
+
+Get_Report_Height = Function({rpt},
+    _h = .;
+    Try(
+        _sz = rpt << Get Size;
+        If(Is List(_sz) & N Items(_sz) >= 2 & _sz[2] > 0,
+            _h = _sz[2];
+        );
+    );
+    Try(_h = rpt << Get Height);
+    If(Is Missing(_h) | _h <= 0,
+        Try(
+            _sz = rpt[FrameBox(1)] << Get Size;
+            If(Is List(_sz) & N Items(_sz) >= 2,
+                _h = _sz[2];
+            );
+        );
+    );
+    _h
+);
+
+Apply_Target_Variability_Report_Height = Function({rpt, event_label},
+    _target_key = Build_Row_Height_Key(event_label);
+    _target_height = nontrend_target_heights[_target_key];
+    If(Is Missing(_target_height),
+        _target_height = row_target_heights[_target_key];
+    );
+    If(Is Missing(_target_height),
+        _target_height = trend_row_heights[_target_key];
+    );
+    If(Is Missing(_target_height), Return());
+
+    _current_height = Get_Report_Height(rpt);
+    If(Is Missing(_current_height), Return());
+
+    If(val_debug_layout == 1,
+        Print(
+            "LAYOUT DEBUG VAR APPLY pre EVENT=" || Char(event_label) ||
+            " current=" || Char(_current_height) ||
+            " target=" || Char(_target_height)
+        );
+    );
+
+    If(_current_height < _target_height,
+        _delta_height = _target_height - _current_height;
+        // Align outer report box to target while keeping frame styling unchanged.
+        Try(rpt << Set Height(_target_height));
+        Try(rpt << Append(Spacer Box(Size(1, _delta_height))));
+        If(val_debug_layout == 1,
+            Try(_post_height = Get_Report_Height(rpt), _post_height = .);
+            Print(
+                "LAYOUT DEBUG VAR APPLY post EVENT=" || Char(event_label) ||
+                " delta=" || Char(_delta_height) ||
+                " post=" || Char(_post_height)
+            );
+        );
+    ,
+        If(_current_height > _target_height,
+            Try(rpt << Set Height(_target_height));
+            If(val_debug_layout == 1,
+                Try(_post_height = Get_Report_Height(rpt), _post_height = .);
+                Print(
+                    "LAYOUT DEBUG VAR APPLY shrink EVENT=" || Char(event_label) ||
+                    " delta=" || Char(_current_height - _target_height) ||
+                    " post=" || Char(_post_height)
+                );
+            );
+        );
+    );
+);
+
+Apply_Target_Wafermap_Report_Height = Function({rpt, event_label},
+    _target_key = Build_Row_Height_Key(event_label);
+    _target_height = nontrend_target_heights[_target_key];
+    If(Is Missing(_target_height),
+        _target_height = row_target_heights[_target_key];
+    );
+    If(Is Missing(_target_height),
+        _target_height = trend_row_heights[_target_key];
+    );
+    If(Is Missing(_target_height), Return());
+
+    _current_height = Get_Report_Height(rpt);
+    If(Is Missing(_current_height), Return());
+
+    If(val_debug_layout == 1,
+        Print(
+            "LAYOUT DEBUG WMAP APPLY pre EVENT=" || Char(event_label) ||
+            " current=" || Char(_current_height) ||
+            " target=" || Char(_target_height)
+        );
+    );
+
+    If(_current_height < _target_height,
+        _delta_height = _target_height - _current_height;
+        // Align outer report box to target while keeping wafer frame square.
+        Try(rpt << Set Height(_target_height));
+        Try(rpt << Append(Spacer Box(Size(1, _delta_height))));
+        If(val_debug_layout == 1,
+            Try(_post_height = Get_Report_Height(rpt), _post_height = .);
+            Print(
+                "LAYOUT DEBUG WMAP APPLY post EVENT=" || Char(event_label) ||
+                " delta=" || Char(_delta_height) ||
+                " post=" || Char(_post_height)
+            );
+        );
+    ,
+        If(_current_height > _target_height,
+            Try(rpt << Set Height(_target_height));
+            If(val_debug_layout == 1,
+                Try(_post_height = Get_Report_Height(rpt), _post_height = .);
+                Print(
+                    "LAYOUT DEBUG WMAP APPLY shrink EVENT=" || Char(event_label) ||
+                    " delta=" || Char(_current_height - _target_height) ||
+                    " post=" || Char(_post_height)
+                );
+            );
+        );
+    );
+);
+
+Align_Event_Row_Heights = Function({events_list},
+    _min_legend_levels = .;
+    For(_i = 1, _i <= N Items(events_list), _i++,
+        _event = events_list[_i];
+        _k = Build_Row_Height_Key(_event);
+        Try(_lvl = trend_legend_levels_by_event[_k], _lvl = .);
+        If(!Is Missing(_lvl),
+            If(Is Missing(_min_legend_levels), _min_legend_levels = _lvl, _min_legend_levels = Min(_min_legend_levels, _lvl));
+        );
+    );
+    If(Is Missing(_min_legend_levels), _min_legend_levels = 0);
+
+    For(_i = 1, _i <= N Items(events_list), _i++,
+        _event = events_list[_i];
+        _k = Build_Row_Height_Key(_event);
+
+        Try(_tr = trend_reports_by_event[_k], _tr = .);
+        Try(_vr = var_reports_by_event[_k], _vr = .);
+        Try(_wr = wmap_reports_by_event[_k], _wr = .);
+
+        // Read live rendered heights first. Cached map values can be stale
+        // because legend wrappers may expand after initial format callbacks.
+        Try(_th_live = Get_Report_Height(_tr), _th_live = .);
+        Try(_vh_live = Get_Report_Height(_vr), _vh_live = .);
+        Try(_wh_live = Get_Report_Height(_wr), _wh_live = .);
+
+        Try(_th = trend_row_heights[_k], _th = .);
+        Try(_vh = var_row_heights[_k], _vh = .);
+        Try(_wh = wmap_row_heights[_k], _wh = .);
+        If(!Is Missing(_th_live), _th = _th_live);
+        If(!Is Missing(_vh_live), _vh = _vh_live);
+        If(!Is Missing(_wh_live), _wh = _wh_live);
+
+        // Use per-event maximum rendered row height across all three columns.
+        _target = .;
+        If(!Is Missing(_th), _target = _th);
+        If(!Is Missing(_vh),
+            If(Is Missing(_target), _target = _vh, _target = Max(_target, _vh));
+        );
+        If(!Is Missing(_wh),
+            If(Is Missing(_target), _target = _wh, _target = Max(_target, _wh));
+        );
+
+        If(Is Missing(_target),
+            If(val_debug_layout == 1,
+                Print("LAYOUT DEBUG EVENT=" || Char(_event) || " skipped: no rendered report heights");
+            );
+            Continue();
+        );
+
+        row_target_heights[_k] = _target;
+
+        Try(_legend_levels = trend_legend_levels_by_event[_k], _legend_levels = .);
+        _legend_extra_levels = 0;
+        If(!Is Missing(_legend_levels),
+            _legend_extra_levels = Max(0, _legend_levels - _min_legend_levels);
+        );
+        _legend_wrapper_adjust = _legend_extra_levels * legend_wrapper_points_per_extra_level;
+
+        _axis_label_adjust = 0;
+        If(Char(_event) == Char(trend_first_display_event),
+            _axis_label_adjust = trend_axis_label_padding_points_first_display_row;
+        );
+
+        _nontrend_pad = nontrend_baseline_pad_points_runtime + _legend_wrapper_adjust + _axis_label_adjust;
+
+        _base_target = _target;
+        _trend_target = Max(_target, trend_frame_height + trend_height_add_points_runtime);
+        _nontrend_target = Max(120, _trend_target + _nontrend_pad);
+        _var_target = _nontrend_target;
+        _wmap_target = Max(120, _nontrend_target - wmap_height_reduce_points);
+
+        Try(
+            _trend_frame_pre = .;
+            _sz_tf_pre = _tr[FrameBox(1)] << Get Size;
+            If(Is List(_sz_tf_pre) & N Items(_sz_tf_pre) >= 2,
+                _trend_frame_pre = _sz_tf_pre[2];
+            );
+        , _trend_frame_pre = .);
+
+        _trend_chrome = .;
+        If(!Is Missing(_th) & !Is Missing(_trend_frame_pre),
+            _trend_chrome = _th - _trend_frame_pre;
+        );
+
+        _trend_frame_target = _trend_target;
+        If(!Is Missing(_trend_chrome),
+            _trend_frame_target = Max(120, _trend_target - _trend_chrome);
+        );
+
+        Try(_tr << Set Height(_trend_target));
+        // Trend uses per-event posteriori chrome compensation for non-uniform legend cardinality.
+        Try(_tr[FrameBox(1)] << Set Height(_trend_frame_target));
+
+        // Drive non-trend padding against per-event nontrend target.
+        trend_row_heights[_k] = _trend_target;
+        nontrend_target_heights[_k] = _nontrend_target;
+        Apply_Target_Variability_Report_Height(_vr, _event);
+        Apply_Target_Wafermap_Report_Height(_wr, _event);
+
+        Try(_th_after = Get_Report_Height(_tr), _th_after = .);
+        Try(_vh_after = Get_Report_Height(_vr), _vh_after = .);
+        Try(_wh_after = Get_Report_Height(_wr), _wh_after = .);
+        If(!Is Missing(_th_after), trend_row_heights[_k] = _th_after);
+        If(!Is Missing(_vh_after), var_row_heights[_k] = _vh_after);
+        If(!Is Missing(_wh_after), wmap_row_heights[_k] = _wh_after);
+        Try(
+            _trend_frame_h_after = .;
+            _sz_tf = _tr[FrameBox(1)] << Get Size;
+            If(Is List(_sz_tf) & N Items(_sz_tf) >= 2,
+                _trend_frame_h_after = _sz_tf[2];
+            );
+        , _trend_frame_h_after = .);
+
+        If(val_debug_layout == 1,
+            Print(
+                "LAYOUT DEBUG EVENT=" || Char(_event) ||
+                " pre(trend,var,wmap)=(" || Char(_th) || "," || Char(_vh) || "," || Char(_wh) || ")" ||
+                " target_base=" || Char(_base_target) ||
+                " trend_target=" || Char(_trend_target) ||
+                " trend_runtime_add=" || Char(trend_height_add_points_runtime) ||
+                " nontrend_baseline_pad=" || Char(nontrend_baseline_pad_points_runtime) ||
+                " legend_levels=" || Char(_legend_levels) ||
+                " legend_extra_levels=" || Char(_legend_extra_levels) ||
+                " legend_wrapper_adjust=" || Char(_legend_wrapper_adjust) ||
+                " axis_label_adjust=" || Char(_axis_label_adjust) ||
+                " nontrend_pad=" || Char(_nontrend_pad) ||
+                " var_target=" || Char(_var_target) ||
+                " trend_chrome_pre=" || Char(_trend_chrome) ||
+                " trend_frame_target=" || Char(_trend_frame_target) ||
+                " wmap_target=" || Char(_wmap_target) ||
+                " post(trend,var,wmap)=(" || Char(_th_after) || "," || Char(_vh_after) || "," || Char(_wh_after) || ")" ||
+                " trend_frame_post=" || Char(_trend_frame_h_after)
+            );
+        );
+    );
+);
+
+Format_Trend_Charts = Function({trend_chart_object},
+    _reports = trend_chart_object << Report;
+    If(Is List(_reports),
+        _rlist = _reports,
+        _rlist = {_reports}
+    );
+    For Each({rpt}, _rlist,
+        _current_by_value = rpt << Get Title;
+        _event_value = Word(-1, _current_by_value, "=");
+        rpt << Set Title("TREND EVENT " || _event_value);
+        rpt[1][Frame Box(1)] << Row Legend(Column(legendcol),
+            Color(0), Color Theme(""),
+            Marker(0), Marker Theme(""),
+            Continuous Scale(0), Reverse Scale(0), Excluded Rows(0)
+        );
+        // Match trend behavior: collapse legend wrapper to prevent large
+        // report-height inflation from legend cardinality.
+        Try(rpt[BorderBox(3)] << Visibility("Collapse"));
+        rpt[1][Frame Box(1)] << {Marker Drawing Mode("Outlined")};
+        rpt[AxisBox(1)] << Axis Settings({Min(ymin), Max(ymax), Inc(inc), Minor Ticks(0)});
+        axisbox = rpt[Axis Box(1)]; axisbox << Show Major Grid(1); axisbox << Show Minor Grid(1);
+        axisbox = rpt[Axis Box(2)]; axisbox << Show Major Grid(1); axisbox << Show Minor Grid(1);
+        rpt[ScaleBox(1)] << {
+            Interval("Week"),
+            Inc(2),
+            Minor Ticks(0),
+            Label Row({Show Major Grid(1), Show Minor Grid(1)})
+        };
+        Try(rpt[BorderBox(3)] << Visibility("Collapse"));
+        rpt[FrameBox(1)] << Set Width(500);
+        rpt[FrameBox(1)] << Set Height(trend_frame_height);
+        _trend_row_key = Build_Row_Height_Key(_event_value);
+        _trend_report_h = Get_Report_Height(rpt);
+        trend_row_heights[_trend_row_key] = _trend_report_h;
+        trend_reports_by_event[_trend_row_key] = rpt;
+        If(trend_first_display_event == "",
+            trend_first_display_event = _event_value;
+        );
+
+        If(val_debug_layout == 1,
+            Try(_trend_frame_h_dbg = ., _trend_frame_h_dbg = .);
+            Try(
+                _trend_frame_sz_dbg = rpt[FrameBox(1)] << Get Size;
+                If(Is List(_trend_frame_sz_dbg) & N Items(_trend_frame_sz_dbg) >= 2,
+                    _trend_frame_h_dbg = _trend_frame_sz_dbg[2];
+                );
+            );
+            Print(
+                "FORMAT DEBUG TREND EVENT=" || Char(_event_value) ||
+                " report_h=" || Char(_trend_report_h) ||
+                " frame_h=" || Char(_trend_frame_h_dbg)
+            );
+        );
+
+        _legend_levels = .;
+        Try(
+            _event_rows = dt_view << Get Rows Where(Char(Column(dt_view, "EVENT")[Row()]) == Char(_event_value));
+            If(N Row(_event_rows) > 0,
+                _legend_levels = N Items(Associative Array(Column(dt_view, "CHAMBER")[_event_rows]) << Get Keys);
+            );
+        , _legend_levels = .);
+        trend_legend_levels_by_event[_trend_row_key] = _legend_levels;
+    );
+);
+
+Format_Variability_Charts = Function({var_chart_object, ycol_label},
+    // Match defects behavior: ensure box plots are shown on variability charts.
+    Try(var_chart_object << Show Box Plots(1));
+
+    _reports = var_chart_object << Report;
+    If(Is List(_reports),
+        _rlist = _reports,
+        _rlist = {_reports}
+    );
+    For Each({rpt}, _rlist,
+        _current_by_value = rpt << Get Title;
+        _event_value = Word(-1, _current_by_value, "=");
+        rpt << Set Title("VARIABILITY EVENT " || _event_value);
+        rpt[1][OutlineBox(1)] << Set Title("ANALYSIS");
+        Try(rpt[1][TextBox(2)] << Set Text(""));
+        // Remove variability row legend to prevent extra wrapper-height inflation.
+        Try(rpt[BorderBox(3)] << Visibility("Collapse"));
+        rpt[1][Frame Box(1)] << {Marker Drawing Mode("Outlined")};
+        rpt[AxisBox(1)] << Axis Settings({Min(ymin), Max(ymax), Inc(inc), Minor Ticks(0)});
+        axisbox = rpt[Axis Box(1)]; axisbox << Show Major Grid(1); axisbox << Show Minor Grid(1);
+        axisbox = rpt[Axis Box(2)]; axisbox << Show Major Grid(1); axisbox << Show Minor Grid(1);
+
+        // Force box-plot strokes to black and slightly thicker for readability.
+        Try(
+            _box_segs = rpt[FrameBox(1)] << Find Segs;
+            _boxplot_segs = Filter Each({seg}, (_box_segs), (seg << Class Name) == "BoxPlotSeg");
+            _boxplot_segs << Set Line Color("Black");
+            _boxplot_segs << Set Line Width(2);
+        );
+
+        // sDTT pattern: fixed width per X group.
+        varchart_groups = rpt[AxisBox(2)] << Get Max;
+        varchart_width = varchart_groups * varchart_group_width;
+        framebox = rpt[FrameBox(1)];
+        framebox << Set Width(varchart_width);
+        framebox << Set Height(230);
+        varchart_axisbox = rpt[AxisBox(2)];
+        varchart_axisbox << Set Height(80);
+        Try(varchart_axisbox << Axis Settings({Label Orientation("Angled")}));
+
+        _var_row_key = Build_Row_Height_Key(_event_value);
+        _var_report_h = Get_Report_Height(rpt);
+        var_row_heights[_var_row_key] = _var_report_h;
+        var_reports_by_event[_var_row_key] = rpt;
+
+        If(val_debug_layout == 1,
+            Try(_var_frame_h_dbg = ., _var_frame_h_dbg = .);
+            Try(
+                _var_frame_sz_dbg = rpt[FrameBox(1)] << Get Size;
+                If(Is List(_var_frame_sz_dbg) & N Items(_var_frame_sz_dbg) >= 2,
+                    _var_frame_h_dbg = _var_frame_sz_dbg[2];
+                );
+            );
+            Print(
+                "FORMAT DEBUG VAR EVENT=" || Char(_event_value) ||
+                " report_h=" || Char(_var_report_h) ||
+                " frame_h=" || Char(_var_frame_h_dbg)
+            );
+        );
+    );
+);
+
+Format_Wafermap = Function({wmap_obj},
+    _reports = wmap_obj << Report;
+    If(Is List(_reports),
+        _rlist = _reports,
+        _rlist = {_reports}
+    );
+    For Each({rpt}, _rlist,
+        _current_by_value = rpt << Get Title;
+        _event_value = Word(-1, _current_by_value, "=");
+        rpt << Set Title("WAFERMAP EVENT " || _event_value);
+        rpt[1][FrameBox(1)] << Frame Size(330, 330);
+        rpt[1][AxisBox(1)] << Axis Settings({Min(-165), Max(165), Inc(50), Minor Ticks(0)});
+        rpt[1][AxisBox(2)] << Axis Settings({Min(-165), Max(165), Inc(50), Minor Ticks(0)});
+        rpt[1][FrameBox(1)] << Add Graphics Script(2,
+            Pen Color("Dark Gray");
+            Pen Size(2);
+            Oval(-150, -150, 150, 150);
+        );
+        // Do not add wafermap row legends; they inflate outer report height
+        // and create middle-column height mismatch against trend/variability.
+        rpt[1][FrameBox(1)] << {Marker Drawing Mode("Normal")};
+        _wm_row_key = Build_Row_Height_Key(_event_value);
+        wmap_row_heights[_wm_row_key] = Get_Report_Height(rpt);
+        wmap_reports_by_event[_wm_row_key] = rpt;
+    );
+);
+
+::_dt_summary_view = dt_view;
+::_dt_coords_view = dt_coords_view;
+::_prev_summary_sel = [];
+If(val_debug_sync == 1,
+    Print("SYNC DEBUG handler install source table: " || (::_dt_summary_view << Get Name) || " target table: " || (::_dt_coords_view << Get Name));
+);
+::_sync_handler = ::_dt_summary_view << Make Row State Handler(
+    Function({rows}, {Default Local},
+        _sel = ::_dt_summary_view << Get Selected Rows;
+
+        If(
+            N Row(_sel) == N Row(::_prev_summary_sel) &
+            (N Row(_sel) == 0 | All(_sel == ::_prev_summary_sel)),
+            Return();
+        );
+        ::_prev_summary_sel = _sel;
+
+        If(N Row(_sel) == 0,
+            If(val_debug_sync == 1,
+                Print("SYNC DEBUG callback fired: selection cleared on summary table");
+            );
+            ::_dt_coords_view << Clear Select;
+            Return();
+        );
+
+        _sel_list = {};
+        For(_j = 1, _j <= N Row(_sel), _j++,
+            _sr = _sel[_j];
+            _orn = Round(Column(::_dt_summary_view, "ORIGINAL_ROW_NUMBER")[_sr], 0);
+            If(!Is Missing(_orn) & !Contains(_sel_list, _orn),
+                Insert Into(_sel_list, _orn);
+            );
+        );
+
+        ::_dt_coords_view << Clear Select;
+        ::_dt_coords_view << Select Where(
+            Contains(_sel_list, Round(Column(::_dt_coords_view, "ORIGINAL_ROW_NUMBER")[Row()], 0))
+        );
+
+        If(val_debug_sync == 1,
+            Print(
+                "SYNC DEBUG callback fired: selected summary rows=" || Char(N Row(_sel)) ||
+                " unique original row ids=" || Char(N Items(_sel_list)) ||
+                " matched coords rows=" || Char(N Row(::_dt_coords_view << Get Selected Rows))
+            );
+        );
+    )
+);
+
+Try(_view_rows = N Rows(dt_view), _view_rows = 0);
+Try(_coords_rows = N Rows(dt_coords_view), _coords_rows = 0);
+
+If(_view_rows == 0 | _coords_rows == 0,
+    _main_body = Text Box("No rows after filters for requested EVENT set.");
+,
+    _main_body = H List Box(
+        fg_trend = dt_view << FitGroup(
+            trend = dt_view << Bivariate(
+                Y(Column(ycol)), X(Column(xcol)), By(Column(bycol)),
+                GroupBy(Column(legendcol)),
+                Fit Spline(0.1, Standardized, {Report(0), Line Width(0.1)})
+            ),
+            SendToReport(Dispatch({}, "Fit Group", OutlineBox, {Set Title("TREND BY EVENT")}))
+        ),
+        fg_wmap = dt_coords_view << FitGroup(
+            wmap = dt_coords_view << Bivariate(Y(:WAFER_Y_MM), X(:WAFER_X_MM), By(:EVENT)),
+            SendToReport(Dispatch({}, "Fit Group", OutlineBox, {Set Title("WAFERMAP BY EVENT")}))
+        ),
+        fg_var = dt_view << FitGroup(
+            var = dt_view << Variability Chart(
+                Y(Column(ycol)), X(Column(vcol)), By(Column(bycol))
+            ),
+            SendToReport(Dispatch({}, "Fit Group", OutlineBox, {Set Title("VARIABILITY CHAMBER vs FLEET BY EVENT")}))
+        )
+    );
+
+    Format_Trend_Charts(trend);
+    Format_Wafermap(wmap);
+    Format_Variability_Charts(var, "ADDER DEFECTS");
+
+    If(val_debug_layout == 1,
+        _trend_titles = {};
+        _var_titles = {};
+        _wmap_titles = {};
+
+        _t_reports = trend << Report;
+        If(Is List(_t_reports),
+            For Each({rpt}, _t_reports, Insert Into(_trend_titles, Char(rpt << Get Title))),
+            Insert Into(_trend_titles, Char(_t_reports << Get Title))
+        );
+
+        _v_reports = var << Report;
+        If(Is List(_v_reports),
+            For Each({rpt}, _v_reports, Insert Into(_var_titles, Char(rpt << Get Title))),
+            Insert Into(_var_titles, Char(_v_reports << Get Title))
+        );
+
+        _w_reports = wmap << Report;
+        If(Is List(_w_reports),
+            For Each({rpt}, _w_reports, Insert Into(_wmap_titles, Char(rpt << Get Title))),
+            Insert Into(_wmap_titles, Char(_w_reports << Get Title))
+        );
+
+        Print("LAYOUT DEBUG by-order trend titles: " || Char(_trend_titles));
+        Print("LAYOUT DEBUG by-order var titles: " || Char(_var_titles));
+        Print("LAYOUT DEBUG by-order wmap titles: " || Char(_wmap_titles));
+    );
+);
+
+NCDD_win = New Window(selected_member || " - " || window_title,
+    V List Box(
+        H List Box(
+            Button Box("Open SurfScan Images Folder",
+                Run Program(
+                    Executable("cmd.exe"),
+                    Options({"/c", "start", "", images_folder})
+                );
+            ),
+            Text Box("Source: " || selected_source_name)
+        ),
+        _main_body
+    )
+);
+
+NCDD_win << Maximize Window;
+
+// Run alignment after window render so report heights include legend/cardinality expansion.
+Wait(0);
+Align_Event_Row_Heights(_event_keys);
+
+Get_DisplayBox_Height = Function({obj},
+    _h = .;
+    Try(
+        _sz = obj << Get Size;
+        If(Is List(_sz) & N Items(_sz) >= 2 & _sz[2] > 0,
+            _h = _sz[2];
+        );
+    );
+    If(Is Missing(_h) | _h <= 0,
+        Try(_h = obj << Get Height);
+    );
+    _h
+);
+
+Sum_Row_Heights = Function({height_map, events_list},
+    _sum_h = 0;
+    For(_i = 1, _i <= N Items(events_list), _i++,
+        _k = Build_Row_Height_Key(events_list[_i]);
+        Try(_h = height_map[_k], _h = .);
+        If(!Is Missing(_h),
+            _sum_h = _sum_h + _h;
+        );
+    );
+    _sum_h
+);
+
+Auto_Adjust_Nontrend_Baseline_Pad = Function({events_list},
+    _trend_raw = Get_DisplayBox_Height(fg_trend);
+    _var_raw = Get_DisplayBox_Height(fg_var);
+    _wmap_raw = Get_DisplayBox_Height(fg_wmap);
+
+    If(Is Missing(_trend_raw) | Is Missing(_var_raw) | Is Missing(_wmap_raw),
+        Return();
+    );
+
+    _trend_rows_sum = Sum_Row_Heights(trend_row_heights, events_list);
+    _var_rows_sum = Sum_Row_Heights(var_row_heights, events_list);
+    _wmap_rows_sum = Sum_Row_Heights(wmap_row_heights, events_list);
+
+    _ref_raw = Max(_var_raw, _wmap_raw);
+    _raw_delta = _trend_raw - _ref_raw;
+    _ref_rows_sum = Max(_var_rows_sum, _wmap_rows_sum);
+    _row_delta = _trend_rows_sum - _ref_rows_sum;
+    _n_events = Max(1, N Items(events_list));
+    _per_row_adjust = Round(_row_delta / _n_events, 0);
+    _new_baseline_pad = Max(0, _per_row_adjust);
+    _old_baseline_pad = nontrend_baseline_pad_points_runtime;
+
+    If(val_debug_layout == 1,
+        Print(
+            "LAYOUT DEBUG AUTO BASELINE PAD - pre_raw(trend,var,wmap)=(" || Char(_trend_raw) || "," || Char(_var_raw) || "," || Char(_wmap_raw) || ")" ||
+            " raw_delta=" || Char(_raw_delta) ||
+            " rowsum(trend,var,wmap)=(" || Char(_trend_rows_sum) || "," || Char(_var_rows_sum) || "," || Char(_wmap_rows_sum) || ")" ||
+            " row_delta=" || Char(_row_delta) ||
+            " per_row_adjust=" || Char(_per_row_adjust) ||
+            " nontrend_baseline_pad(from,to)=(" || Char(_old_baseline_pad) || "," || Char(_new_baseline_pad) || ")"
+        );
+    );
+
+    nontrend_baseline_pad_points_runtime = _new_baseline_pad;
+
+    If(Abs(_row_delta) >= 2 & _old_baseline_pad != _new_baseline_pad,
+        Align_Event_Row_Heights(events_list);
+    );
+);
+
+Print_Final_FitGroup_Column_Heights = Function({},
+    // Allow one extra layout cycle so reported display-box sizes are post-render.
+    Wait(0);
+
+    _trend_h = Get_DisplayBox_Height(fg_trend);
+    _wmap_h = Get_DisplayBox_Height(fg_wmap);
+    _var_h = Get_DisplayBox_Height(fg_var);
+
+    _trend_rows_sum = Sum_Row_Heights(trend_row_heights, _event_keys);
+    _var_rows_sum = Sum_Row_Heights(var_row_heights, _event_keys);
+    _wmap_rows_sum = Sum_Row_Heights(wmap_row_heights, _event_keys);
+
+    If(Is Missing(_trend_h) | _trend_h <= 0,
+        Try(_trend_h = Get_Report_Height(fg_trend << Report));
+    );
+    If(Is Missing(_wmap_h) | _wmap_h <= 0,
+        Try(_wmap_h = Get_Report_Height(fg_wmap << Report));
+    );
+    If(Is Missing(_var_h) | _var_h <= 0,
+        Try(_var_h = Get_Report_Height(fg_var << Report));
+    );
+
+    Print(
+        "LAYOUT DEBUG FINAL SUMMARY - " ||
+        "raw(trend,var,wmap)=(" || Char(_trend_h) || "," || Char(_var_h) || "," || Char(_wmap_h) || ") " ||
+        "rowsum(trend,var,wmap)=(" || Char(_trend_rows_sum) || "," || Char(_var_rows_sum) || "," || Char(_wmap_rows_sum) || ") " ||
+        "chrome(trend,var,wmap)=(" || Char(_trend_h - _trend_rows_sum) || "," || Char(_var_h - _var_rows_sum) || "," || Char(_wmap_h - _wmap_rows_sum) || ")"
+    );
+);
+
+If(_view_rows > 0 & _coords_rows > 0,
+    Auto_Adjust_Nontrend_Baseline_Pad(_event_keys);
+    Print_Final_FitGroup_Column_Heights();
+);
+
+log_path = "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\backups\SURF_SCAN_CHAMBER_log.txt";
+track_usage = Function({},
+    Try(
+        timestamp = Char(Today());
+        log_entry = timestamp || " - Surf scan chamber script usage" || "\!n";
+        If(File Exists(log_path),
+            current_content = Load Text File(log_path);
+            Save Text File(log_path, current_content || log_entry);
+        ,
+            Save Text File(log_path, log_entry);
+        );
+    );
+);
+track_usage();

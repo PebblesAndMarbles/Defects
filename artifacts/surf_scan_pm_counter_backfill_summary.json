@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-04-29T10:54:56.681462",
+  "metrics": {
+    "path": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_METRICS.csv",
+    "rows": 7805,
+    "event_context": {
+      "distinct_events": 3318,
+      "distinct_chambers": 53,
+      "computed_lookback_days": 766,
+      "lookback_days": 766
+    },
+    "pm_non_null_before": {
+      "FULLPM": 0,
+      "FULLPM_RF": 0,
+      "MINIPM": 0,
+      "MINIPM_RF": 0,
+      "CNTR_SS": 0
+    },
+    "pm_non_null_after": {
+      "FULLPM": 3375,
+      "FULLPM_RF": 959,
+      "MINIPM": 3375,
+      "MINIPM_RF": 1045,
+      "CNTR_SS": 3454
+    }
+  },
+  "coordinates": {
+    "path": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_COORDINATES.csv",
+    "rows": 110902,
+    "event_context": {
+      "distinct_events": 2085,
+      "distinct_chambers": 53,
+      "computed_lookback_days": 766,
+      "lookback_days": 766
+    },
+    "pm_non_null_before": {
+      "FULLPM": 0,
+      "FULLPM_RF": 0,
+      "MINIPM": 0,
+      "MINIPM_RF": 0,
+      "CNTR_SS": 0
+    },
+    "pm_non_null_after": {
+      "FULLPM": 86513,
+      "FULLPM_RF": 2798,
+      "MINIPM": 86513,
+      "MINIPM_RF": 3486,
+      "CNTR_SS": 21194
+    }
+  }
+}

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edge Defect Report</title>
+<style>
+  body  { font-family:Arial,sans-serif; background:#1a1a1a; color:#e0e0e0; margin:24px; }
+  h1   { color:#90caf9; margin-bottom:4px; }
+  h2   { color:#80cbc4; margin:24px 0 8px; font-size:15px; }
+  a    { color:inherit; text-decoration:none; }
+
+  /* ── wafermaps ── */
+  .maps { display:flex; gap:24px; justify-content:center; margin:20px 0 28px; }
+  .maps figure { margin:0; text-align:center; }
+  .maps img { max-width:420px; border:2px solid #37474f; border-radius:6px; }
+  .maps figcaption { font-size:12px; color:#607d8b; margin-top:5px; }
+
+  /* ── dist table ── */
+  table.dist { border-collapse:collapse; font-size:12px; margin-bottom:24px; }
+  table.dist th { background:#263238; color:#80cbc4; padding:6px 16px;
+                   border:1px solid #37474f; text-align:left; }
+  table.dist td { padding:5px 16px; border:1px solid #37474f; }
+  table.dist tr:hover td { background:#263238; }
+
+  /* ── image grid ── */
+  table.main { border-collapse:collapse; width:100%; table-layout:fixed; }
+  table.main th {
+    background:#263238; color:#e0e0e0;
+    padding:8px 10px; font-size:12px;
+    border:1px solid #37474f; text-align:left;
+    width:25%;
+  }
+  table.main th.l5 { border-top:3px solid #42A5F5; }
+  table.main th.l6 { border-top:3px solid #FFA726; }
+  table.main td {
+    vertical-align:top; padding:7px;
+    border:1px solid #2e2e2e; background:#212121;
+  }
+  table.main td img {
+    width:100%; display:block;
+    border-radius:3px; cursor:pointer;
+    transition:opacity .15s;
+  }
+  table.main td img:hover { opacity:.8; }
+  .cl { font-size:10px; color:#90a4ae; margin-bottom:3px; line-height:1.4; }
+
+  /* column separator between 8M5CL and 8M6CL */
+  table.main th:nth-child(3),
+  table.main td:nth-child(3) { border-left:3px solid #37474f; }
+</style>
+</head>
+<body>
+
+<h1>Edge Defect Report</h1>
+<p style="color:#607d8b;font-size:13px;margin-top:0">
+  Source: Edge ICCR2 and SRCIP Center SMPs since December.csv &nbsp;&bull;&nbsp;
+  Raw: 50 defects @ 8M5CL, 88 defects @ 8M6CL &nbsp;|&nbsp;
+  Included (manifest IDs 2+3): 5 @ 8M5CL, 14 @ 8M6CL
+</p>
+
+<p style="color:#90a4ae;font-size:12px;margin-top:0">
+  Filter summary: raw rows 138; included 19; excluded 119;
+  rows with missing WAFER_KEY/DEFECT_ID 0.
+</p>
+
+<div class="maps">
+  <figure>
+    <a href="Edge_8M5CL_wafermap.png" target="_blank"><img src="Edge_8M5CL_wafermap.png" alt="8M5CL wafermap"></a>
+    <figcaption>8M5CL &nbsp;&bull;&nbsp; 50 defects</figcaption>
+  </figure>
+  <figure>
+    <a href="Edge_8M6CL_wafermap.png" target="_blank"><img src="Edge_8M6CL_wafermap.png" alt="8M6CL wafermap"></a>
+    <figcaption>8M6CL &nbsp;&bull;&nbsp; 88 defects</figcaption>
+  </figure>
+</div>
+
+<h2>CLASS &rarr; FINEBIN &nbsp;&mdash;&nbsp;
+  <span style="color:#42A5F5">8M5CL</span></h2>
+<table class="dist">
+<thead><tr>
+  <th>CLASS (original)</th><th>FINEBIN (refined)</th>
+  <th style="text-align:right">Count</th>
+</tr></thead>
+<tbody><tr><td>SMALL_PARTICLE</td><td style="color:#FFA726;font-weight:bold">SMALL_PARTICLE</td><td style="text-align:right">50</td></tr>
+</tbody>
+</table>
+
+<h2>CLASS &rarr; FINEBIN &nbsp;&mdash;&nbsp;
+  <span style="color:#FFA726">8M6CL</span></h2>
+<table class="dist">
+<thead><tr>
+  <th>CLASS (original)</th><th>FINEBIN (refined)</th>
+  <th style="text-align:right">Count</th>
+</tr></thead>
+<tbody><tr><td>SMALL_PARTICLE</td><td style="color:#B0BEC5;font-weight:bold" style="color:#FFA726">LOWCONF</td><td style="text-align:right">2</td></tr>
+<tr><td>SMALL_PARTICLE</td><td style="color:#FFA726;font-weight:bold">SMALL_PARTICLE</td><td style="text-align:right">86</td></tr>
+</tbody>
+</table>
+
+<h2>Defect Images</h2>
+<table class="main">
+<thead><tr>
+  <th class="l5">8M5CL &mdash; Brightfield</th>
+  <th class="l5">8M5CL &mdash; Darkfield</th>
+  <th class="l6">8M6CL &mdash; Brightfield</th>
+  <th class="l6">8M6CL &mdash; Darkfield</th>
+</tr></thead>
+<tbody>
+<tr style="border-left:3px solid #FFA726">
+<td><div class="cl">GT6QX355JKD6<br><span style='color:#546e7a'>AME401_PM1 &bull; #4184</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME401_PM1/260414_2325_D601495_355_SMP_8M5CL_4184_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME401_PM1/260414_2325_D601495_355_SMP_8M5CL_4184_2.jpg" loading="lazy"></a></td><td><div class="cl">GT6QX355JKD6<br><span style='color:#546e7a'>AME401_PM1 &bull; #4184</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME401_PM1/260414_2325_D601495_355_SMP_8M5CL_4184_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME401_PM1/260414_2325_D601495_355_SMP_8M5CL_4184_3.jpg" loading="lazy"></a></td><td><div class="cl">GT5JE508JKG4<br><span style='color:#546e7a'>AME421_PM6 &bull; #23</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME421_PM6/260410_1035_D551240_508_SMP_8M6CL_23_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME421_PM6/260410_1035_D551240_508_SMP_8M6CL_23_2.jpg" loading="lazy"></a></td><td><div class="cl">GT5JE508JKG4<br><span style='color:#546e7a'>AME421_PM6 &bull; #23</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME421_PM6/260410_1035_D551240_508_SMP_8M6CL_23_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME421_PM6/260410_1035_D551240_508_SMP_8M6CL_23_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td><div class="cl">KJ7KE239WFG6<br><span style='color:#546e7a'>AME425_PM4 &bull; #3916</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME425_PM4/260416_0844_D602108_239_SMP_8M5CL_3916_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME425_PM4/260416_0844_D602108_239_SMP_8M5CL_3916_2.jpg" loading="lazy"></a></td><td><div class="cl">KJ7KE239WFG6<br><span style='color:#546e7a'>AME425_PM4 &bull; #3916</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME425_PM4/260416_0844_D602108_239_SMP_8M5CL_3916_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME425_PM4/260416_0844_D602108_239_SMP_8M5CL_3916_3.jpg" loading="lazy"></a></td><td><div class="cl">KJ7KK004WFF4<br><span style='color:#546e7a'>AME423_PM3 &bull; #51</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM3/260414_2156_D602104_004_SMP_8M6CL_51_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM3/260414_2156_D602104_004_SMP_8M6CL_51_2.jpg" loading="lazy"></a></td><td><div class="cl">KJ7KK004WFF4<br><span style='color:#546e7a'>AME423_PM3 &bull; #51</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM3/260414_2156_D602104_004_SMP_8M6CL_51_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM3/260414_2156_D602104_004_SMP_8M6CL_51_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td><div class="cl">GT6QX355JKD6<br><span style='color:#546e7a'>AME401_PM1 &bull; #4184</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME401_PM1/260414_2325_D601495_355_SMP_8M5CL_4184_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME401_PM1/260414_2325_D601495_355_SMP_8M5CL_4184_2.jpg" loading="lazy"></a></td><td><div class="cl">GT6QX355JKD6<br><span style='color:#546e7a'>AME401_PM1 &bull; #4184</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME401_PM1/260414_2325_D601495_355_SMP_8M5CL_4184_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME401_PM1/260414_2325_D601495_355_SMP_8M5CL_4184_3.jpg" loading="lazy"></a></td><td><div class="cl">GT7PS426JKF3<br><span style='color:#546e7a'>AME411_PM2 &bull; #168</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260414_2233_D603127_426_SMP_8M6CL_168_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260414_2233_D603127_426_SMP_8M6CL_168_2.jpg" loading="lazy"></a></td><td><div class="cl">GT7PS426JKF3<br><span style='color:#546e7a'>AME411_PM2 &bull; #168</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260414_2233_D603127_426_SMP_8M6CL_168_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260414_2233_D603127_426_SMP_8M6CL_168_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td><div class="cl">KJ7KE239WFG6<br><span style='color:#546e7a'>AME425_PM4 &bull; #3916</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME425_PM4/260416_0844_D602108_239_SMP_8M5CL_3916_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME425_PM4/260416_0844_D602108_239_SMP_8M5CL_3916_2.jpg" loading="lazy"></a></td><td><div class="cl">KJ7KE239WFG6<br><span style='color:#546e7a'>AME425_PM4 &bull; #3916</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME425_PM4/260416_0844_D602108_239_SMP_8M5CL_3916_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME425_PM4/260416_0844_D602108_239_SMP_8M5CL_3916_3.jpg" loading="lazy"></a></td><td><div class="cl">KJ7KK160WFH2<br><span style='color:#546e7a'>AME427_PM6 &bull; #3522</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME427_PM6/260415_0235_D601570_160_SMP_8M6CL_3522_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME427_PM6/260415_0235_D601570_160_SMP_8M6CL_3522_2.jpg" loading="lazy"></a></td><td><div class="cl">KJ7KK160WFH2<br><span style='color:#546e7a'>AME427_PM6 &bull; #3522</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME427_PM6/260415_0235_D601570_160_SMP_8M6CL_3522_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME427_PM6/260415_0235_D601570_160_SMP_8M6CL_3522_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td><div class="cl">GS7PC879JKB3<br><span style='color:#546e7a'>AME411_PM4 &bull; #7380</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM4/260426_0559_D605323_879_SMP_8M5CL_7380_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM4/260426_0559_D605323_879_SMP_8M5CL_7380_2.jpg" loading="lazy"></a></td><td><div class="cl">GS7PC879JKB3<br><span style='color:#546e7a'>AME411_PM4 &bull; #7380</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM4/260426_0559_D605323_879_SMP_8M5CL_7380_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM4/260426_0559_D605323_879_SMP_8M5CL_7380_3.jpg" loading="lazy"></a></td><td><div class="cl">KJ7KK021WFB6<br><span style='color:#546e7a'>AME423_PM4 &bull; #65</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM4/260414_2203_D602104_021_SMP_8M6CL_65_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM4/260414_2203_D602104_021_SMP_8M6CL_65_2.jpg" loading="lazy"></a></td><td><div class="cl">KJ7KK021WFB6<br><span style='color:#546e7a'>AME423_PM4 &bull; #65</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM4/260414_2203_D602104_021_SMP_8M6CL_65_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM4/260414_2203_D602104_021_SMP_8M6CL_65_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td></td><td></td><td><div class="cl">5DXBG149MVF3<br><span style='color:#546e7a'>AME423_PM5 &bull; #113</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM5/260417_0933_D601545_149_SMP_8M6CL_113_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM5/260417_0933_D601545_149_SMP_8M6CL_113_2.jpg" loading="lazy"></a></td><td><div class="cl">5DXBG149MVF3<br><span style='color:#546e7a'>AME423_PM5 &bull; #113</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM5/260417_0933_D601545_149_SMP_8M6CL_113_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM5/260417_0933_D601545_149_SMP_8M6CL_113_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td></td><td></td><td><div class="cl">5DWZH313MVF5<br><span style='color:#546e7a'>AME419_PM3 &bull; #1954</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME419_PM3/260421_2144_D550E80_313_SMP_8M6CL_1954_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME419_PM3/260421_2144_D550E80_313_SMP_8M6CL_1954_2.jpg" loading="lazy"></a></td><td><div class="cl">5DWZH313MVF5<br><span style='color:#546e7a'>AME419_PM3 &bull; #1954</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME419_PM3/260421_2144_D550E80_313_SMP_8M6CL_1954_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME419_PM3/260421_2144_D550E80_313_SMP_8M6CL_1954_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td></td><td></td><td><div class="cl">KJ7KK004WFF4<br><span style='color:#546e7a'>AME423_PM3 &bull; #51</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM3/260414_2156_D602104_004_SMP_8M6CL_51_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM3/260414_2156_D602104_004_SMP_8M6CL_51_2.jpg" loading="lazy"></a></td><td><div class="cl">KJ7KK004WFF4<br><span style='color:#546e7a'>AME423_PM3 &bull; #51</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM3/260414_2156_D602104_004_SMP_8M6CL_51_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM3/260414_2156_D602104_004_SMP_8M6CL_51_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td></td><td></td><td><div class="cl">GT7PS426JKF3<br><span style='color:#546e7a'>AME411_PM2 &bull; #168</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260414_2233_D603127_426_SMP_8M6CL_168_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260414_2233_D603127_426_SMP_8M6CL_168_2.jpg" loading="lazy"></a></td><td><div class="cl">GT7PS426JKF3<br><span style='color:#546e7a'>AME411_PM2 &bull; #168</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260414_2233_D603127_426_SMP_8M6CL_168_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260414_2233_D603127_426_SMP_8M6CL_168_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td></td><td></td><td><div class="cl">KJ7KK160WFH2<br><span style='color:#546e7a'>AME427_PM6 &bull; #3522</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME427_PM6/260415_0235_D601570_160_SMP_8M6CL_3522_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME427_PM6/260415_0235_D601570_160_SMP_8M6CL_3522_2.jpg" loading="lazy"></a></td><td><div class="cl">KJ7KK160WFH2<br><span style='color:#546e7a'>AME427_PM6 &bull; #3522</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME427_PM6/260415_0235_D601570_160_SMP_8M6CL_3522_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME427_PM6/260415_0235_D601570_160_SMP_8M6CL_3522_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td></td><td></td><td><div class="cl">KJ7KK021WFB6<br><span style='color:#546e7a'>AME423_PM4 &bull; #65</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM4/260414_2203_D602104_021_SMP_8M6CL_65_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM4/260414_2203_D602104_021_SMP_8M6CL_65_2.jpg" loading="lazy"></a></td><td><div class="cl">KJ7KK021WFB6<br><span style='color:#546e7a'>AME423_PM4 &bull; #65</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM4/260414_2203_D602104_021_SMP_8M6CL_65_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM4/260414_2203_D602104_021_SMP_8M6CL_65_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td></td><td></td><td><div class="cl">5DXBG149MVF3<br><span style='color:#546e7a'>AME423_PM5 &bull; #113</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM5/260417_0933_D601545_149_SMP_8M6CL_113_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM5/260417_0933_D601545_149_SMP_8M6CL_113_2.jpg" loading="lazy"></a></td><td><div class="cl">5DXBG149MVF3<br><span style='color:#546e7a'>AME423_PM5 &bull; #113</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM5/260417_0933_D601545_149_SMP_8M6CL_113_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME423_PM5/260417_0933_D601545_149_SMP_8M6CL_113_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td></td><td></td><td><div class="cl">5DWZH313MVF5<br><span style='color:#546e7a'>AME419_PM3 &bull; #1954</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME419_PM3/260421_2144_D550E80_313_SMP_8M6CL_1954_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME419_PM3/260421_2144_D550E80_313_SMP_8M6CL_1954_2.jpg" loading="lazy"></a></td><td><div class="cl">5DWZH313MVF5<br><span style='color:#546e7a'>AME419_PM3 &bull; #1954</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME419_PM3/260421_2144_D550E80_313_SMP_8M6CL_1954_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME419_PM3/260421_2144_D550E80_313_SMP_8M6CL_1954_3.jpg" loading="lazy"></a></td></tr>
+<tr style="border-left:3px solid #FFA726">
+<td></td><td></td><td><div class="cl">A29M4051SLG5<br><span style='color:#546e7a'>AME411_PM2 &bull; #21</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260425_1207_D604231_051_SMP_8M6CL_21_2.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260425_1207_D604231_051_SMP_8M6CL_21_2.jpg" loading="lazy"></a></td><td><div class="cl">A29M4051SLG5<br><span style='color:#546e7a'>AME411_PM2 &bull; #21</span></div><a href="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260425_1207_D604231_051_SMP_8M6CL_21_3.jpg" target="_blank"><img src="file://orshfs.intel.com/ORAnalysis%24/1276_MAODATA/Config/etch/AME/tbatson/Defects/BE/images/defects/AME411_PM2/260425_1207_D604231_051_SMP_8M6CL_21_3.jpg" loading="lazy"></a></td></tr>
+
+</tbody>
+</table>
+
+</body>
+</html>

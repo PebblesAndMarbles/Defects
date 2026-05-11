@@ -1,0 +1,12 @@
+{
+  "full_lookback_days": 760,
+  "preserve_recent_days": 90,
+  "old_rows_metrics": 5342,
+  "old_rows_coordinates": 37966,
+  "merged_rows_metrics": 7798,
+  "merged_rows_coordinates": 110887,
+  "rows_stacked": 23291,
+  "rows_stacked_y": 575,
+  "metrics_output": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_METRICS.csv",
+  "coordinates_output": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_COORDINATES.csv"
+}
