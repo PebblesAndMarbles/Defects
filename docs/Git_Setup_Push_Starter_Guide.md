@@ -38,26 +38,42 @@ Then retry:
 
     git status
 
-## 4. Add a Practical Ignore File
+## 4. Create a New Remote Repository on GitHub
 
-Create a .gitignore at repo root and start with this baseline:
+1. Go to https://github.com/PebblesAndMarbles and click the "+" (New) button or visit https://github.com/new
+2. Set the repository name to:
 
-    __pycache__/
-    *.py[cod]
-    .vscode/
-    *.log
-    *.csv
-    *.xlsx
-    *.png
-    *.jpg
-    *.jpeg
-    *.gif
-    build/
-    dist/
+    BE AME Inline and Station Monitor Defects
 
-Adjust to your project. If your repo should include some data files, remove only the specific patterns you need.
+3. (Optional) Add a description, set visibility (private/public), and DO NOT initialize with a README, .gitignore, or license (these are already in your local folder).
+4. Click "Create repository".
 
-## 5. First Commit
+## 5. Add the Remote and Push
+
+In your project folder, run (replace USERNAME if needed):
+
+    git remote add origin https://github.com/PebblesAndMarbles/BE-AME-Inline-and-Station-Monitor-Defects.git
+    git branch -M master
+    git push -u origin master
+
+If prompted for credentials, use your GitHub username and a personal access token (not your password).
+
+## 6. Exclude Images and Large Files
+
+- The `.gitignore` is set to exclude the `images/` folder and common large file types.
+- Manifest and artifact JSON files are included by default.
+- To check what will be pushed:
+
+      git status
+      git diff --cached
+
+## 7. Troubleshooting
+
+- If you see errors about file size, add the file pattern to `.gitignore` and retry.
+- If you see authentication errors, check your GitHub token or SSH key setup.
+- For network path issues, see section 3 above.
+
+## 8. First Commit
 
 Stage intentionally (preferred), then commit:
 
@@ -67,7 +83,7 @@ Stage intentionally (preferred), then commit:
 
 Tip: if you want a code-docs-only first commit, stage by extension or folder instead of using git add .
 
-## 6. Create GitHub Repo and Connect Remote
+## 9. Create GitHub Repo and Connect Remote
 
 Create an empty repo on GitHub first (no README/.gitignore/license), then add remote:
 
@@ -79,11 +95,11 @@ If origin already exists and needs replacement:
     git remote remove origin
     git remote add origin https://github.com/<owner>/<repo>.git
 
-## 7. First Push
+## 10. First Push
 
     git push -u origin main
 
-## 8. Regular Update Flow
+## 11. Regular Update Flow
 
 Use this sequence for daily/weekly sync:
 
@@ -94,7 +110,7 @@ Use this sequence for daily/weekly sync:
 
 If there are no changes, Git will tell you nothing to commit.
 
-## 9. Recommended Optional Automation Script
+## 12. Recommended Optional Automation Script
 
 Create scripts/backup_push.ps1 with this shape:
 
@@ -116,7 +132,7 @@ Run it with:
 
     powershell -ExecutionPolicy Bypass -File .\scripts\backup_push.ps1
 
-## 10. Common Errors and Fast Fixes
+## 13. Common Errors and Fast Fixes
 
 1. Remote not found
 - Cause: using profile URL instead of repo URL.
@@ -145,7 +161,7 @@ Run it with:
     git commit -m "Stop tracking large generated file"
     git push
 
-## 11. Portable Checklist (Copy for Any New Folder)
+## 14. Portable Checklist (Copy for Any New Folder)
 
 1. Open folder in PowerShell.
 2. git init and set main.
