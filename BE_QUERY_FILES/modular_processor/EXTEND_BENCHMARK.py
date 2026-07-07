@@ -47,8 +47,9 @@ DEFECT_FILEPATH = (
 )
 
 # Raw per-layer query files used to join DEVICE back onto the 60-day file
-RAW_M5_CURRENT_PATH = str(Path(BE_QUERY_FILES_DIR) / "8M5CL_NCDD.csv")
-RAW_M6_CURRENT_PATH = str(Path(BE_QUERY_FILES_DIR) / "8M6CL_NCDD.csv")
+# PHASE 2B: Switched to rolling 10-day NCDD+EDI files (includes both metrics, match pipeline window)
+RAW_M5_CURRENT_PATH = str(Path(BE_QUERY_FILES_DIR) / "8M5CL_NCDD_EDI.csv")
+RAW_M6_CURRENT_PATH = str(Path(BE_QUERY_FILES_DIR) / "8M6CL_NCDD_EDI.csv")
 
 MERGED_SOURCE_DIR = str(PIPELINE_PATHS.merged_sources_dir)
 MERGED_M5_OUTPUT_PATH = str(PIPELINE_PATHS.merged_m5_csv)
@@ -79,6 +80,7 @@ _today = datetime.today().strftime("%Y%m%d")
 OUTPUT_PATH = (
     str(PIPELINE_PATHS.benchmark_dir / f"{_today}_8M5CL_8M6CL_202606_FLEET_BENCHMARK_ELWC_7DAY.csv")
 )
+CURRENT_BENCHMARK_PATH = str(PIPELINE_PATHS.benchmark_dir / "CURRENT_BENCHMARK.csv")
 
 # Aggregation settings - must match the original run
 N_DAYS = 7
@@ -147,6 +149,13 @@ def merge_and_dedup_raw_sources(current_path, output_path, layer_label):
     Dedup key:
         ACTUAL_LOT@DEFECT + WAFER_ID + LAYER + INSPECTION_TIME@DEFECT
 
+    PHASE 2B FIX: Handle dual-metric (NCDD_EDI) source files intelligently
+        When source contains both NCDD and EDI rows (separate rows per metric):
+        1. Split NCDD rows (BEEP_NCDD not null) and EDI rows (BEEP_EDI not null) separately
+        2. Dedup each metric set independently (keep="last")
+        3. Merge on wafer key (full outer join) to preserve both metrics
+        This prevents loss of NCDD data when EDI rows dedupe down to a single row.
+
     NOTE:
         Daily launcher flow intentionally uses only current JSL raw files.
         Historical seed snapshots are no longer consumed here.
@@ -178,14 +187,121 @@ def merge_and_dedup_raw_sources(current_path, output_path, layer_label):
         "LAYER",
         "INSPECTION_TIME@DEFECT",
     ]
+    
+    # Check if this is a dual-metric source (has both NCDD and EDI columns in JMP format)
+    # Look for patterns like DEFECT@WAFER@CLASS_NCDD@* and DEFECT@WAFER@CLASS_EDI@*
+    has_ncdd_cols = any("CLASS_NCDD" in col for col in current.columns)
+    has_edi_cols = any("CLASS_EDI" in col for col in current.columns)
+    has_ncdd_metrics = "BEEP_NCDD" in current.columns or "SUM_NCDD" in current.columns
+    has_edi_metrics = "BEEP_EDI" in current.columns or "SUM_EDI" in current.columns
+    
+    # Dual-metric if either format is present
+    is_dual_metric = (has_ncdd_cols and has_edi_cols) or (has_ncdd_metrics and has_edi_metrics)
+    
     before = len(current)
-    merged = (
-        current
-        .sort_values(dedup_key)
-        .drop_duplicates(subset=dedup_key, keep="last")
-        .reset_index(drop=True)
-    )
-    removed = before - len(merged)
+    
+    if is_dual_metric:
+        print(f"   [INFO] Dual-metric source detected (NCDD + EDI)")
+        
+        # Identify NCDD and EDI metric columns
+        ncdd_metric_cols = [col for col in current.columns if "CLASS_NCDD" in col]
+        edi_metric_cols = [col for col in current.columns if "CLASS_EDI" in col]
+        
+        # Also check for renamed format
+        if not ncdd_metric_cols and "BEEP_NCDD" in current.columns:
+            ncdd_metric_cols = ["BEEP_NCDD"]
+        if not edi_metric_cols and "BEEP_EDI" in current.columns:
+            edi_metric_cols = ["BEEP_EDI"]
+        
+        # Split: rows are NCDD if they have ANY non-null value in NCDD columns
+        if ncdd_metric_cols:
+            ncdd_rows = current[current[ncdd_metric_cols].notna().any(axis=1)].copy()
+        else:
+            ncdd_rows = pd.DataFrame()
+        
+        # Split: rows are EDI if they have ANY non-null value in EDI columns
+        if edi_metric_cols:
+            edi_rows = current[current[edi_metric_cols].notna().any(axis=1)].copy()
+        else:
+            edi_rows = pd.DataFrame()
+        
+        print(f"   [INFO] Split: {len(ncdd_rows):,} NCDD rows, {len(edi_rows):,} EDI rows")
+        
+        # Dedup NCDD rows separately
+        if len(ncdd_rows) > 0:
+            ncdd_dedup = (
+                ncdd_rows
+                .sort_values(dedup_key)
+                .drop_duplicates(subset=dedup_key, keep="last")
+                .reset_index(drop=True)
+            )
+            print(f"   [INFO] NCDD dedup: {len(ncdd_rows):,} -> {len(ncdd_dedup):,} rows")
+        else:
+            ncdd_dedup = pd.DataFrame()
+        
+        # Dedup EDI rows separately
+        if len(edi_rows) > 0:
+            edi_dedup = (
+                edi_rows
+                .sort_values(dedup_key)
+                .drop_duplicates(subset=dedup_key, keep="last")
+                .reset_index(drop=True)
+            )
+            print(f"   [INFO] EDI dedup: {len(edi_rows):,} -> {len(edi_dedup):,} rows")
+        else:
+            edi_dedup = pd.DataFrame()
+        
+        # Merge NCDD and EDI on wafer key (full outer join preserves both metrics)
+        wafer_key = ["ACTUAL_LOT@DEFECT", "WAFER_ID", "LAYER", "INSPECTION_TIME@DEFECT"]
+        if len(ncdd_dedup) > 0 and len(edi_dedup) > 0:
+            merged = pd.merge(ncdd_dedup, edi_dedup, on=wafer_key, how="outer", suffixes=("_NCDD_only", "_EDI_only"))
+            
+            # Consolidate suffixed columns back to original names
+            # For each column that got suffixes, combine NCDD and EDI versions
+            cols_to_drop = []
+            for col in ncdd_dedup.columns:
+                if col not in wafer_key:
+                    col_ncdd = f"{col}_NCDD_only"
+                    col_edi = f"{col}_EDI_only"
+                    if col_ncdd in merged.columns and col_edi in merged.columns:
+                        # Combine: take NCDD value first, fill NaNs with EDI
+                        merged[col] = merged[col_ncdd].fillna(merged[col_edi])
+                        cols_to_drop.extend([col_ncdd, col_edi])
+                    elif col_ncdd in merged.columns:
+                        # Only NCDD version exists, rename back
+                        merged[col] = merged[col_ncdd]
+                        cols_to_drop.append(col_ncdd)
+            
+            # Also handle columns from EDI that weren't in NCDD
+            for col in edi_dedup.columns:
+                if col not in wafer_key and col not in ncdd_dedup.columns:
+                    col_edi = f"{col}_EDI_only"
+                    if col_edi in merged.columns:
+                        merged[col] = merged[col_edi]
+                        cols_to_drop.append(col_edi)
+            
+            # Drop all the suffixed columns
+            merged = merged.drop(columns=cols_to_drop, errors="ignore")
+            print(f"   [INFO] Merged NCDD+EDI: {len(merged):,} rows (outer join + consolidated columns)")
+        elif len(ncdd_dedup) > 0:
+            merged = ncdd_dedup
+            print(f"   [INFO] Only NCDD rows present: {len(merged):,} rows")
+        elif len(edi_dedup) > 0:
+            merged = edi_dedup
+            print(f"   [INFO] Only EDI rows present: {len(merged):,} rows")
+        else:
+            merged = pd.DataFrame()
+        
+        removed = before - len(merged)
+    else:
+        # Original single-metric dedup logic
+        merged = (
+            current
+            .sort_values(dedup_key)
+            .drop_duplicates(subset=dedup_key, keep="last")
+            .reset_index(drop=True)
+        )
+        removed = before - len(merged)
 
     out_path = Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -543,12 +659,18 @@ def main():
     # Step 7: Save
     combined_df.to_csv(OUTPUT_PATH, index=False)
     print(f"\n[SAVE] Extended file saved to:\n   {OUTPUT_PATH}")
+
+    # Step 7b: Save fixed-name current benchmark for downstream ad hoc visualizers.
+    combined_df.to_csv(CURRENT_BENCHMARK_PATH, index=False)
+    print(f"[SAVE] Current benchmark file saved to:\n   {CURRENT_BENCHMARK_PATH}")
+
     manifest_path = write_artifact_manifest(
         PIPELINE_PATHS.benchmark_artifact_manifest,
         extra_outputs={
             "existing_benchmark": existing_benchmark_path,
             "defect_input_csv": Path(DEFECT_FILEPATH),
             "extended_benchmark_csv": Path(OUTPUT_PATH),
+            "current_benchmark_csv": Path(CURRENT_BENCHMARK_PATH),
         },
     )
     print(f"[SAVE] Artifact manifest saved to:\n   {manifest_path}")

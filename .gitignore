@@ -23,9 +23,11 @@ images/
 *.tmp
 *.log
 
-# Exclude outputs and debug logs
+# Exclude outputs, debug logs, and old/archived work
 outputs/
 debug_logs/
+OLD/
+rollups/
 
 # Allow manifest and artifacts
 !artifacts/*.json

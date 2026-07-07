@@ -153,6 +153,12 @@ result = New Window( "NCDD Report Options", <<Modal, <<Return Result,
 					yymmLookbackTB = Text Edit Box("12", <<Set Width(40))
 				)
 			),
+            Panel Box("METRIC SOURCE",
+                rbMetric = Radio Box(
+                    {"NCDD (Default)",
+                     "EDI (Experimental)"}
+                ),
+            ),
             Panel Box("SELECT TEAM MEMBER",
                 rbChamber = Radio Box( {"Trey", "Kayden", "Chang", "Adi", "Travis", "Tyler", "Mathius", "Sashank", "William", "Minog"} ),
             ),
@@ -184,6 +190,7 @@ result = New Window( "NCDD Report Options", <<Modal, <<Return Result,
                 val_hide_status = rbHideStatus << Get;
                 val_chamber_index = rbChamber << Get;
 				val_source_index = rbSource << Get;
+				val_metric_index = rbMetric << Get;
 				val_yymm_lookback_periods = Parse_Lookback_Periods(yymmLookbackTB << Get Text, 12);
 				If(val_source_index == 2,
 					path = path_extended;
@@ -204,6 +211,29 @@ result = New Window( "NCDD Report Options", <<Modal, <<Return Result,
 					coords_path = coords_path_60day;
 					selected_source_name = "Most recent 60 days";
 				);
+
+                // Set metric columns and axis limits based on selection
+                If(val_metric_index == 2,
+                    // EDI metrics selected
+                    ycol0 = "SUM_EDI";
+                    ycol1 = "SMP_EDI";
+                    ycol2 = "BEEP_EDI";
+                    metric_source = "EDI";
+                    title = "EDI";
+                    window_title = "EDI Report";
+                    filter_str = "SMP EDI";
+                    ymin = -0.1; ymax = 2; inc = 0.2;
+                ,
+                    // NCDD metrics (default)
+                    ycol0 = "SUM_NCDD";
+                    ycol1 = "SMP_NCDD";
+                    ycol2 = "BEEP_NCDD";
+                    metric_source = "NCDD";
+                    title = "NCDD";
+                    window_title = "NCDD Report";
+                    filter_str = "SMP NCDD";
+                    ymin = -0.001; ymax = 0.02; inc = 0.002;
+                );
 
                 // Resolve chamber override — SUBENTITY_TB is always top priority.
                 // Accepts a comma-separated list, e.g. "AME409_PM1,AME411_PM4,AME427_PM3"
@@ -233,21 +263,23 @@ result = New Window( "NCDD Report Options", <<Modal, <<Return Result,
                 );
                 Show("CHAMBER_STR:", CHAMBER_STR, "chamber_list:", chamber_list, "selected_member:", selected_member);
 				Show("Selected source:", selected_source_name, "path:", path, "coords_path:", coords_path, "YYMM periods:", val_yymm_lookback_periods);
+                Show("Selected metric:", metric_source, "Columns:", ycol0, ycol1, ycol2);
 
                 // Only return numeric values in result list to avoid {string_var} symbol issues
-				{val_cb_close_reports_and_windows, val_hide_status, val_show_fleet, val_source_index, val_black_wafermap_markers}
+				{val_cb_close_reports_and_windows, val_hide_status, val_show_fleet, val_source_index, val_black_wafermap_markers, val_metric_index}
             ),
         ),
     ),
 );
 
 // Extract results from modal dialog (chamber_list and selected_member already set inside Button Box)
-If(Is List(result) & N Items(result) == 5,
+If(Is List(result) & N Items(result) == 6,
     val_cb_close_reports_and_windows = result[1];
     val_hide_status = result[2];
     val_show_fleet = result[3];
 	val_source_index = result[4];
 	val_black_wafermap_markers = result[5];
+	val_metric_index = result[6];
     Show("Close Reports & Windows:", val_cb_close_reports_and_windows);
     Show("Hide/Status filter selection:", val_hide_status);
 );

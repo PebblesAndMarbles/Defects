@@ -112,6 +112,34 @@ This stage:
    - outputs/surf_scan/SS_METRICS.csv
    - outputs/surf_scan/SS_EDX.csv
 
+### Ad Hoc Lightweight Recipe/Step Query
+
+- BE_QUERY_FILES/surf_scan_lightweight_query.py
+
+Use this helper when you need a fast, isolated pull for a specific recipe + step layer window without modifying production SS_COORDINATES/SS_METRICS.
+
+Behavior:
+
+1. Queries UDB.INSP_WAFER_SUMMARY for the requested lookback window, step layer, and optional lot/process/inspect equipment filters.
+2. Auto-discovers a recipe-like summary column (RECIPE/SEQ_RECIPE/PROCESS_RECIPE/LOT_RECIPE/WAFER_RECIPE) and applies an exact recipe filter when provided.
+3. Queries UDB.INSP_DEFECT for adder coordinates tied to the matched wafer inspections.
+4. Writes standalone ad hoc outputs under outputs/surf_scan/ad_hoc:
+  - *_METRICS.csv
+  - *_COORDINATES.csv
+  - *_SUMMARY.json
+
+Example for 7-day request:
+
+```powershell
+c:/Users/tbatson/My Programs/SQLPathFinder3/Python3/python.exe BE_QUERY_FILES/surf_scan_lightweight_query.py `
+  --lookback-days 7 `
+  --step-layer-id 6OX450GTO_M025_PST `
+  --recipe 6OX450GTO_SAAA_M025_PST `
+  --process-equip GTO111_PC1 `
+  --inspect-equip UDE415 `
+  --lot-id D619TNV0
+```
+
 ### PM Counter Enrichment (Recurring)
 
 - Primary production implementation:

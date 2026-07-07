@@ -29,6 +29,12 @@ IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
 CLASS_ABBREV = {"SMALL_PARTICLE": "SMP"}
 AMBIGUOUS_CLASSES = {"OTHER_UNKNOWN", "UNCLASSIFIED", "NVD_FALSE"}
 AMBIGUOUS_IMAGE_FOLDER = "AMBIGUOUS_REVIEW"
+SURF_FILENAME_RE = re.compile(
+    r"^(?P<ts>\d{6}_\d{4})_[^_]+_[^_]+_(?P<did>\d+)_(?P<iid>\d+)(?:\.[^.]+)?$"
+)
+DEFECT_FILENAME_RE = re.compile(
+    r"^(?P<ts>\d{6}_\d{4})_[^_]+_[^_]+_[^_]+_[^_]+_(?P<did>\d+)_(?P<iid>\d+)(?:\.[^.]+)?$"
+)
 
 
 @dataclass
@@ -48,8 +54,45 @@ def _sanitize_path_token(value: object) -> str:
     return token or "UNKNOWN"
 
 
-def _build_expected_path(row: pd.Series, image_root: str) -> str:
-    end_ts = pd.to_datetime(row.get("SUBENTITY_END_TIME"), errors="coerce")
+def _coalesce_timestamp(row: pd.Series, *candidates: str) -> pd.Timestamp:
+    for candidate in candidates:
+        if candidate in row.index:
+            ts = pd.to_datetime(row.get(candidate), errors="coerce")
+            if not pd.isna(ts):
+                return ts
+    return pd.NaT
+
+
+def _chamber_token(row: pd.Series) -> str:
+    for candidate in ("SUBENTITY", "subentity", "PRIMARY_EQUIP"):
+        value = row.get(candidate)
+        if pd.isna(value) if not isinstance(value, str) else False:
+            continue
+        token = str(value or "").strip()
+        if token and token.lower() != "nan":
+            return _sanitize_path_token(token)
+    return "UNKNOWN"
+
+
+def _build_expected_path(row: pd.Series, image_root: str, filename_mode: str = "defect") -> str:
+    if filename_mode == "surf":
+        insp_ts = _coalesce_timestamp(row, "INSPECTION_TIME", "SUBENTITY_END_TIME")
+        ts = insp_ts.strftime("%y%m%d_%H%M") if not pd.isna(insp_ts) else "000000_0000"
+
+        lot7 = _sanitize_path_token(row.get("LOT7") or str(row.get("ACTUAL_LOT") or "UNK")[:7])
+        waf_raw = str(row.get("WAFER_ID", "")).strip()
+        short_w = _sanitize_path_token(waf_raw[5:8] if len(waf_raw) >= 8 else waf_raw)
+        defid = str(int(float(row.get("DEFECT_ID")))) if pd.notna(row.get("DEFECT_ID")) else "0"
+        picid = str(int(float(row.get("IMAGE_ID")))) if pd.notna(row.get("IMAGE_ID")) else "0"
+
+        spec = str(row.get("IMAGE_FILESPEC") or row.get("LOCAL_IMAGE_FILE") or "")
+        ext = os.path.splitext(spec)[1].lower() if spec else ".jpg"
+
+        chamber = _chamber_token(row)
+        fname = f"{ts}_{lot7}_{short_w}_{defid}_{picid}{ext}"
+        return os.path.join(image_root, chamber, fname)
+
+    end_ts = _coalesce_timestamp(row, "SUBENTITY_END_TIME", "INSPECTION_TIME")
     ts = end_ts.strftime("%y%m%d_%H%M") if not pd.isna(end_ts) else "000000_0000"
 
     lot7 = _sanitize_path_token(row.get("LOT7", "UNK"))
@@ -66,7 +109,7 @@ def _build_expected_path(row: pd.Series, image_root: str) -> str:
     spec = str(row.get("IMAGE_FILESPEC", ""))
     ext = os.path.splitext(spec)[1].lower() if spec else ".jpg"
 
-    subentity = _sanitize_path_token(row.get("SUBENTITY", "UNKNOWN"))
+    subentity = _chamber_token(row)
     if cls_raw in AMBIGUOUS_CLASSES:
         dest_dir = os.path.join(image_root, AMBIGUOUS_IMAGE_FOLDER, cls_raw, subentity)
     else:
@@ -119,6 +162,7 @@ def _append_missing_inventory_rows(
     image_root: str,
     apply: bool,
     manifest_path: str,
+    filename_mode: str,
 ) -> Tuple[pd.DataFrame, int]:
     """
     Ensure every image file currently on disk has a corresponding manifest row.
@@ -144,11 +188,7 @@ def _append_missing_inventory_rows(
     cols = manifest.columns.tolist()
     rows: List[Dict[str, object]] = []
 
-    # Organized image filenames follow:
-    # yymmdd_hhmm_lot7_waf_class_layer_defectid_imageid.ext
-    name_re = re.compile(
-        r"^(?P<ts>\d{6}_\d{4})_[^_]+_[^_]+_[^_]+_[^_]+_(?P<did>\d+)_(?P<iid>\d+)(?:\.[^.]+)?$"
-    )
+    name_re = SURF_FILENAME_RE if filename_mode == "surf" else DEFECT_FILENAME_RE
 
     for path in missing_paths:
         row = {c: pd.NA for c in cols}
@@ -173,7 +213,17 @@ def _append_missing_inventory_rows(
     appended_df = pd.DataFrame(rows, columns=cols)
     out = pd.concat([manifest, appended_df], ignore_index=True)
 
-    key_cols = [c for c in ["WAFER_KEY", "DEFECT_ID", "IMAGE_ID", "LOCAL_IMAGE_FILE"] if c in out.columns]
+    key_cols = [
+        c for c in [
+            "WAFER_KEY",
+            "INSPECTION_TIME",
+            "PRIMARY_EQUIP",
+            "DEFECT_ID",
+            "IMAGE_ID",
+            "LOCAL_IMAGE_FILE",
+        ]
+        if c in out.columns
+    ]
     if key_cols:
         out = out.drop_duplicates(subset=key_cols, keep="last")
 
@@ -185,10 +235,24 @@ def _append_missing_inventory_rows(
     return out, len(rows)
 
 
-def _build_coords_lookup(coords_df: pd.DataFrame) -> pd.DataFrame:
+def _build_coords_lookup(coords_df: pd.DataFrame, filename_mode: str) -> pd.DataFrame:
     work = coords_df.copy()
     work["_WK"] = pd.to_numeric(work["WAFER_KEY"], errors="coerce").astype("Int64")
     work["_DID"] = pd.to_numeric(work["DEFECT_ID"], errors="coerce").astype("Int64")
+
+    if filename_mode == "surf":
+        if "INSPECTION_TIME" in work.columns:
+            work["INSPECTION_TIME"] = pd.to_datetime(work["INSPECTION_TIME"], errors="coerce")
+        surf_keys = ["_WK", "_DID"]
+        if "INSPECTION_TIME" in work.columns:
+            surf_keys.append("INSPECTION_TIME")
+        sort_col = "INSPECTION_TIME" if "INSPECTION_TIME" in work.columns else None
+        if sort_col is not None:
+            work = work.sort_values(sort_col).drop_duplicates(surf_keys, keep="last")
+        else:
+            work = work.drop_duplicates(surf_keys, keep="last")
+        return work
+
     if "SUBENTITY_END_TIME" in work.columns:
         work["SUBENTITY_END_TIME"] = pd.to_datetime(work["SUBENTITY_END_TIME"], errors="coerce")
         work = work.sort_values("SUBENTITY_END_TIME").drop_duplicates(["_WK", "_DID"], keep="last")
@@ -203,21 +267,31 @@ def _reconcile_manifest(
     image_root: str,
     apply: bool,
     rename_missing: bool,
+    filename_mode: str,
 ) -> Tuple[pd.DataFrame, Stats]:
     stats = Stats()
 
     manifest = pd.read_csv(manifest_path, low_memory=False)
     coords = pd.read_csv(coords_path, low_memory=False)
-    coords_lookup = _build_coords_lookup(coords)
+    coords_lookup = _build_coords_lookup(coords, filename_mode=filename_mode)
 
     manifest["_WK"] = pd.to_numeric(manifest["WAFER_KEY"], errors="coerce").astype("Int64")
     manifest["_DID"] = pd.to_numeric(manifest["DEFECT_ID"], errors="coerce").astype("Int64")
+    merge_keys = ["_WK", "_DID"]
 
-    enrich_cols = [
-        c for c in ["_WK", "_DID", "LOT7", "WAFER_ID", "CLASS", "LAYER", "SUBENTITY", "SUBENTITY_END_TIME"]
-        if c in coords_lookup.columns
-    ]
-    merged = manifest.merge(coords_lookup[enrich_cols], on=["_WK", "_DID"], how="left")
+    if filename_mode == "surf" and "INSPECTION_TIME" in manifest.columns and "INSPECTION_TIME" in coords_lookup.columns:
+        manifest["INSPECTION_TIME"] = pd.to_datetime(manifest["INSPECTION_TIME"], errors="coerce")
+        merge_keys.append("INSPECTION_TIME")
+
+    enrich_seed = ["_WK", "_DID", "LOT7", "WAFER_ID", "CLASS", "LAYER", "SUBENTITY", "subentity", "SUBENTITY_END_TIME", "ACTUAL_LOT", "PRIMARY_EQUIP", "INSPECTION_TIME"]
+    enrich_cols = [c for c in enrich_seed if c in coords_lookup.columns]
+    # Keep manifest columns unsuffixed so downstream keep_cols selection remains stable.
+    merged = manifest.merge(
+        coords_lookup[enrich_cols],
+        on=merge_keys,
+        how="left",
+        suffixes=("", "__ctx"),
+    )
 
     # Build quick filename index for optional rename step.
     file_index: Dict[str, List[str]] = {}
@@ -229,7 +303,7 @@ def _reconcile_manifest(
         current = row.get("LOCAL_IMAGE_FILE")
         current = None if pd.isna(current) or str(current).strip() == "" else os.path.normpath(str(current))
 
-        expected = _build_expected_path(row, image_root)
+        expected = _build_expected_path(row, image_root, filename_mode=filename_mode)
         expected_exists = os.path.isfile(expected)
 
         final_path = current
@@ -269,6 +343,7 @@ def _prune_files(
     image_root: str,
     retention_days: int,
     apply: bool,
+    manifest_path: str,
 ) -> Stats:
     stats = Stats()
 
@@ -333,7 +408,6 @@ def _prune_files(
     print(f"Unreferenced old candidates: {len(unref_old)}")
 
     if apply and "LOCAL_IMAGE_FILE" in work.columns:
-        manifest_path = str(PIPELINE_PATHS.defect_images_manifest_csv)
         work.to_csv(manifest_path, index=False)
 
     return stats
@@ -348,6 +422,7 @@ def run_reconcile_prune(
     append_inventory: bool = False,
     apply: bool = False,
     verbose: bool = True,
+    filename_mode: str = "defect",
 ) -> Stats:
     manifest_path = os.path.normpath(manifest_path)
     coords_path = os.path.normpath(coords_path)
@@ -373,6 +448,7 @@ def run_reconcile_prune(
         image_root=image_root,
         apply=apply,
         rename_missing=rename_missing,
+        filename_mode=filename_mode,
     )
 
     stats_prune = _prune_files(
@@ -380,6 +456,7 @@ def run_reconcile_prune(
         image_root=image_root,
         retention_days=retention_days,
         apply=apply,
+        manifest_path=manifest_path,
     )
 
     manifest_after_prune = reconciled
@@ -392,6 +469,7 @@ def run_reconcile_prune(
             image_root=image_root,
             apply=apply,
             manifest_path=manifest_path,
+            filename_mode=filename_mode,
         )
         stats_prune.inventory_appended = appended
 

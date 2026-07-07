@@ -35,7 +35,8 @@
   "spc_monitor_path": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\SPC_MONS\\SPC_SS.csv",
   "parts_path": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\PLT\\PLT_CURRENTLY_INSTALLED.csv",
   "pilot_dates_path": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\BE_AME_PILOT_TURN_ON_DATES.csv",
-  "existing_benchmark": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\benchmarks\\20260503_8M5CL_8M6CL_202606_FLEET_BENCHMARK_ELWC_7DAY.csv",
+  "existing_benchmark": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\benchmarks\\20260628_8M5CL_8M6CL_202606_FLEET_BENCHMARK_ELWC_7DAY.csv",
   "defect_input_csv": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\wafer\\8M5CL_8M6CL_EXTENDED.csv",
-  "extended_benchmark_csv": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\benchmarks\\20260510_8M5CL_8M6CL_202606_FLEET_BENCHMARK_ELWC_7DAY.csv"
+  "extended_benchmark_csv": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\benchmarks\\20260705_8M5CL_8M6CL_202606_FLEET_BENCHMARK_ELWC_7DAY.csv",
+  "current_benchmark_csv": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\benchmarks\\CURRENT_BENCHMARK.csv"
 }

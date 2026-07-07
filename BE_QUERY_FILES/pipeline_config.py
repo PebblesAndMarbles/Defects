@@ -66,11 +66,23 @@ class PipelinePaths:
 
     @property
     def m5_jsl_csv(self) -> Path:
-        return self.query_dir / "8M5CL_NCDD.csv"
+        # PHASE 2B: Switched to rolling NCDD+EDI files
+        return self.query_dir / "8M5CL_NCDD_EDI.csv"
 
     @property
     def m6_jsl_csv(self) -> Path:
-        return self.query_dir / "8M6CL_NCDD.csv"
+        # PHASE 2B: Switched to rolling NCDD+EDI files
+        return self.query_dir / "8M6CL_NCDD_EDI.csv"
+
+    @property
+    def m5_ncdd_edi_csv(self) -> Path:
+        """Rolling 10-day NCDD+EDI file (preferred source after Phase 2b adoption)"""
+        return self.query_dir / "8M5CL_NCDD_EDI.csv"
+
+    @property
+    def m6_ncdd_edi_csv(self) -> Path:
+        """Rolling 10-day NCDD+EDI file (preferred source after Phase 2b adoption)"""
+        return self.query_dir / "8M6CL_NCDD_EDI.csv"
 
     @property
     def merged_m5_csv(self) -> Path:

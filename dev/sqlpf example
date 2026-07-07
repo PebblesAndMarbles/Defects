@@ -1,0 +1,119 @@
+<OPTIONS>
+/NODE=D1D_PROD_YODACREEKV3_1278@UBER@SQL2000@@@
+/UN=
+/PW=
+/OLEDB=SQLSERVER
+/ENGINE=UBER-NET
+/WORKDIR=.\
+/T=
+/CSV=tbatson_a0_31655.tab
+/INSTANCE=31655
+/PROMPT-TEXT=Step 1.1-a0. Fetching Other Data
+/RECORD=Yoda_Comments_Status
+/HADOOP_SERVER_DEFAULT=ATD_ATM.HADOOP
+</OPTIONS>
+
+SELECT 
+          yoda0.lot AS lot
+         ,yoda0.username AS username
+         ,Replace(Replace(Replace(Replace(Replace(Replace(yoda0.comment,',',';'),char(9),' '),char(10),' '),char(13),' '),char(34),''''),char(7),' ') AS comment_
+FROM 
+     mao.usr_LotComments yoda0 WITH (NOLOCK)
+WHERE 
+              1=1
+ AND      yoda0.lot = 'D6026420'
+
+<---- New Query ---->
+
+<OPTIONS>
+/NODE=D1D_PROD_YODACREEKV3_1278@UBER@SQL2000@@@
+/UN=
+/PW=
+/OLEDB=SQLSERVER
+/ENGINE=UBER-NET
+/WORKDIR=.\
+/T=
+/CSV=tbatson_a1_31655.tab
+/INSTANCE=31655
+/PROMPT-TEXT=Step 1.1-a1. Fetching Other Data
+/RECORD=Yoda_DefMet_Comments_Status
+/HADOOP_SERVER_DEFAULT=ATD_ATM.HADOOP
+</OPTIONS>
+
+-- Yodacreek DefMet comments live on 1278 for this process mode.
+SELECT 
+          dm0.*
+         ,dm0.lot AS lot_2
+         ,dm0.layer AS layer
+FROM 
+[UDB].[USR_DefMet_Comments] dm0
+WHERE
+              1=1
+ AND      dm0.lot = 'D6026420'
+
+<---- New Query ---->
+
+<OPTIONS>
+/NODE=D1D_PROD_YODACREEKV3_1278@UBER@SQL2000@@@
+/UN=
+/PW=
+/OLEDB=SQLSERVER
+/ENGINE=UBER-NET
+/WORKDIR=.\
+/T=
+/CSV=tbatson_a3_31655.tab
+/INSTANCE=31655
+/PROMPT-TEXT=Step 1.1-a3. Fetching Other Data
+/RECORD=Yoda_Wafers_Comments_Status
+/HADOOP_SERVER_DEFAULT=ATD_ATM.HADOOP
+</OPTIONS>
+
+SELECT 
+          yoda3.tdlot AS lot_1
+         ,yoda3.wafer AS wafer
+FROM 
+     MAO.USR_TDWafer_Comments_View yoda3 WITH (NOLOCK)
+WHERE 
+              1=1
+
+<---- New Query ---->
+
+<OPTIONS>
+/RESET=Y
+/NODE=.\
+/OLEDB=SQLite
+/ENGINE=SQLite
+/UN=
+/PW=
+/WORKDIR=.\
+/T=Yes
+/CSV=out_31655.tab
+/TABLE=tbatson_a0_31655.tab,tbatson_a1_31655.tab,tbatson_a3_31655.tab
+/HEADERS=lot,username,comment_,lot_2,layer,lot_1,wafer
+/DELETE=*Instance*
+/INSTANCE=31655
+/SQLITE_DT=,lot(c),username(n),comment_(x),lot_2(c),layer(c),lot_1(c),wafer(c)
+/QUOTECSV=Y
+/HADOOP_SERVER_DEFAULT=ATD_ATM.HADOOP
+</OPTIONS>
+
+
+DROP INDEX IF EXISTS IdxA1;
+Create Index IF NOT EXISTS IdxA1 ON [tbatson_a1_31655] ([lot_2]);
+DROP INDEX IF EXISTS IdxA3;
+Create Index IF NOT EXISTS IdxA3 ON [tbatson_a3_31655] ([lot_1]);
+
+SELECT /*L0*/ 
+          a0.[lot] AS [lot]
+         ,a0.[username] AS [username]
+         ,Replace(Replace(Replace(Replace(Replace(Replace(a0.[comment_],',',';'),CAST(X'09' AS TEXT),' '),CAST(X'0A' AS TEXT),' '),CAST(X'0D' AS TEXT),' '),CAST(X'22' AS TEXT),''''),CAST(X'07' AS TEXT),' ') AS [comment_]
+         ,a1.[lot_2] AS [lot_2]
+         ,a1.[layer] AS [layer]
+         ,a3.[lot_1] AS [lot_1]
+         ,a3.[wafer] AS [wafer]
+FROM 
+           [tbatson_a0_31655] a0
+ LEFT OUTER JOIN [tbatson_a1_31655] a1
+  ON a0.[lot] = a1.[lot_2] 
+ LEFT OUTER JOIN [tbatson_a3_31655] a3
+  ON a1.[lot_2] = a3.[lot_1]

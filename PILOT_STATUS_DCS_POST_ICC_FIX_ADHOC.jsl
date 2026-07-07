@@ -1,0 +1,101 @@
+Names Default To Here( 1 );
+
+/////// USER INPUT REQUIRED: TIME AND SUBENTITY COLUMN NAMES.
+time_column_name = "SUBENTITY_END_TIME";
+subentity_column_name = "SUBENTITY";
+
+// Create only one ON/OFF status column for the new pilot feature.
+col_to_create = "DCS Post ICC fix";
+
+// Yearless values in the pilot turn-on CSV are assumed to be in 2026.
+default_year_for_pilot_csv = 2026;
+
+
+// Converts pilot turn-on values to JMP datetime numbers.
+// Handles numeric datetimes and yearless strings like "6/4 6:35PM".
+normalize_pilot_turn_on_time = Function( {raw_value},
+	{month, day, ampm, time_no_ampm, hour, minute, date_part, time_part, raw_text},
+
+	If( Is Missing( raw_value ),
+		Return( . )
+	);
+
+	If( Is Number( raw_value ),
+		Return( raw_value )
+	);
+
+	raw_text = Trim( Char( raw_value ) );
+	If( Length( raw_text ) == 0,
+		Return( . )
+	);
+
+	// Expected format: m/d h:mmAM or m/d h:mmPM
+	date_part = Word( 1, raw_text, " " );
+	time_part = Word( 2, raw_text, " " );
+
+	If( Contains( date_part, "/" ) == 0 | Length( time_part ) < 4,
+		Return( . )
+	);
+
+	month = Num( Word( 1, date_part, "/" ) );
+	day = Num( Word( 2, date_part, "/" ) );
+	ampm = Uppercase( Right( time_part, 2 ) );
+	time_no_ampm = Left( time_part, Length( time_part ) - 2 );
+
+	If( Contains( time_no_ampm, ":" ) == 0,
+		Return( . )
+	);
+
+	hour = Num( Word( 1, time_no_ampm, ":" ) );
+	minute = Num( Word( 2, time_no_ampm, ":" ) );
+
+	If( ampm == "AM" & hour == 12,
+		hour = 0
+	);
+	If( ampm == "PM" & hour < 12,
+		hour = hour + 12
+	);
+
+	Date DMY( day, month, default_year_for_pilot_csv ) + In Hours( hour ) + In Minutes( minute )
+);
+
+
+dt = Current Data Table();
+
+pilot_on_time_dt = Open(
+	"\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\BE_AME_PILOT_TURN_ON_DATES.csv",
+);
+
+// Create the status column in the active data table.
+dt << New Column( col_to_create, Character, "Nominal" );
+
+// Iterate all rows in active table and assign ON/OFF.
+n_rows = dt << Get Rows Where( 1 );
+n_rows = N Items( n_rows );
+
+For( i = 1, i <= n_rows, i++,
+	current_subentity = As Column( dt, subentity_column_name )[i];
+	current_data_time = As Column( dt, time_column_name )[i];
+
+	pilot_on_time_dt << Current Data Table();
+	apc_rows = pilot_on_time_dt << Get Rows Where( :SUBENTITY == current_subentity );
+	dt << Current Data Table();
+
+	If( N Items( apc_rows ) > 0,
+		apc_time_raw = Column( pilot_on_time_dt, col_to_create )[apc_rows[1]];
+		apc_time = normalize_pilot_turn_on_time( apc_time_raw );
+		dt << Current Data Table();
+
+		If( Is Missing( apc_time ),
+			As Column( dt, col_to_create )[i] = "OFF",
+			If( apc_time >= current_data_time,
+				As Column( dt, col_to_create )[i] = "OFF",
+				As Column( dt, col_to_create )[i] = "ON"
+			)
+		);
+	,
+		As Column( dt, col_to_create )[i] = "OFF";
+	);
+);
+
+Close( pilot_on_time_dt, No Save );

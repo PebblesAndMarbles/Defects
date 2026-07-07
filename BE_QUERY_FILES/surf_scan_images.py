@@ -73,6 +73,14 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+MANIFEST_IDENTITY_COLUMNS = [
+    "WAFER_KEY",
+    "INSPECTION_TIME",
+    "DEFECT_ID",
+    "IMAGE_ID",
+    "PRIMARY_EQUIP",
+]
+
 # ---------------------------------------------------------------------------
 # CONFIGURATION  -- edit these for each deployment
 # ---------------------------------------------------------------------------
@@ -848,19 +856,28 @@ def query_edx_images():
 
         if not image_df_new.empty and "LOCAL_IMAGE_FILE" in image_df_new.columns:
             path_updates = image_df_new[
-                ["WAFER_KEY", "DEFECT_ID", "IMAGE_ID", "LOCAL_IMAGE_FILE"]
+                ["WAFER_KEY", "INSPECTION_TIME", "DEFECT_ID", "IMAGE_ID", "LOCAL_IMAGE_FILE"]
             ].copy()
-            for col in ("WAFER_KEY", "DEFECT_ID", "IMAGE_ID"):
+            for col in ("WAFER_KEY", "INSPECTION_TIME", "DEFECT_ID", "IMAGE_ID"):
                 path_updates[col] = path_updates[col].astype(str)
                 current_rows[col] = current_rows[col].astype(str)
             current_rows = current_rows.drop(columns=["LOCAL_IMAGE_FILE"], errors="ignore")
             current_rows = current_rows.merge(
-                path_updates, on=["WAFER_KEY", "DEFECT_ID", "IMAGE_ID"], how="left",
+                path_updates,
+                on=["WAFER_KEY", "INSPECTION_TIME", "DEFECT_ID", "IMAGE_ID"],
+                how="left",
             )
 
         if os.path.isfile(manifest_csv):
             try:
                 existing = pd.read_csv(manifest_csv, low_memory=False)
+                identity_cols = [
+                    col for col in MANIFEST_IDENTITY_COLUMNS
+                    if col in existing.columns and col in current_rows.columns
+                ]
+                for col in identity_cols:
+                    existing[col] = existing[col].astype(str)
+                    current_rows[col] = current_rows[col].astype(str)
                 combined = pd.concat([existing, current_rows], ignore_index=True)
                 combined["_sort"] = combined["LOCAL_IMAGE_FILE"].notna().astype(int)
                 combined = (
@@ -868,7 +885,7 @@ def query_edx_images():
                     .sort_values("_sort")
                     .drop(columns=["_sort"])
                     .drop_duplicates(
-                        subset=["WAFER_KEY", "DEFECT_ID", "IMAGE_ID"],
+                        subset=identity_cols or ["WAFER_KEY", "DEFECT_ID", "IMAGE_ID"],
                         keep="last",
                     )
                 )

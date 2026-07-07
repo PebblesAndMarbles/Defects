@@ -377,6 +377,45 @@ The next implementation tasks that would most improve production readiness are:
 5. add image-acquisition observability checks to scheduled monitoring
 6. package the orchestrator into a VM scheduler wrapper with explicit environment settings
 
+## Proposed Scheduled Git Backup For CSV Protection
+
+Yes, the same roaming-bot scheduler pattern can be used for GitHub backup pushes.
+
+Rationale:
+
+- the current design already targets thin, scheduler-friendly launchers
+- a daily wrapper pattern already exists in the workspace (`surf_scan_daily.py`)
+- Git provides versioned recovery for CSV changes from UI/user input workflows
+
+A scheduler-safe backup launcher is now available at:
+
+- `BE_QUERY_FILES/csv_backup_daily.py`
+
+POC behavior:
+
+- no files are backed up unless `--include` globs are explicitly provided
+- creates a timestamped commit only when changes exist
+- pushes current branch to `origin`
+- exits cleanly with no-op when there are no include globs or no data changes
+
+Example scheduler command (same interpreter contract):
+
+```powershell
+& "c:/Users/tbatson/My Programs/SQLPathFinder3/Python3/python.exe" "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\csv_backup_daily.py"
+```
+
+Optional custom include globs for web-app-managed CSVs:
+
+```powershell
+& "c:/Users/tbatson/My Programs/SQLPathFinder3/Python3/python.exe" "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\csv_backup_daily.py" --include "outputs/web_inputs/*.csv" --include "outputs/wafer/*.csv" --message-prefix "web-csv-backup"
+```
+
+Operational notes:
+
+- Ensure the roaming bot identity can use stored GitHub credentials for non-interactive pushes.
+- Keep `images/` and other bulky/generated binaries excluded from backup commits.
+- Consider a second backup remote (internal Git server) if GitHub network/auth is temporarily unavailable.
+
 ## Summary
 
 The pipeline is now materially more coherent than the original disconnected script set:

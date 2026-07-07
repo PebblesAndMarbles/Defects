@@ -3,12 +3,12 @@
 Names Default To Here( 1 );
 
 dt = Current Data Table();
-by_group_col = "";
+by_group_col = "FLUORINE_IRON";
 
 // Axis limits for full wafer coverage
 wafer_min = -155;
 wafer_max =  155;
-wafer_frame_size = 300;
+wafer_frame_size = 200;
 
 ARRANGEINROWS=4;
 

@@ -14,6 +14,7 @@ from typing import Tuple
 import pandas as pd
 
 from pipeline_config import PIPELINE_PATHS, ensure_pipeline_dirs, write_artifact_manifest
+from reconcile_prune_images import run_reconcile_prune
 import surf_scan_coordinates as surf_coords
 import surf_scan_images as surf_images
 from surf_scan_elwc_pm_stage_backfill import apply_stage_to_production, build_stage
@@ -296,63 +297,24 @@ def _run_step(name: str, func) -> StepResult:
     return StepResult(name=name, started_at=started_at, finished_at=finished_at, rows=rows)
 
 
-def _prune_old_image_files(
-    image_root: Path,
+def _reconcile_and_prune_surf_images(
     retention_days: int = 60,
     dry_run: bool = False,
-    manifest_path: Path | None = None,
 ) -> Tuple[int, str]:
-    if not image_root.exists():
-        return 0, datetime.now().isoformat()
+    stats = run_reconcile_prune(
+        manifest_path=str(PIPELINE_PATHS.surf_image_manifest_csv),
+        coords_path=str(PIPELINE_PATHS.surf_coordinates_csv),
+        image_root=str(PIPELINE_PATHS.surf_image_dir),
+        retention_days=retention_days,
+        rename_missing=False,
+        append_inventory=True,
+        apply=not dry_run,
+        verbose=False,
+        filename_mode="surf",
+    )
 
     cutoff = datetime.now() - timedelta(days=retention_days)
-    removed = 0
-    allowed_suffixes = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
-
-    tracked_paths: set[str] = set()
-    if manifest_path is not None and manifest_path.exists():
-        try:
-            manifest = pd.read_csv(manifest_path, low_memory=False)
-            if {"INSPECTION_TIME", "LOCAL_IMAGE_FILE"}.issubset(manifest.columns):
-                manifest = manifest.dropna(subset=["INSPECTION_TIME", "LOCAL_IMAGE_FILE"]).copy()
-                manifest["INSPECTION_TIME"] = pd.to_datetime(manifest["INSPECTION_TIME"], errors="coerce")
-                manifest = manifest.dropna(subset=["INSPECTION_TIME"])
-
-                old_rows = manifest[manifest["INSPECTION_TIME"] < pd.Timestamp(cutoff)]
-                for local_path in old_rows["LOCAL_IMAGE_FILE"].astype(str):
-                    normalized = os.path.normcase(os.path.normpath(local_path))
-                    tracked_paths.add(normalized)
-                    path_obj = Path(local_path)
-                    if path_obj.exists() and path_obj.suffix.lower() in allowed_suffixes:
-                        removed += 1
-                        if not dry_run:
-                            try:
-                                path_obj.unlink()
-                            except OSError:
-                                pass
-        except Exception:
-            pass
-
-    for file_path in image_root.rglob("*"):
-        if not file_path.is_file():
-            continue
-        if file_path.suffix.lower() not in allowed_suffixes:
-            continue
-
-        normalized = os.path.normcase(os.path.normpath(str(file_path)))
-        if normalized in tracked_paths:
-            continue
-
-        mtime = datetime.fromtimestamp(file_path.stat().st_mtime)
-        if mtime < cutoff:
-            removed += 1
-            if not dry_run:
-                try:
-                    file_path.unlink()
-                except OSError:
-                    pass
-
-    return removed, cutoff.isoformat()
+    return stats.prune_deleted if not dry_run else stats.prune_candidates, cutoff.isoformat()
 
 
 def _row_count(csv_path: Path) -> int:
@@ -427,18 +389,17 @@ def run(
 
     def _run_prune() -> pd.DataFrame:
         nonlocal files_pruned, cutoff_iso
-        files_pruned, cutoff_iso = _prune_old_image_files(
-            PIPELINE_PATHS.surf_image_dir,
+        files_pruned, cutoff_iso = _reconcile_and_prune_surf_images(
             retention_days=DEFAULT_IMAGE_RETENTION_DAYS,
             dry_run=prune_dry_run,
-            manifest_path=PIPELINE_PATHS.surf_image_manifest_csv,
         )
         LOGGER.info(
-            "[image_prune] dry_run=%s files_pruned=%s cutoff=%s manifest=%s",
+            "[image_prune] dry_run=%s files_pruned=%s cutoff=%s manifest=%s mode=%s",
             prune_dry_run,
             files_pruned,
             cutoff_iso,
             PIPELINE_PATHS.surf_image_manifest_csv,
+            "reconcile+append+prune",
         )
         return pd.DataFrame({"files_pruned": [files_pruned]})
 

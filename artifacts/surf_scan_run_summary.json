@@ -2,10 +2,10 @@
   "mode": "incremental",
   "lookback_days": 7,
   "run_images": true,
-  "rows_coordinates": 111888,
-  "rows_metrics": 8143,
-  "rows_stacked": 24239,
-  "rows_stacked_y": 616,
-  "files_pruned": 57,
-  "prune_cutoff_utc": "2026-03-12T07:01:20.766391"
+  "rows_coordinates": 222339,
+  "rows_metrics": 9679,
+  "rows_stacked": 33593,
+  "rows_stacked_y": 698,
+  "files_pruned": 0,
+  "prune_cutoff_utc": "2026-05-08T06:59:25.440115"
 }

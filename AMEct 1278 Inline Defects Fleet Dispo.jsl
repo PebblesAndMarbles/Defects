@@ -179,6 +179,12 @@ result = New Window( "NCDD Report Options", <<Modal, <<Return Result,
 					yymmLookbackTB = Text Edit Box("12", <<Set Width(40))
 				)
 			),
+            Panel Box("METRIC SOURCE",
+                rbMetric = Radio Box(
+                    {"NCDD (Default)",
+                     "EDI (Experimental)"}
+                ),
+            ),
 			Panel Box("LEGEND / GROUP + VARIABILITY COLUMN",
 				H List Box(
 					Text Box("Use this column for trend grouping and variability X: "),
@@ -209,6 +215,7 @@ result = New Window( "NCDD Report Options", <<Modal, <<Return Result,
 				val_black_wafermap_markers = cb_black_wafermap_markers << Get;
                 val_hide_status = rbHideStatus << Get;
 				val_source_index = rbSource << Get;
+				val_metric_index = rbMetric << Get;
 				val_yymm_lookback_periods = Parse_Lookback_Periods(yymmLookbackTB << Get Text, 12);
 				path = path_extended;
 				coords_path = coords_path_extended;
@@ -224,24 +231,50 @@ result = New Window( "NCDD Report Options", <<Modal, <<Return Result,
 				val_legendcol1 = available_cols[cb_legend << Get];
 				legendcol1 = val_legendcol1;
 				vcol1 = val_legendcol1;
+                
+                // Set metric columns and axis limits based on selection
+                If(val_metric_index == 2,
+                    // EDI metrics selected
+                    ycol0 = "SUM_EDI";
+                    ycol1 = "SMP_EDI";
+                    ycol2 = "BEEP_EDI";
+                    metric_source = "EDI";
+                    title = "EDI";
+                    window_title = "EDI Report";
+                    filter_str = "SMP EDI";
+                    ymin = -0.1; ymax = 2; inc = 0.2;
+                ,
+                    // NCDD metrics (default)
+                    ycol0 = "SUM_NCDD";
+                    ycol1 = "SMP_NCDD";
+                    ycol2 = "BEEP_NCDD";
+                    metric_source = "NCDD";
+                    title = "NCDD";
+                    window_title = "NCDD Report";
+                    filter_str = "SMP NCDD";
+                    ymin = -0.001; ymax = 0.02; inc = 0.002;
+                );
+                
 				Show("Selected source:", selected_source_name, "path:", path, "coords_path:", coords_path, "YYMM periods:", val_yymm_lookback_periods);
 				Show("Legend/group + variability column:", val_legendcol1);
+                Show("Selected metric:", metric_source, "Columns:", ycol0, ycol1, ycol2);
 
                 // Only return numeric values in result list to avoid {string_var} symbol issues
-				{val_cb_close_reports_and_windows, val_hide_status, val_no_splines, val_source_index, val_black_wafermap_markers, val_yymm_lookback_periods}
+				{val_cb_close_reports_and_windows, val_hide_status, val_no_splines, val_source_index, val_black_wafermap_markers, val_yymm_lookback_periods, val_metric_index}
             ),
         ),
     ),
 );
 
 // Extract results from modal dialog
-If(Is List(result) & N Items(result) == 6,
+If(Is List(result) & N Items(result) == 7,
     val_cb_close_reports_and_windows = result[1];
     val_hide_status = result[2];
 	val_no_splines = result[3];
 	val_source_index = result[4];
 	val_black_wafermap_markers = result[5];
 	val_yymm_lookback_periods = result[6];
+	val_metric_index = result[7];
     Show("Close Reports & Windows:", val_cb_close_reports_and_windows);
     Show("Hide/Status filter selection:", val_hide_status);
 	Show("No Splines:", val_no_splines);

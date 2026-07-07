@@ -1,0 +1,129 @@
+{
+  "created_at": "2026-06-02 21:10:03",
+  "runtime_seconds": 23.159,
+  "seed": 1278,
+  "dsn": "D1D_PROD_XEUS_GAJT",
+  "process": "1278",
+  "fab": "D1D",
+  "alias_scope": [
+    "L_8M5_SIARC_DEP",
+    "L_8M5_CHM_DEP",
+    "L_8M5_SED",
+    "E_8M5_HM_ETCH",
+    "W_8M5_HM_CLN",
+    "L_8M6_SIARC_DEP",
+    "L_8M6_CHM_DEP",
+    "L_8M6_SED",
+    "E_8M6_HM_ETCH",
+    "W_8M6_HM_CLN"
+  ],
+  "definition_prefix_map": {
+    "DUV_OPC": "DUV_OPC",
+    "EQUIP:AMECT_CKV_CCM_SRCIP:DE-AMEct": "EQUIP_AMECT_CKV_CCM_SRCIP_DE_AMECT",
+    "EQUIP:AMECT_GF:DE-AMEct": "EQUIP_AMECT_GF_DE_AMECT",
+    "EQUIP:AMECT_LIDS:DE-AMEct": "EQUIP_AMECT_LIDS_DE_AMECT",
+    "EQUIP:AMECT_LINERS:DE-AMEct": "EQUIP_AMECT_LINERS_DE_AMECT",
+    "EQUIP:AMECT_TEFLON_SHIM:DE-AMEct": "EQUIP_AMECT_TEFLON_SHIM_DE_AMECT",
+    "EQUIP:BARC_TBF_CIPAMC_8102_1100:LI-TBEbc": "EQUIP_BARC_TBF_CIPAMC_8102_1100_LI_TBEBC",
+    "EQUIP:BARC_TBF_CIPAMC_9110D_1000:LI-TBEbc": "EQUIP_BARC_TBF_CIPAMC_9110D_1000_LI_TBEBC",
+    "EQUIP:BARC_TBF_CIPAMC_9825_280:LI-TBEbc": "EQUIP_BARC_TBF_CIPAMC_9825_280_LI_TBEBC",
+    "EQUIP:BARC_TBF_LPCLEAN:LI-TBEbc": "EQUIP_BARC_TBF_LPCLEAN_LI_TBEBC",
+    "EQUIP:HRVA3_LEOCB:WE-LEOcb": "EQUIP_HRVA3_LEOCB_WE_LEOCB",
+    "EQUIP:HRVA_LEOCB_1278:WE-LEOcb": "EQUIP_HRVA_LEOCB_1278_WE_LEOCB",
+    "EQUIP:HRVA_LEOCB_1278_P2:WE-LEOcb": "EQUIP_HRVA_LEOCB_1278_P2_WE_LEOCB",
+    "EQUIP:KOH_TNPPFREE_DRUM:WE-LEOcb": "EQUIP_KOH_TNPPFREE_DRUM_WE_LEOCB",
+    "EQUIP:LEOCB_TNPP_FREE_NH4OH:WE-LEOcb": "EQUIP_LEOCB_TNPP_FREE_NH4OH_WE_LEOCB",
+    "EQUIP:LEOCB_TRC_NDTD_ER_PILOT:WE-LEOcb": "EQUIP_LEOCB_TRC_NDTD_ER_PILOT_WE_LEOCB",
+    "EQUIP:N58_XPR5:LI-SNYli": "EQUIP_N58_XPR5_LI_SNYLI",
+    "EQUIP:R3HRVA_LEOCB_1278:WE-LEOcb": "EQUIP_R3HRVA_LEOCB_1278_WE_LEOCB",
+    "EQUIP:TNPPFREEKOH:WE-LEOcb,WE-LEOcb,WE-LEOcb,WE-LEOcb,WE-LEOcb,WE-LEOcb": "EQUIP_TNPPFREEKOH_WE_LEOCB_WE_LEOCB_WE_LEOCB_WE_LEOCB_WE_LEOCB_WE_LEOCB",
+    "EQUIP:TRC_PALL_STPS1_AND_HYBRID_CONFGURATION_FILTERS_PILOT_WW0626:WE-LEOcb": "EQUIP_TRC_PALL_STPS1_AND_HYBRID_CONFGURATION_FILTERS_PILOT_WW0626_WE_LEOCB",
+    "MX_HME_DUV": "MX_HME_DUV",
+    "MX_HM_CLN": "MX_HM_CLN",
+    "PROCESS:80P_ROADRUNNER:DE-AMEct": "PROCESS_80P_ROADRUNNER_DE_AMECT",
+    "PROCESS:80P_ROADRUNNER_W78:DE-AMEct": "PROCESS_80P_ROADRUNNER_W78_DE_AMECT",
+    "PROCESS:DE-AMEct": "PROCESS_DE_AMECT",
+    "PROCESS:DELTRIM:WE-LEOcb": "PROCESS_DELTRIM_WE_LEOCB"
+  },
+  "pilot_metrics": {
+    "gate": "pilot",
+    "input_rows": 100,
+    "input_unique_keys": 100,
+    "joined_rows": 100,
+    "matched_keys": 94,
+    "unmatched_keys": 6,
+    "match_rate": 0.94,
+    "wide_columns": {
+      "value_columns": 26,
+      "alias_columns": 0
+    },
+    "null_rates": {
+      "all_value_columns": 0.199615
+    },
+    "match_rate_by_layer": {
+      "8M5CL": 0.92,
+      "8M6CL": 0.96
+    },
+    "top_unmatched_lots": {
+      "D541E7M0": 1,
+      "D5501650AM": 1,
+      "D5523290": 1,
+      "D5523470AN": 1,
+      "D6042380AP": 1,
+      "D6064390": 1
+    }
+  },
+  "dryrun_metrics": {
+    "gate": "dryrun",
+    "input_rows": 1262,
+    "input_unique_keys": 1262,
+    "joined_rows": 1262,
+    "matched_keys": 1156,
+    "unmatched_keys": 106,
+    "match_rate": 0.916006,
+    "wide_columns": {
+      "value_columns": 26,
+      "alias_columns": 0
+    },
+    "null_rates": {
+      "all_value_columns": 0.219767
+    },
+    "match_rate_by_layer": {
+      "8M5CL": 0.929719,
+      "8M6CL": 0.907068
+    },
+    "top_unmatched_lots": {
+      "D541E7M0": 9,
+      "D6042380AP": 8,
+      "D543972A": 8,
+      "D5523470AN": 8,
+      "D5485340T": 8,
+      "D5485340U": 8,
+      "D5501720AK": 8,
+      "D5501650AM": 4,
+      "D5512570Q": 4,
+      "D5512430S": 4,
+      "D5501580AQ": 4,
+      "D5485340": 4,
+      "D6031870": 3,
+      "D5512400": 2,
+      "D6053290": 2,
+      "D549E7K0": 2,
+      "D6075620": 2,
+      "D545EK5A": 2,
+      "D5523520": 2,
+      "D6064390": 2
+    }
+  },
+  "paths": {
+    "input_csv": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\wafer\\8M5CL_8M6CL_EXTENDED_60DAY.csv",
+    "pilot_manifest": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\BOST\\adhoc_pilot_manifest_8M5CL_8M6CL.csv",
+    "pilot_enriched": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\BOST\\adhoc_bost_pilot_enriched_8M5CL_8M6CL.csv",
+    "pilot_summary": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\artifacts\\adhoc_bost_pilot_summary.json",
+    "dryrun_enriched": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\BOST\\adhoc_bost_enriched_dryrun_8M5CL_8M6CL.csv",
+    "dryrun_summary": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\artifacts\\adhoc_bost_dryrun_summary.json",
+    "definition_map": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\artifacts\\adhoc_bost_definition_columns.csv",
+    "final_enriched": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\wafer\\8M5CL_8M6CL_EXTENDED_60DAY_BOST_ENRICHED.csv",
+    "final_summary": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\artifacts\\adhoc_bost_full_summary.json"
+  }
+}

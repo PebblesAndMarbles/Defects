@@ -171,3 +171,52 @@ Run it with:
 6. Create empty GitHub repo.
 7. Add origin and push.
 8. Use regular backup flow for ongoing sync.
+
+## 15. Open Browser Workflow (Agent-Assisted)
+
+Use this flow when terminal checks return "Repository not found" and you want to complete repo creation from VS Code + browser quickly.
+
+### Example Handoff Message
+
+The URL still returns Repository not found, so I'm opening the GitHub new-repo page prefilled to your owner/name; after you click Create, I'll immediately finish the push from terminal.
+
+Opened github.com
+
+### Step-by-Step
+
+1. Verify target remote and probe repo existence:
+
+    git remote -v
+    git ls-remote https://github.com/<owner>/<repo>.git
+
+2. If not found, open prefilled GitHub create page:
+
+    https://github.com/new?owner=<owner>&name=<repo>
+
+3. In GitHub create dialog:
+- Owner: correct owner/org
+- Repository name: exact target name
+- Visibility: your choice
+- Keep it empty (do not initialize with README, .gitignore, or license)
+
+4. After clicking Create, resume in terminal:
+
+    git remote set-url origin https://github.com/<owner>/<repo>.git
+    git branch --show-current
+
+5. Push current branch:
+
+    git push -u origin <current-branch>
+
+### If Push Still Fails After Repo Exists
+
+1. Confirm repo opens while signed in:
+
+    https://github.com/<owner>/<repo>
+
+2. If page opens but push still fails on Windows:
+- Open Windows Credential Manager
+- Remove stored github.com credentials
+- Retry git push and complete sign-in flow
+
+3. If using org SSO, authorize token access for the org when prompted by GitHub.
