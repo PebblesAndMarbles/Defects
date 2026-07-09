@@ -1,0 +1,348 @@
+/*
+WEEKLY_ZERO_RATE_AGGREGATOR.jsl
+================================
+JMP JSL script for weekly ZERO_RATE metrics aggregation.
+
+Features:
+- Operates on active JMP table with INSPECT_TIME, LAYER, DEVICE, BEEP_NCDD, ZERO_BEEP, SMP_NCDD, ZERO_SMP columns
+- No sample-size filtering (includes all devices)
+- ISO weeks (Sunday start)
+- Device="ALL" rows for fleet-wide aggregation
+- Outputs: New table with weekly metrics
+- Can export to CSV with timestamp
+
+Required columns in source table:
+  - INSPECT_TIME: Date/datetime of inspection
+  - LAYER: Process layer name
+  - DEVICE: Device identifier
+  - BEEP_NCDD: Count or indicator
+  - ZERO_BEEP: Boolean flag (0=defective, 1=zero)
+  - SMP_NCDD: Count or indicator
+  - ZERO_SMP: Boolean flag (0=defective, 1=zero)
+
+Usage:
+  1. Open your source table in JMP
+  2. Run this script
+  3. New table "Weekly_Metrics" will be created with aggregations
+  4. Optionally save/export the result
+
+Parameters:
+  force_execute: Set to 1 to bypass Sunday check, 0 to only run on Sundays
+*/
+
+// ===== CONFIGURATION =====
+force_execute = 0; // Set to 1 to force execution regardless of day of week
+
+// ===== UTILITY FUNCTIONS =====
+
+// Check if today is Sunday (DayOfWeek returns 1=Sunday, 2=Monday, ..., 7=Saturday)
+is_sunday = Function( {},
+	today_weekday = DayOfWeek( Today() );
+	today_weekday == 1; // 1 = Sunday
+);
+
+// Get ISO week year, week number, and days remaining in week
+get_iso_week_info = Function( {date_val},
+	Local( {iso_year, iso_week, iso_weekday, days_until_sunday, week_end, ndays, 
+	        year_val, month_val, day_val, thursday_date, thursday_jan4, iso_weekday_jsl} ),
+	
+	// Extract components
+	year_val = Year( date_val );
+	month_val = Month( date_val );
+	day_val = Day( date_val );
+	
+	// JSL DayOfWeek: 1=Sunday, 2=Monday, ..., 7=Saturday
+	// ISO weekday: 1=Monday, ..., 7=Sunday
+	iso_weekday_jsl = DayOfWeek( date_val );
+	iso_weekday = Mod( iso_weekday_jsl + 5, 7 ) + 1; // Convert JMP to ISO
+	
+	// Get Thursday of this week to determine ISO year
+	thursday_offset = Mod( 4 - iso_weekday + 7, 7 );
+	thursday_date = date_val + thursday_offset;
+	iso_year = Year( thursday_date );
+	
+	// ISO week: days between Jan 4 and Thursday, divided by 7, plus 1
+	thursday_jan4 = Date( iso_year, 1, 4 );
+	iso_week = Floor( (thursday_date - thursday_jan4) / 7 ) + 1;
+	
+	// Days until end of week (Sunday) - DayOfWeek 1=Sunday
+	days_until_sunday = Mod( 8 - iso_weekday_jsl, 7 );
+	If( days_until_sunday == 0, days_until_sunday = 7 );
+	week_end = date_val + days_until_sunday;
+	
+	// NDays = days from current date through end of week (inclusive)
+	ndays = days_until_sunday + 1;
+	
+	{iso_year, iso_week, ndays, week_end};
+);
+
+// Format as YYYYWW
+format_yyyyww = Function( {iso_year, iso_week},
+	Local( {yy} ),
+	yy = Mod( iso_year, 100 );
+	Char( Char( yy, "000000000" ) || "W" || Char( iso_week, "00" ) );
+);
+
+// Calculate BEEP_RATE from raw data
+calc_beep_rate = Function( {subset_table},
+	Local( {beep_total, beep_defective, rate} ),
+	
+	beep_total = N Row( subset_table );
+	If( beep_total == 0, Return( . ) );
+	
+	beep_defective = N Row( subset_table << Get Rows Where( :ZERO_BEEP != 1 ) );
+	rate = beep_defective / beep_total;
+	
+	rate;
+);
+
+// Calculate SMP_RATE from raw data
+calc_smp_rate = Function( {subset_table},
+	Local( {smp_total, smp_defective, rate} ),
+	
+	smp_total = N Row( subset_table );
+	If( smp_total == 0, Return( . ) );
+	
+	smp_defective = N Row( subset_table << Get Rows Where( :ZERO_SMP != 1 ) );
+	rate = smp_defective / smp_total;
+	
+	rate;
+);
+
+// ===== MAIN AGGREGATION =====
+
+main_aggregation = Function( {source_table},
+	Local(
+		{result_table, new_rows, layer_device_list, layer_val, device_val, 
+		 layer_device_subset, week_groups, first_date, iso_info, iso_year, 
+		 iso_week, ndays, week_end, yyyyww, sample_size, beep_rate, smp_rate,
+		 period_end, beep_zero_rate, smp_zero_rate, row_data, layer_week_groups,
+		 all_rows},
+		
+		// Create new result table with output columns
+		result_table = New Table( "Weekly_Metrics",
+			Add Column( "PERIOD_END", Character, "Nominal" ),
+			Add Column( "YYYYWW", Character, "Nominal" ),
+			Add Column( "LAYER", Character, "Nominal" ),
+			Add Column( "DEVICE", Character, "Nominal" ),
+			Add Column( "SAMPLE_SIZE", Numeric, "Continuous" ),
+			Add Column( "BEEP_RATE", Numeric, "Continuous" ),
+			Add Column( "BEEP_ZERO_RATE", Numeric, "Continuous" ),
+			Add Column( "SMP_RATE", Numeric, "Continuous" ),
+			Add Column( "SMP_ZERO_RATE", Numeric, "Continuous" ),
+			Add Column( "NDays", Numeric, "Continuous" )
+		);
+		result_table << New Table();
+		
+		// Get unique layer-device combinations
+		Print( "Getting unique LAYER-DEVICE combinations..." );
+		layer_device_list = source_table << Get Unique Values( "LAYER", "DEVICE" );
+		
+		// Process each layer-device combination
+		For Each( {combo}, layer_device_list,
+			layer_val = combo[1];
+			device_val = combo[2];
+			
+			// Get subset for this device-layer
+			layer_device_subset = source_table << Get Rows Where(
+				:LAYER == layer_val & :DEVICE == device_val
+			);
+			
+			If( N Row( layer_device_subset ) == 0, Continue() );
+			
+			// Create temporary data table for this subset
+			temp_subset = source_table << Subset(
+				Rows( layer_device_subset ),
+				Output Table( "temp" )
+			);
+			temp_subset << Sort( By( :INSPECT_TIME ) );
+			
+			// Group by ISO week
+			For( row = 1, row <= N Row( temp_subset ), row++,
+				date_val = temp_subset:INSPECT_TIME[row];
+				iso_info = get_iso_week_info( date_val );
+				iso_year = iso_info[1];
+				iso_week = iso_info[2];
+				ndays = iso_info[3];
+				week_end = iso_info[4];
+				yyyyww = format_yyyyww( iso_year, iso_week );
+				
+				// Get all rows for this week in this device-layer
+				week_subset = temp_subset << Get Rows Where(
+					format_yyyyww( 
+						get_iso_week_info( :INSPECT_TIME )[1],
+						get_iso_week_info( :INSPECT_TIME )[2]
+					) == yyyyww
+				);
+				
+				If( N Row( week_subset ) == 0, Continue() );
+				
+				// Calculate metrics
+				sample_size = N Row( week_subset );
+				beep_rate = calc_beep_rate( temp_subset << Subset( Rows( week_subset ) ) );
+				smp_rate = calc_smp_rate( temp_subset << Subset( Rows( week_subset ) ) );
+				
+				beep_zero_rate = If( Is Missing( beep_rate ), ., 1 - beep_rate );
+				smp_zero_rate = If( Is Missing( smp_rate ), ., 1 - smp_rate );
+				
+				period_end = Format( week_end, "m/d/y" );
+				
+				// Add row to result table
+				result_table << Add Rows( 1 );
+				result_table:PERIOD_END[N Row( result_table )] = period_end;
+				result_table:YYYYWW[N Row( result_table )] = yyyyww;
+				result_table:LAYER[N Row( result_table )] = layer_val;
+				result_table:DEVICE[N Row( result_table )] = device_val;
+				result_table:SAMPLE_SIZE[N Row( result_table )] = sample_size;
+				result_table:BEEP_RATE[N Row( result_table )] = beep_rate;
+				result_table:BEEP_ZERO_RATE[N Row( result_table )] = beep_zero_rate;
+				result_table:SMP_RATE[N Row( result_table )] = smp_rate;
+				result_table:SMP_ZERO_RATE[N Row( result_table )] = smp_zero_rate;
+				result_table:NDays[N Row( result_table )] = ndays;
+			);
+			
+			Close( temp_subset, NoSave );
+		);
+		
+		// Remove duplicate weeks and keep only one row per device-layer-week combination
+		result_table << Sort( By( :LAYER, :YYYYWW, :DEVICE ), Replace Table );
+		
+		Print( "Device-layer aggregations: " || Char( N Row( result_table ) ) );
+		
+		result_table;
+	);
+);
+
+// ===== ADD DEVICE="ALL" FLEET AGGREGATIONS =====
+
+add_fleet_all_rows = Function( {device_table},
+	Local( {layer_week_unique, layer_week_list, layer_val, yyyyww_val, 
+	        layer_week_subset, period_end, ndays, sample_size, 
+	        total_beep_defective, total_smp_defective, beep_rate, smp_rate,
+	        beep_zero_rate, smp_zero_rate},
+		
+		Print( "Creating DEVICE='ALL' fleet-wide aggregations..." );
+		
+		// Get unique LAYER-YYYYWW combinations
+		layer_week_list = device_table << Get Unique Values( "LAYER", "YYYYWW" );
+		
+		For Each( {combo}, layer_week_list,
+			layer_val = combo[1];
+			yyyyww_val = combo[2];
+			
+			// Get all devices in this layer-week
+			layer_week_subset = device_table << Get Rows Where(
+				:LAYER == layer_val & :YYYYWW == yyyyww_val
+			);
+			
+			If( N Row( layer_week_subset ) == 0, Continue() );
+			
+			// Get aggregated values
+			period_end = device_table:PERIOD_END[layer_week_subset[1]];
+			ndays = device_table:NDays[layer_week_subset[1]];
+			
+			// Sum sample sizes and recalculate rates
+			sample_size = Sum( device_table:SAMPLE_SIZE[layer_week_subset] );
+			
+			total_beep_defective = Sum(
+				device_table:BEEP_RATE[layer_week_subset] :* 
+				device_table:SAMPLE_SIZE[layer_week_subset]
+			);
+			total_smp_defective = Sum(
+				device_table:SMP_RATE[layer_week_subset] :* 
+				device_table:SAMPLE_SIZE[layer_week_subset]
+			);
+			
+			beep_rate = If( sample_size > 0, total_beep_defective / sample_size, . );
+			smp_rate = If( sample_size > 0, total_smp_defective / sample_size, . );
+			
+			beep_zero_rate = If( Is Missing( beep_rate ), ., 1 - beep_rate );
+			smp_zero_rate = If( Is Missing( smp_rate ), ., 1 - smp_rate );
+			
+			// Add row for ALL devices
+			device_table << Add Rows( 1 );
+			device_table:PERIOD_END[N Row( device_table )] = period_end;
+			device_table:YYYYWW[N Row( device_table )] = yyyyww_val;
+			device_table:LAYER[N Row( device_table )] = layer_val;
+			device_table:DEVICE[N Row( device_table )] = "ALL";
+			device_table:SAMPLE_SIZE[N Row( device_table )] = sample_size;
+			device_table:BEEP_RATE[N Row( device_table )] = beep_rate;
+			device_table:BEEP_ZERO_RATE[N Row( device_table )] = beep_zero_rate;
+			device_table:SMP_RATE[N Row( device_table )] = smp_rate;
+			device_table:SMP_ZERO_RATE[N Row( device_table )] = smp_zero_rate;
+			device_table:NDays[N Row( device_table )] = ndays;
+		);
+		
+		Print( "Added DEVICE='ALL' rows. Final table: " || Char( N Row( device_table ) ) );
+		
+		device_table << Sort( By( :LAYER, :YYYYWW, :DEVICE ), Replace Table );
+		
+		device_table;
+	);
+);
+
+// ===== MAIN EXECUTION =====
+
+main = Function( {},
+	Local( {source_table, result_table},
+		
+		Print( "========================================" );
+		Print( "WEEKLY ZERO-RATE AGGREGATOR (JSL)" );
+		Print( "========================================" );
+		
+		// Check if we should proceed
+		If( !force_execute & !is_sunday(),
+			today_names = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+			today_name = today_names[DayOfWeek( Today() )];
+			Print( "Today is " || today_name || " (not Sunday). Skipping aggregation." );
+			Print( "Aggregation runs only on Sundays to ensure complete week data." );
+			Return();
+		);
+		
+		If( force_execute,
+			Print( "Force execution mode enabled (bypassing Sunday check)" );
+		,
+			Print( "Today is Sunday - proceeding with aggregation" );
+		);
+		
+		// Get active table
+		source_table = Current Data Table();
+		If( Is Missing( source_table ),
+			Print( "ERROR: No active table found. Please open a table first." );
+			Return();
+		);
+		
+		Print( "Source table: " || source_table << Get Name );
+		Print( "Rows: " || Char( N Row( source_table ) ) );
+		
+		// Check required columns
+		required_cols = {"INSPECT_TIME", "LAYER", "DEVICE", "BEEP_NCDD", "ZERO_BEEP", "SMP_NCDD", "ZERO_SMP"};
+		For Each( {col_name}, required_cols,
+			If( Is Empty( source_table << Get Column( col_name ) ),
+				Print( "ERROR: Required column '" || col_name || "' not found in source table" );
+				Return();
+			);
+		);
+		
+		// Run aggregation
+		result_table = main_aggregation( source_table );
+		result_table = add_fleet_all_rows( result_table );
+		
+		Print( "========================================" );
+		Print( "AGGREGATION COMPLETE" );
+		Print( "Result table: " || result_table << Get Name );
+		Print( "Total metric rows: " || Char( N Row( result_table ) ) );
+		Print( "========================================" );
+		
+		// Return the result table
+		result_table;
+	);
+);
+
+// Run the main function
+result = main();
+
+// Show the result table
+If( !Is Missing( result ),
+	result << Show Window;
+);

@@ -1,0 +1,337 @@
+/*
+WEEKLY_ZERO_RATE_AGGREGATOR.jsl (v3 - Any Day, Complete Weeks Only)
+==================================================================
+JMP JSL script for weekly ZERO_RATE metrics aggregation.
+
+Features:
+- Runs any day of the week (automatically excludes incomplete current week)
+- ISO weeks with clear PERIOD_END column for summarization
+- Two-pass aggregation: by device, then fleet-wide "ALL" rows
+- Concatenates results into single output table
+
+Required columns in source table:
+  - INSPECT_TIME: Date/datetime of inspection
+  - LAYER: Process layer name
+  - DEVICE: Device identifier
+  - ZERO_BEEP: Boolean flag (0=defective, 1=zero)
+  - ZERO_SMP: Boolean flag (0=defective, 1=zero)
+
+Usage:
+  1. Open your source table in JMP
+  2. Run this script
+  3. New table "Weekly_Metrics" created with complete-week data
+
+Output columns:
+  - PERIOD_END: End date of week (Sunday) for sorting/filtering
+  - YYYYWW: Year-week code (26W27)
+  - LAYER: Process layer
+  - DEVICE: Device identifier or "ALL"
+  - SAMPLE_SIZE: Number of records in week
+  - BEEP_RATE, BEEP_ZERO_RATE: Calculated rates
+  - SMP_RATE, SMP_ZERO_RATE: Calculated rates
+  - NDays: Days from data date to end of week
+*/
+
+// ===== UTILITY FUNCTIONS =====
+
+// Get ISO week year and week number for a given date
+get_iso_week = Function( {date_val},
+	Local( {iso_weekday_jsl, iso_weekday, thursday_offset, thursday_date, iso_year, thursday_jan4, iso_week} ),
+	
+	iso_weekday_jsl = DayOfWeek( date_val ); // 1=Sunday, 2=Monday, ..., 7=Saturday
+	// Convert to ISO: 1=Monday, ..., 7=Sunday
+	iso_weekday = Mod( iso_weekday_jsl + 5, 7 ) + 1;
+	
+	// Get Thursday to determine ISO year
+	thursday_offset = Mod( 4 - iso_weekday + 7, 7 );
+	thursday_date = date_val + thursday_offset;
+	iso_year = Year( thursday_date );
+	
+	// ISO week number
+	thursday_jan4 = Date( iso_year, 1, 4 );
+	iso_week = Floor( (thursday_date - thursday_jan4) / 7 ) + 1;
+	
+	{iso_year, iso_week};
+);
+
+// Format as YYYYWW (e.g., "26W27")
+format_yyyyww = Function( {iso_year, iso_week},
+	Char( Mod( iso_year, 100 ), "00" ) || "W" || Char( iso_week, "00" )
+);
+
+// Get end-of-week date (Sunday) and days remaining
+get_week_end_info = Function( {date_val},
+	Local( {iso_weekday_jsl, days_until_sunday, week_end} ),
+	
+	iso_weekday_jsl = DayOfWeek( date_val ); // 1=Sunday
+	days_until_sunday = Mod( 8 - iso_weekday_jsl, 7 );
+	If( days_until_sunday == 0, days_until_sunday = 7 );
+	week_end = date_val + days_until_sunday;
+	
+	{week_end, days_until_sunday + 1}; // Return {week_end, ndays}
+);
+
+// Get last complete week date (last Sunday)
+get_last_complete_week_end = Function( {},
+	Local( {today, days_since_last_sunday, last_sunday} ),
+	
+	today = Today();
+	// DayOfWeek: 1=Sunday, so if today is Sunday, days_since=0
+	days_since_last_sunday = Mod( DayOfWeek( today ) - 1, 7 );
+	last_sunday = today - days_since_last_sunday;
+	
+	last_sunday;
+);
+
+// Create result table structure
+create_result_table = Function( {table_name},
+	New Table( table_name,
+		Add Column( "PERIOD_END", Character, "Nominal" ),
+		Add Column( "YYYYWW", Character, "Nominal" ),
+		Add Column( "LAYER", Character, "Nominal" ),
+		Add Column( "DEVICE", Character, "Nominal" ),
+		Add Column( "SAMPLE_SIZE", Numeric, "Continuous" ),
+		Add Column( "BEEP_RATE", Numeric, "Continuous" ),
+		Add Column( "BEEP_ZERO_RATE", Numeric, "Continuous" ),
+		Add Column( "SMP_RATE", Numeric, "Continuous" ),
+		Add Column( "SMP_ZERO_RATE", Numeric, "Continuous" ),
+		Add Column( "NDays", Numeric, "Continuous" )
+	);
+);
+
+// Add row to result table
+add_result_row = Function( {result_table, period_end, yyyyww, layer, device, sample_size, beep_rate, smp_rate, ndays},
+	Local( {beep_zero_rate, smp_zero_rate} ),
+	
+	beep_zero_rate = If( Is Missing( beep_rate ), ., 1 - beep_rate );
+	smp_zero_rate = If( Is Missing( smp_rate ), ., 1 - smp_rate );
+	
+	result_table << Add Rows( 1 );
+	result_table:PERIOD_END[N Row( result_table )] = Format( period_end, "m/d/y" );
+	result_table:YYYYWW[N Row( result_table )] = yyyyww;
+	result_table:LAYER[N Row( result_table )] = layer;
+	result_table:DEVICE[N Row( result_table )] = device;
+	result_table:SAMPLE_SIZE[N Row( result_table )] = sample_size;
+	result_table:BEEP_RATE[N Row( result_table )] = beep_rate;
+	result_table:BEEP_ZERO_RATE[N Row( result_table )] = beep_zero_rate;
+	result_table:SMP_RATE[N Row( result_table )] = smp_rate;
+	result_table:SMP_ZERO_RATE[N Row( result_table )] = smp_zero_rate;
+	result_table:NDays[N Row( result_table )] = ndays;
+);
+
+// ===== MAIN SCRIPT =====
+
+main = Function( {},
+	Local(
+		{source_table, last_complete_sunday, filtered_table, unique_combos, 
+		 device_result, all_result, final_result,
+		 layer_val, device_val, subset_rows, subset_table, week_groups, 
+		 wk, week_rows, first_row, first_date, iso_info, iso_year, iso_week,
+		 yyyyww, week_end_info, week_end, ndays, beep_rate, smp_rate, sample_size,
+		 beep_defective, smp_defective, all_combos, all_rows, beep_defective_sum,
+		 smp_defective_sum},
+		
+		Print( "========================================" );
+		Print( "WEEKLY ZERO-RATE AGGREGATOR (v3)" );
+		Print( "========================================" );
+		Print( "Date range: Complete weeks only (excludes current incomplete week)" );
+		Print( "" );
+		
+		// Get source table
+		source_table = Current Data Table();
+		If( Is Missing( source_table ),
+			Print( "ERROR: No active table. Please open a table first." );
+			Return();
+		);
+		
+		Print( "Source table: " || source_table << Get Name );
+		Print( "Total rows: " || Char( N Row( source_table ) ) );
+		
+		// Determine last complete week
+		last_complete_sunday = get_last_complete_week_end();
+		Print( "Last complete week end (Sunday): " || Format( last_complete_sunday, "m/d/y" ) );
+		Print( "Filtering to data through this date..." );
+		
+		// Create filtered table with only complete weeks
+		filtered_table = source_table << Subset(
+			Rows( source_table << Get Rows Where( :INSPECT_TIME <= last_complete_sunday ) ),
+			Output Table( "Filtered_Complete_Weeks" ),
+			invisible
+		);
+		
+		Print( "Filtered rows (complete weeks only): " || Char( N Row( filtered_table ) ) );
+		If( N Row( filtered_table ) == 0,
+			Print( "WARNING: No complete weeks found in data." );
+			Close( filtered_table, NoSave );
+			Return();
+		);
+		
+		// ===== PASS 1: Device-specific aggregations =====
+		Print( "" );
+		Print( "PASS 1: Aggregating by LAYER + DEVICE + WEEK..." );
+		
+		device_result = create_result_table( "Device_Metrics" );
+		
+		unique_combos = filtered_table << Get Unique Values( "LAYER", "DEVICE" );
+		Print( "Processing " || Char( N Items( unique_combos ) ) || " device-layer combinations..." );
+		
+		For Each( {combo}, unique_combos,
+			layer_val = combo[1];
+			device_val = combo[2];
+			
+			subset_rows = filtered_table << Get Rows Where(
+				:LAYER == layer_val & :DEVICE == device_val
+			);
+			
+			If( N Row( subset_rows ) == 0, Continue() );
+			
+			// Create temporary subset table
+			subset_table = filtered_table << Subset(
+				Rows( subset_rows ),
+				Output Table( "temp_subset" ),
+				invisible
+			);
+			
+			subset_table << Sort( By( :INSPECT_TIME ), Replace Table );
+			
+			// Add helper column for YYYYWW
+			subset_table << New Column( "WK", Character, hidden,
+				formula = Function(),
+				set formula = Expr(
+					Local( {iso_info},
+						iso_info = get_iso_week( :INSPECT_TIME );
+						format_yyyyww( iso_info[1], iso_info[2] );
+					);
+				)
+			);
+			
+			subset_table << Run Formulas();
+			
+			// Get unique weeks
+			week_groups = subset_table << Get Unique Values( "WK" );
+			
+			// Process each week
+			For Each( {wk}, week_groups,
+				week_rows = subset_table << Get Rows Where( :WK == wk );
+				
+				If( N Row( week_rows ) == 0, Continue() );
+				
+				first_row = week_rows[1];
+				first_date = subset_table:INSPECT_TIME[first_row];
+				iso_info = get_iso_week( first_date );
+				iso_year = iso_info[1];
+				iso_week = iso_info[2];
+				yyyyww = format_yyyyww( iso_year, iso_week );
+				
+				week_end_info = get_week_end_info( first_date );
+				week_end = week_end_info[1];
+				ndays = week_end_info[2];
+				
+				sample_size = N Row( week_rows );
+				
+				// Calculate BEEP_RATE
+				beep_defective = 0;
+				For Each( {row_idx}, week_rows,
+					If( subset_table:ZERO_BEEP[row_idx] != 1,
+						beep_defective = beep_defective + 1;
+					);
+				);
+				beep_rate = If( sample_size > 0, beep_defective / sample_size, . );
+				
+				// Calculate SMP_RATE
+				smp_defective = 0;
+				For Each( {row_idx}, week_rows,
+					If( subset_table:ZERO_SMP[row_idx] != 1,
+						smp_defective = smp_defective + 1;
+					);
+				);
+				smp_rate = If( sample_size > 0, smp_defective / sample_size, . );
+				
+				// Add row to device results
+				add_result_row( device_result, week_end, yyyyww, layer_val, device_val, 
+					sample_size, beep_rate, smp_rate, ndays );
+			);
+			
+			Close( subset_table, NoSave );
+		);
+		
+		Print( "Device aggregations created: " || Char( N Row( device_result ) ) );
+		
+		// ===== PASS 2: Fleet-wide ALL aggregations =====
+		Print( "" );
+		Print( "PASS 2: Creating DEVICE='ALL' fleet aggregations..." );
+		
+		all_result = create_result_table( "All_Metrics" );
+		
+		all_combos = device_result << Get Unique Values( "LAYER", "YYYYWW" );
+		
+		For Each( {combo}, all_combos,
+			layer_val = combo[1];
+			yyyyww = combo[2];
+			
+			all_rows = device_result << Get Rows Where(
+				:LAYER == layer_val & :YYYYWW == yyyyww
+			);
+			
+			If( N Row( all_rows ) == 0, Continue() );
+			
+			// Aggregate
+			sample_size = Sum( device_result:SAMPLE_SIZE[all_rows] );
+			
+			// Recalculate rates from weighted sums
+			beep_defective_sum = Sum( device_result:BEEP_RATE[all_rows] :* device_result:SAMPLE_SIZE[all_rows] );
+			smp_defective_sum = Sum( device_result:SMP_RATE[all_rows] :* device_result:SAMPLE_SIZE[all_rows] );
+			
+			beep_rate = If( sample_size > 0, beep_defective_sum / sample_size, . );
+			smp_rate = If( sample_size > 0, smp_defective_sum / sample_size, . );
+			
+			// Get period end from first device row
+			period_end_char = device_result:PERIOD_END[all_rows[1]];
+			ndays = device_result:NDays[all_rows[1]];
+			
+			// Add ALL row
+			add_result_row( all_result, 
+				Parse( period_end_char, "m/d/y" ),  // Convert back to date for formatting
+				yyyyww, layer_val, "ALL", 
+				sample_size, beep_rate, smp_rate, ndays );
+		);
+		
+		Print( "All-device aggregations created: " || Char( N Row( all_result ) ) );
+		
+		// ===== CONCATENATE RESULTS =====
+		Print( "" );
+		Print( "Concatenating device and all-device results..." );
+		
+		// Concatenate device results and all results
+		final_result = device_result << Concatenate( all_result, Output Table( "Weekly_Metrics" ) );
+		Close( device_result, NoSave );
+		Close( all_result, NoSave );
+		
+		// Sort final results
+		final_result << Sort( By( :PERIOD_END, :LAYER, :DEVICE ), Replace Table );
+		final_result << Delete Rows( {} );
+		
+		Close( filtered_table, NoSave );
+		
+		Print( "" );
+		Print( "========================================" );
+		Print( "AGGREGATION COMPLETE" );
+		Print( "Output table: " || final_result << Get Name );
+		Print( "Total metric rows: " || Char( N Row( final_result ) ) );
+		Print( "  - Device-specific rows" );
+		Print( "  - Fleet-wide ALL rows per layer-week" );
+		Print( "========================================" );
+		Print( "" );
+		Print( "Tips for use:" );
+		Print( "  - PERIOD_END: Use for week-based sorting and filtering" );
+		Print( "  - YYYYWW: Reference for work week" );
+		Print( "  - DEVICE='ALL': Fleet-wide metrics for each layer-week" );
+		Print( "" );
+		
+		final_result << Show Window;
+		final_result;
+	);
+);
+
+// Execute
+result = main();

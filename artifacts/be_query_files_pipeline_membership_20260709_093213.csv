@@ -1,0 +1,76 @@
+relative_path,file_name,module_name,in_inline_pipeline,in_surf_pipeline,pipeline_membership,is_seed_entrypoint,imported_by_count,imports_count,script_exec_targets_count,edge_types,confidence,rationale
+8M5CL_8M6CL_UPDATE.py,8M5CL_8M6CL_UPDATE.py,8M5CL_8M6CL_UPDATE,true,false,INLINE,true,0,5,1,"import,script_exec",High,reachable from inline orchestrator import graph
+DEFECT_COORDINATES_QUERY.py,DEFECT_COORDINATES_QUERY.py,DEFECT_COORDINATES_QUERY,true,false,INLINE,false,1,1,0,import,High,reachable from inline orchestrator import graph
+WEEKLY_ZERO_RATE_AGGREGATOR.py,WEEKLY_ZERO_RATE_AGGREGATOR.py,WEEKLY_ZERO_RATE_AGGREGATOR,true,false,INLINE,false,1,0,0,none,High,reachable from inline orchestrator import graph
+modular_processor\EXTEND_BENCHMARK.py,EXTEND_BENCHMARK.py,modular_processor.EXTEND_BENCHMARK,true,false,INLINE,false,2,2,0,import,High,reachable from inline orchestrator import graph
+modular_processor\TIME_BIN_AGGREGATOR.py,TIME_BIN_AGGREGATOR.py,modular_processor.TIME_BIN_AGGREGATOR,true,false,INLINE,false,1,1,0,import,High,reachable from inline orchestrator import graph
+modular_processor\__init__.py,__init__.py,modular_processor,true,false,INLINE,false,3,0,0,none,High,reachable from inline orchestrator import graph
+modular_processor\core\__init__.py,__init__.py,modular_processor.core,true,false,INLINE,false,1,0,0,none,High,reachable from inline orchestrator import graph
+modular_processor\core\config.py,config.py,modular_processor.core.config,true,false,INLINE,false,1,1,0,import,High,reachable from inline orchestrator import graph
+modular_processor\main.py,main.py,modular_processor.main,true,false,INLINE,false,1,4,0,import,High,reachable from inline orchestrator import graph
+modular_processor\processors\__init__.py,__init__.py,modular_processor.processors,true,false,INLINE,false,1,0,0,none,High,reachable from inline orchestrator import graph
+modular_processor\processors\defect_processor.py,defect_processor.py,modular_processor.processors.defect_processor,true,false,INLINE,false,1,1,0,import,High,reachable from inline orchestrator import graph
+pipeline_config.py,pipeline_config.py,pipeline_config,true,true,BOTH,false,8,0,0,none,High,reachable from both inline and SURF import graphs
+reconcile_prune_images.py,reconcile_prune_images.py,reconcile_prune_images,true,true,BOTH,false,2,1,0,import,High,reachable from both inline and SURF import graphs
+surf_scan_config.py,surf_scan_config.py,surf_scan_config,false,true,SURF,false,3,0,0,none,High,reachable from SURF orchestrator/entrypoint import graph
+surf_scan_coordinates.py,surf_scan_coordinates.py,surf_scan_coordinates,false,true,SURF,false,6,2,0,import,High,reachable from SURF orchestrator/entrypoint import graph
+surf_scan_daily.py,surf_scan_daily.py,surf_scan_daily,false,true,SURF,true,0,1,0,import,High,reachable from SURF orchestrator/entrypoint import graph
+surf_scan_elwc_pm_pilot.py,surf_scan_elwc_pm_pilot.py,surf_scan_elwc_pm_pilot,false,true,SURF,false,1,2,0,import,High,reachable from SURF orchestrator/entrypoint import graph
+surf_scan_elwc_pm_stage_backfill.py,surf_scan_elwc_pm_stage_backfill.py,surf_scan_elwc_pm_stage_backfill,false,true,SURF,false,1,3,0,import,High,reachable from SURF orchestrator/entrypoint import graph
+surf_scan_images.py,surf_scan_images.py,surf_scan_images,false,true,SURF,false,1,2,0,import,High,reachable from SURF orchestrator/entrypoint import graph
+surf_scan_incremental.py,surf_scan_incremental.py,surf_scan_incremental,false,true,SURF,true,0,1,0,import,High,reachable from SURF orchestrator/entrypoint import graph
+surf_scan_seed.py,surf_scan_seed.py,surf_scan_seed,false,true,SURF,true,0,1,0,import,High,reachable from SURF orchestrator/entrypoint import graph
+surf_scan_update.py,surf_scan_update.py,surf_scan_update,false,true,SURF,true,3,6,0,import,High,reachable from SURF orchestrator/entrypoint import graph
+utils\8M5CL_8M6CL_PROCESSOR.py,8M5CL_8M6CL_PROCESSOR.py,utils.8M5CL_8M6CL_PROCESSOR,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\EDI_BACKFILL.py,EDI_BACKFILL.py,utils.EDI_BACKFILL,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\ELWC_BE_FLEET.py,ELWC_BE_FLEET.py,utils.ELWC_BE_FLEET,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\ELWC_DEDUPLICATED.py,ELWC_DEDUPLICATED.py,utils.ELWC_DEDUPLICATED,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\ELWC_UPDATE.py,ELWC_UPDATE.py,utils.ELWC_UPDATE,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\GENERATE_DEVICE_BENCHMARK_JSL.py,GENERATE_DEVICE_BENCHMARK_JSL.py,utils.GENERATE_DEVICE_BENCHMARK_JSL,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\RF_DEFECTS.py,RF_DEFECTS.py,utils.RF_DEFECTS,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\RF_DEFECTS_2.py,RF_DEFECTS_2.py,utils.RF_DEFECTS_2,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\_tmp_beep_smp_corr_probe.py,_tmp_beep_smp_corr_probe.py,utils._tmp_beep_smp_corr_probe,false,false,NEITHER,false,0,1,0,import,High,temporary probe script not imported by pipeline entrypoints
+utils\_tmp_defect_manifest_fast_audit.py,_tmp_defect_manifest_fast_audit.py,utils._tmp_defect_manifest_fast_audit,false,false,NEITHER,false,0,1,0,import,High,temporary probe script not imported by pipeline entrypoints
+utils\_tmp_elwc_probe.py,_tmp_elwc_probe.py,utils._tmp_elwc_probe,false,false,NEITHER,false,0,1,0,import,High,temporary probe script not imported by pipeline entrypoints
+utils\_tmp_insp_summary_columns_probe.py,_tmp_insp_summary_columns_probe.py,utils._tmp_insp_summary_columns_probe,false,false,NEITHER,false,0,0,0,none,High,temporary probe script not imported by pipeline entrypoints
+utils\_tmp_recipe_key_lookup_probe.py,_tmp_recipe_key_lookup_probe.py,utils._tmp_recipe_key_lookup_probe,false,false,NEITHER,false,0,0,0,none,High,temporary probe script not imported by pipeline entrypoints
+utils\_tmp_recipe_value_probe.py,_tmp_recipe_value_probe.py,utils._tmp_recipe_value_probe,false,false,NEITHER,false,0,0,0,none,High,temporary probe script not imported by pipeline entrypoints
+utils\_tmp_surf_manifest_audit.py,_tmp_surf_manifest_audit.py,utils._tmp_surf_manifest_audit,false,false,NEITHER,false,0,1,0,import,High,temporary probe script not imported by pipeline entrypoints
+utils\_tmp_surf_manifest_fast_audit.py,_tmp_surf_manifest_fast_audit.py,utils._tmp_surf_manifest_fast_audit,false,false,NEITHER,false,0,1,0,import,High,temporary probe script not imported by pipeline entrypoints
+utils\_tmp_surf_manifest_targeted_audit.py,_tmp_surf_manifest_targeted_audit.py,utils._tmp_surf_manifest_targeted_audit,false,false,NEITHER,false,0,1,0,import,High,temporary probe script not imported by pipeline entrypoints
+utils\audit_edi_backfill.py,audit_edi_backfill.py,utils.audit_edi_backfill,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\backfill_defect_yymm.py,backfill_defect_yymm.py,utils.backfill_defect_yymm,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\backfill_surf_pilot_status.py,backfill_surf_pilot_status.py,utils.backfill_surf_pilot_status,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\backfill_wafer_pilot_status.py,backfill_wafer_pilot_status.py,utils.backfill_wafer_pilot_status,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\base_processors.py,base_processors.py,utils.base_processors,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\check_ncdd_coverage.py,check_ncdd_coverage.py,utils.check_ncdd_coverage,false,false,NEITHER,false,0,0,0,none,Medium,not import-reachable from documented pipeline entrypoints
+utils\column_manager.py,column_manager.py,utils.column_manager,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\compare_surf_coordinates.py,compare_surf_coordinates.py,utils.compare_surf_coordinates,false,false,NEITHER,false,0,1,0,import,Medium,test/debug helper not imported by pipeline entrypoints
+utils\csv_backup_daily.py,csv_backup_daily.py,utils.csv_backup_daily,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\debug_join_keys.py,debug_join_keys.py,utils.debug_join_keys,false,false,NEITHER,false,0,1,0,import,High,test/debug helper not imported by pipeline entrypoints
+utils\defect_trends_processor.py,defect_trends_processor.py,utils.defect_trends_processor,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\diagnose_join_keys.py,diagnose_join_keys.py,utils.diagnose_join_keys,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\elwc2_processor.py,elwc2_processor.py,utils.elwc2_processor,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\elwc_processor.py,elwc_processor.py,utils.elwc_processor,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\final_verification.py,final_verification.py,utils.final_verification,false,false,NEITHER,false,0,0,0,none,Medium,not import-reachable from documented pipeline entrypoints
+utils\generate_60day.py,generate_60day.py,utils.generate_60day,false,false,NEITHER,false,0,0,0,none,Medium,not import-reachable from documented pipeline entrypoints
+utils\leak_processors.py,leak_processors.py,utils.leak_processors,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\migrate_pipeline_layout.py,migrate_pipeline_layout.py,utils.migrate_pipeline_layout,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\phase2b_rolling_audit.py,phase2b_rolling_audit.py,utils.phase2b_rolling_audit,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\pump_processor.py,pump_processor.py,utils.pump_processor,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\readme_update.py,readme_update.py,utils.readme_update,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\reparse_pilot_columns.py,reparse_pilot_columns.py,utils.reparse_pilot_columns,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\spc_processor.py,spc_processor.py,utils.spc_processor,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\surf_scan_GTO111_OX.py,surf_scan_GTO111_OX.py,utils.surf_scan_GTO111_OX,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\surf_scan_backfill_event_wafer.py,surf_scan_backfill_event_wafer.py,utils.surf_scan_backfill_event_wafer,false,false,NEITHER,false,0,2,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\surf_scan_backfill_pm_counters.py,surf_scan_backfill_pm_counters.py,utils.surf_scan_backfill_pm_counters,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\surf_scan_event_wafer_sample.py,surf_scan_event_wafer_sample.py,utils.surf_scan_event_wafer_sample,false,false,NEITHER,false,1,2,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\surf_scan_extend_backfill.py,surf_scan_extend_backfill.py,utils.surf_scan_extend_backfill,false,false,NEITHER,false,0,2,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\surf_scan_insp_scope.py,surf_scan_insp_scope.py,utils.surf_scan_insp_scope,false,false,NEITHER,false,0,2,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\test_fixed_merge.py,test_fixed_merge.py,utils.test_fixed_merge,false,false,NEITHER,false,0,0,0,none,High,test/debug helper not imported by pipeline entrypoints
+utils\test_merge_logic.py,test_merge_logic.py,utils.test_merge_logic,false,false,NEITHER,false,0,0,0,none,High,test/debug helper not imported by pipeline entrypoints
+utils\test_nulls.py,test_nulls.py,utils.test_nulls,false,false,NEITHER,false,0,1,0,import,High,test/debug helper not imported by pipeline entrypoints
+utils\update_surf_ts_ame421_pm1.py,update_surf_ts_ame421_pm1.py,utils.update_surf_ts_ame421_pm1,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\utils.py,utils.py,utils.utils,false,false,NEITHER,false,43,0,0,none,Medium,not import-reachable from documented pipeline entrypoints
+utils\validator.py,validator.py,utils.validator,false,false,NEITHER,false,0,1,0,import,Medium,not import-reachable from documented pipeline entrypoints
+utils\verify_fix.py,verify_fix.py,utils.verify_fix,false,false,NEITHER,false,0,0,0,none,Medium,not import-reachable from documented pipeline entrypoints
