@@ -1,0 +1,11 @@
+{
+  "app_name": "BE_Image_Classification",
+  "runtime_profile": "py311",
+  "shared_runtime_root_unc": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Shared_Docs\\Alloy_Apps\\_shared_runtime",
+  "wheelhouse_unc": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Shared_Docs\\Alloy_Apps\\_shared_runtime\\wheelhouse\\py311",
+  "requirements_lock_unc": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Shared_Docs\\Alloy_Apps\\_shared_runtime\\constraints\\requirements.lock.py311.txt",
+  "bootstrap_script_unc": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Shared_Docs\\Alloy_Apps\\_shared_runtime\\bootstrap\\install_from_wheelhouse.ps1",
+  "optional_ca_bundle_unc": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Shared_Docs\\Alloy_Apps\\_shared_runtime\\certs\\ca_bundle.pem",
+  "allow_index_fallback": false,
+  "notes": "All paths are UNC-native to avoid local machine dependency."
+}

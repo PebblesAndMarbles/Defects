@@ -1,7 +1,15 @@
 # .gitignore for BE Workspace
 
-# Exclude all images
-images/
+# Exclude all images by default
+images/*
+
+# Track Alloy classification project under images/
+!images/Alloy_Class/
+!images/Alloy_Class/**
+
+# But keep sample Alloy inputs and thumbnail junk out of git
+images/Alloy_Class/inputs/
+images/Alloy_Class/**/Thumbs.db
 
 # Exclude common large file types
 *.zip

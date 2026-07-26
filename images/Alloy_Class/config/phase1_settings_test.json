@@ -1,0 +1,13 @@
+{
+  "api_base_url": "https://alloy.intel.com",
+  "model": "gpt-5.4-mini",
+  "detail": "high",
+  "timeout_seconds": 60,
+  "verify_ssl": true,
+  "use_shared_ca_bundle": false,
+  "input_folder": "./inputs",
+  "output_folder": "./outputs/test_phase1",
+  "prompt_version": "phase1_v1",
+  "prompt": "You are an expert SEM defect classifier for backend etch wafers. Classify visible defect morphology with attention to shape, orientation, line-bridge interaction, relative size, and location context. Return strict JSON only. If uncertain, set review_required=true and lower confidence."
+}
+

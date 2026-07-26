@@ -1,0 +1,93 @@
+You are working in an Alloy-updated local environment and must make image-classification workflows API-compatible and analytically useful for BE fine-bin discrimination.
+
+Priority: focus first on operationalizing Rob/Doruk ideas and tailoring outputs to the classification problem. ScriptHost packaging should be treated as a later phase.
+
+Primary objective:
+Assess and adapt Rob and Doruk example workflows so they use current Alloy vision APIs, then produce a high-signal experimentation framework to evaluate and improve class separation quality.
+
+Deployment context (deferred for later phases):
+1) ScriptHost jobs run in a specific preinstalled Python environment (SQLPathFinder3/Python 3.11 context).
+2) Drones can access UNC paths.
+3) We may execute live modules from UNC using ScriptHost dynamic launcher mode.
+4) Upstream Alloy moved away from bundled local wheel toward Artifactory package flow.
+5) We need a wheelhouse proposal for deterministic installs in constrained runtime.
+
+Inputs to review:
+1) Email/context exchange: images/Alloy_Class/Current_Ask.txt
+2) Notebook example (Rob): images/Alloy_Class/trey_01_captioning.ipynb
+3) Batch script example (Doruk): images/Alloy_Class/vision_defect_batch_unzipped/vision_defect_batch.py
+4) Pipeline integration context: PIPELINE_DESIGN.md
+5) Active Alloy environment root: operator-provided path for the currently installed Alloy workspace (do not hard-code a user-local machine path)
+6) ScriptHost scheduling context:
+   \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Shared_Docs\Scripthost_Scheduling\docs\SH_SCHEDULING_USER_CONTEXT.md
+7) Handoff strategy doc:
+   Learnings/Alloy_Image_Classification_ScriptHost_Handoff.md
+
+What I need from you now:
+1) API compatibility audit
+- Discover current canonical Alloy vision modules/functions.
+- Confirm if prior imports (example: alloy.core.llm.core.image) are obsolete.
+- Produce a mapping table: old import/call style -> new import/call style.
+- Cite exact source files in alloy-sandbox where canonical usage is defined.
+
+2) Concrete modernization of both examples
+- Update notebook and script to current Alloy APIs.
+- Keep behavior equivalent unless incompatibility requires changes.
+- Preserve structured output for downstream processing.
+- Standardize model/config handling (single config surface, no hard-coded model drift).
+
+3) Security/reliability hardening
+- Replace hard-coded API key with environment variable usage.
+- Enable SSL verification by default and support optional custom CA bundle.
+- Add response parsing tolerant of minor API response shape changes.
+- Add resilient per-image error handling and structured failure logs.
+- Avoid filename-stem collision issues in output identity (idempotent record key required).
+
+4) BE class-tailoring framework
+- Define a practical class taxonomy proposal for the current defect image population.
+- Produce prompt variants that target morphology, size, and location cues relevant to mechanism separation.
+- Add explicit confidence and ambiguity handling (`review_required` when uncertain).
+- Define an evaluation rubric for usefulness (coverage, consistency, actionable separation).
+
+5) Pipeline-fit assessment (planning only)
+- Evaluate how outputs join current BE pipeline manifests in PIPELINE_DESIGN.md.
+- Recommend minimum schema additions for joinability:
+  - stable image key
+  - source UNC path
+  - run_id
+  - timestamp
+  - wafer/lot/tool metadata when available
+- Propose low-risk insertion point in existing orchestrated flow.
+
+6) Deliverables
+- Findings list ordered by severity.
+- Compatibility matrix for imports/calls.
+- Patch plan with exact file edits.
+- Updated code snippets or full patched files for:
+  - notebook vision call cells
+  - batch script config/auth/request/parse/output sections
+- Plus:
+  - prompt taxonomy variants for BE class discovery
+  - evaluation worksheet/checklist for comparing prompt/model runs
+- Validation checklist with commands:
+  - smoke test one image
+  - small batch comparison (multiple prompts/models)
+  - expected output artifacts
+  - failure-path tests (bad key, bad SSL, malformed response)
+  - repeatability check (rerun consistency on same sample)
+
+Constraints:
+- Assume local Alloy install is authoritative; do not rely on stale examples.
+- Prefer minimal invasive changes with explicit reasoning.
+- Keep changes reproducible and deterministic.
+- Flag unknowns explicitly instead of guessing.
+
+Success criteria (current phase):
+- Both examples run in updated environment without import errors.
+- Output remains structured and parseable.
+- Security posture is acceptable for enterprise workflow.
+- Class outputs show useful differentiation beyond coarse bins.
+- Integration path into existing BE image pipeline is concrete at planning level.
+
+Later-phase success criteria (deferred):
+- ScriptHost deployment path is practical with fixed runtime and UNC access.

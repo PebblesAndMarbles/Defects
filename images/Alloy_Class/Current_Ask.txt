@@ -1,0 +1,190 @@
+Hi Trey, 
+
+I pushed an update today to enable the vision endpoint to return structured JSON files. For the same image Rob used, it returned:
+
+{
+"number_of_defects": 1,
+"description": "One prominent irregular foreign particle/debris is present near the center of the image, lying across multiple patterned lines. It appears as an elongated bright object and may cause local bridging/obstruction of the lines. No other clear defects are visible.",
+"further_processing_needed": true,
+"proposed_processing_tool": "segmentation"
+}
+
+I also asked Copilot to create a script for this (attached). It will process the images in your folder, or you can add a watchdog to monitor for new images and run the analysis automatically.
+
+The advantage of having a structured JSON output is that it’s ready for downstream analysis. For example, if you want to create additional tools that can be registered with Alloy, the data will already be in a usable format.
+Please feel free to modify the prompt or adjust the JSON fields as needed.
+
+Thanks,
+Doruk
+
+From: Jordan, Rob <rob.jordan@intel.com> 
+Sent: Wednesday, July 22, 2026 6:21 PM
+To: Batson III, William <william.batson.iii@intel.com>; Aksoy, Doruk <doruk.aksoy@intel.com>
+Cc: Haehn, Nicholas S <nicholas.s.haehn@intel.com>; alloy <alloy@intel.com>
+Subject: Re: Image Classification
+
+Hey Trey, I went ahead and put together a simple notebook to show what Doruk and I were proposing. I simply cropped your image to isolate a single image and then passed it into a vision language model with a prompt asking for a detailed description. You can experiment with trying different models and prompts to see if you can get the vision language model (VLM) to deliver a description that would allow you to bin the images further. Hope that makes sense.
+
+Here's the model's response for this image: 'Single elongated, platelet-like particle centered slightly left of the image, oriented diagonally from upper-left to lower-right and bridging across multiple horizontal substrate lines. The particle has a tapered, leaf-like shape with uneven thickness and a small protruding fragment on its upper-left end. Size appears moderate relative to the line spacing, spanning roughly 2–3 stripe gaps. No other distinct particles are visible; background consists of parallel horizontal bands.'
+
+I hope this helps get you started and feel free to reach out to me on Teams if you have any more questions, or we can also have a short meeting if you'd like a discussion.
+
+Thanks,
+Rob
+
+Rob S. Jordan
+Staff AI Applied Research Scientist
+Applied AI Solutions – Intel Foundry
+503-990-2126
+ 
+
+________________________________________
+From: Batson III, William <william.batson.iii@intel.com>
+Sent: Wednesday, July 22, 2026 5:00 PM
+To: Jordan, Rob <rob.jordan@intel.com>; Aksoy, Doruk <doruk.aksoy@intel.com>
+Cc: Haehn, Nicholas S <nicholas.s.haehn@intel.com>; alloy <alloy@intel.com>
+Subject: RE: Image Classification 
+
+Hi Rob, Doruk, and others,
+ 
+Thank you for your responses they are encouraging !
+ 
+How does a 30 min discussion sound?  I’m available 9a.m.-12a.m. or 3p.m.-5p.m. tomorrow—let me know and I can set up a Teams meeting.  Otherwise, I’m taking Friday off so it would need to be next week.
+ 
+Or simply elaborate a little more on first steps I could take for onboarding the use case to Alloy.  I have a functioning Alloy workspace but might be a little behind on any updates.
+ 
+Many thanks,
+Trey
+ 
+From: Jordan, Rob <rob.jordan@intel.com>
+Sent: Wednesday, July 22, 2026 4:52 PM
+To: Aksoy, Doruk <doruk.aksoy@intel.com>; Batson III, William <william.batson.iii@intel.com>
+Cc: Haehn, Nicholas S <nicholas.s.haehn@intel.com>; alloy <alloy@intel.com>
+Subject: Re: Image Classification
+ 
+I agree. At this level of data, just direct calling of a VLM might work. Anything much larger and cost will likely justify a more tailored vision model flow.
+ 
+Trey, if you do some classification experiments using a VLM via Alloy, the team would be interested to see if the classifications it provides are rich enough or if other more complex methods are necessary. Please share back any learnings with the team and Alloy community. If you need any help getting started, please let us know.
+ 
+Rob
+ 
+Rob S. Jordan
+Staff AI Applied Research Scientist
+Applied AI Solutions – Intel Foundry
+503-990-2126
+ 
+ 
+________________________________________
+From: Aksoy, Doruk <doruk.aksoy@intel.com>
+Sent: Wednesday, July 22, 2026 3:44 PM
+To: Batson III, William <william.batson.iii@intel.com>; Jordan, Rob <rob.jordan@intel.com>
+Cc: Haehn, Nicholas S <nicholas.s.haehn@intel.com>; alloy <alloy@intel.com>
+Subject: RE: Image Classification
+ 
+Hi Trey,
+ 
+These are very nice images! I worked on image characterization (grain boundary delineation in TEM/SEM images) during my postdoc, but the images were out of focus and blurry most of the time. I think you could get good results with VLMs since they can understand broader visual context. Maybe combining them with a pixel-level similarity analysis (which could also be provided to the agent as a tool) could help improve the results further. In addition to traditional image-processing techniques such as Sobel filtering or watershed segmentation, you could also consider encoder-decoder networks like U-Net, or possibly vision transformers. Since the images are very clean, I think you’ll likely get some really good results.
+ 
+Alloy currently offers VLMs with batch processing, so you might want to start there (vision/ endpoint). It should be able to handle the throughput you mentioned.
+ 
+- Doruk
+ 
+ 
+From: Batson III, William <william.batson.iii@intel.com>
+Sent: Wednesday, July 22, 2026 3:37 PM
+To: Jordan, Rob <rob.jordan@intel.com>; Aksoy, Doruk <doruk.aksoy@intel.com>
+Cc: Haehn, Nicholas S <nicholas.s.haehn@intel.com>; alloy <alloy@intel.com>
+Subject: RE: Image Classification
+ 
+Hi Rob,
+ 
+Good question – the 60day library I maintain looks to receive 100 – 300 images per week.
+ 
+Cheers,
+Trey
+ 
+Image counts per week --
+ 
+ 
+From: Jordan, Rob <rob.jordan@intel.com>
+Sent: Wednesday, July 22, 2026 3:07 PM
+To: Batson III, William <william.batson.iii@intel.com>; Aksoy, Doruk <doruk.aksoy@intel.com>
+Cc: Haehn, Nicholas S <nicholas.s.haehn@intel.com>; alloy <alloy@intel.com>
+Subject: Re: Image Classification
+ 
+Hey Trey, any idea of scale or frequency of images that would need this finer grained analysis? As in 100 images a week, 1000 images a day, etc....
+ 
+Rob
+ 
+Rob S. Jordan
+Staff AI Applied Research Scientist
+Applied AI Solutions – Intel Foundry
+503-990-2126
+ 
+ 
+________________________________________
+From: Batson III, William <william.batson.iii@intel.com>
+Sent: Wednesday, July 22, 2026 2:53 PM
+To: Aksoy, Doruk <doruk.aksoy@intel.com>
+Cc: Haehn, Nicholas S <nicholas.s.haehn@intel.com>; alloy <alloy@intel.com>
+Subject: RE: Image Classification
+ 
+Hi Doruk,
+ 
+Thank you for your reply – I am with a back-end plasma etch module in Hillsboro, and random defects are a critical yield driver that we must minimize.
+ 
+Scan recipes perform what I would describe as a ‘coarse’ classification, but examples like ‘Small Particles’ below confirm these can encompass diverse fine bin behavior (diff. morphologies, size, location).
+ 
+One could imagine that different finebin classes are driven by different mechanisms – my module is at the stage of needing to be able to separate out these different types.
+ 
+I expect I could iterate on some methods of my own but vaguely recall a note on ‘image classification’ with Alloy and wanted to check in.
+ 
+Many thanks,
+Trey Batson
+F25 Dry Etch BE AME
++1(503)519-9206 / RA3-3-73-18
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+From: Aksoy, Doruk <doruk.aksoy@intel.com>
+Sent: Wednesday, July 22, 2026 2:27 PM
+To: Batson III, William <william.batson.iii@intel.com>
+Cc: Haehn, Nicholas S <nicholas.s.haehn@intel.com>; alloy <alloy@intel.com>
+Subject: RE: Image Classification
+ 
+Hi William,
+ 
+I believe Craig Brown is working on defect characterization with Alloy, and we have a few vision-focused projects, such as analyzing technical drawings and GD&T. Could you describe the project scope you're interested in?
+ 
+Thanks,
+Doruk
+ 
+From: Haehn, Nicholas S <nicholas.s.haehn@intel.com>
+Sent: Wednesday, July 22, 2026 2:23 PM
+To: alloy <alloy@intel.com>
+Cc: Batson III, William <william.batson.iii@intel.com>
+Subject: Image Classification
+ 
+Team – anyone know if anyone is doing some image classification w/ Alloy? William is looking a POC…
+ 
+Thanks,
+Nick
+ 
+ 
+ 
+Nicholas Haehn
+Principal Engineer  |  Foundry Technology Development
+Mechanical Process Core Competency
+5000 W. Chandler BLVD, CH5-157  |  Chandler, AZ 85251
+Intel Foundry  |  intel.com
