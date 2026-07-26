@@ -16,6 +16,14 @@ The current intent is:
 
 The desired operator workflow is: run the 10-day JSL inputs first, then trigger one Python update entry point.
 
+## Document Scope and Tiering
+
+This document is the primary inline architecture and operations reference (Tier 2) and should remain concise enough for day-to-day use.
+
+1. Keep core runtime topology, contracts, operator flow, and readiness checkpoints here.
+2. Keep feature-specific deep context in [docs/inline_pipeline/README.md](docs/inline_pipeline/README.md) and its linked topic files (Tier 3 notes).
+3. Keep SURF-specific design details in [SURF_SCAN_PIPELINE_DESIGN.md](SURF_SCAN_PIPELINE_DESIGN.md) and [docs/surf_scan_pipeline/README.md](docs/surf_scan_pipeline/README.md).
+
 ## Current Runtime Contract
 
 - Required Python interpreter:
@@ -136,9 +144,17 @@ This stage:
 - reads the current wafer-level extended CSV
 - restricts queries to a recent overlap window
 - resolves wafer inspections in UDB
-- retrieves defect coordinate rows
+- retrieves defect coordinate rows plus selected source metadata intended for downstream VLM analysis: SIZE_X, SIZE_Y, SIZE_D, AREA, MANUAL_OPTICAL_CLASS
 - accumulates those rows into the consolidated defect-coordinate CSV
 - optionally manages image metadata, downloads, reorganization, and cleanup
+
+Current metadata-selection note:
+
+- `SIZE_Z` was removed from the production CSV and query pipeline because observed values were effectively all zero in the reviewed data.
+- `ROUGH_BIN_CLASS` was removed from the production CSV and query pipeline for the same reason.
+- These fields are source-system defect metadata used as candidate inputs to a future VLM-assisted workflow; they are not outputs produced by a VLM stage in the current pipeline.
+- Current recent image-manifest validation is acceptable for Alloy-side experimentation: 1232 recent coordinate rows with `IMAGE_COUNT > 0`, 1231 matched manifest rows, 1 missing row, 99.92% coverage.
+- Historical image-manifest sparsity in enrichment columns is largely explained by inventory-only rows reconstructed from on-disk files rather than fresh coordinate joins.
 
 ### Benchmark Extension
 
@@ -272,166 +288,46 @@ The benchmark extender now supports two modes:
 
 This is important because earlier missing benchmark periods were caused by extending from an out-of-date historical seed file.
 
-## Validation Work Already Done
+## Detailed Context Locations
 
-The following improvements have already been validated during consolidation:
+Feature-specific implementation detail is intentionally kept outside this Tier 2 document.
 
-1. path ownership moved out of scattered hard-coded values and into shared configuration
-2. image migration completed into the consolidated image destination
-3. orchestrator entry point added and run successfully
-4. benchmark seed handling corrected and validated using a repaired April 17 benchmark seed
-5. benchmark DEVICE join failure fixed
-6. wafer-output overwrite behavior corrected so the consolidated wafer output is accumulated instead of replaced by the latest raw refresh slice
-7. defect-coordinate accumulation updated to use transitional dual seeds (legacy root + canonical outputs/defects) with deterministic dedup precedence
-8. one-time coordinate backfill/merge executed into canonical outputs file, with backup created before overwrite and current canonical rows preferred on duplicate keys
+Use [docs/inline_pipeline/README.md](docs/inline_pipeline/README.md) as the routing index, then go directly to:
 
-## Known Remaining Risks
+1. runtime contract and path ownership:
+  - [docs/inline_pipeline/runtime_contract.md](docs/inline_pipeline/runtime_contract.md)
+2. wafer stage behavior and risks:
+  - [docs/inline_pipeline/wafer_stage.md](docs/inline_pipeline/wafer_stage.md)
+3. coordinate/image behavior and retention policy:
+  - [docs/inline_pipeline/coordinates_and_images.md](docs/inline_pipeline/coordinates_and_images.md)
+4. benchmark extension and continuity checks:
+  - [docs/inline_pipeline/benchmark_stage.md](docs/inline_pipeline/benchmark_stage.md)
+5. operations and production hardening tasks:
+  - [docs/inline_pipeline/operations_and_hardening.md](docs/inline_pipeline/operations_and_hardening.md)
 
-### 1. Wafer accumulation still relies on a legacy seed source during transition
+## Active Risks Snapshot
 
-The consolidated wafer output is now being accumulated against:
+The key production risks are currently:
 
-- the legacy root wafer file
-- the new consolidated wafer file
+1. transitional legacy seed dependencies for wafer and coordinate accumulation
+2. incomplete automated continuity/quality validation post-run
+3. manual JSL pre-refresh boundary and image runtime dependency observability
 
-This was necessary to recover previously missing rows during migration, but it is transitional. Production should not depend indefinitely on the legacy root file as a secondary seed.
+See [docs/inline_pipeline/operations_and_hardening.md](docs/inline_pipeline/operations_and_hardening.md) for full actions and ownership routing.
 
-### 2. Wafer deduplication needs one final validation pass
+## Tier 2 Readiness Checklist
 
-The wafer accumulation logic now produces a plausible reconciled union, but it should still be validated against expected wafer counts by time window and layer before the legacy seed dependency is removed.
+Before treating this pipeline as production-ready:
 
-### 2b. Coordinate accumulation now includes transitional legacy seeding
-
-The defect-coordinate stage now mirrors wafer-stage migration behavior during transition:
-
-- seed from legacy root `DEFECT_COORDINATES_EXTENDED.csv` when present
-- seed from canonical `outputs/defects/DEFECT_COORDINATES_EXTENDED.csv`
-- append current run results
-- deduplicate by `(WAFER_KEY, INSPECTION_TIME, DEFECT_ID)` with last-write-wins ordering
-
-Operational implication:
-
-- canonical/current rows intentionally override legacy duplicates
-- this should be treated as a temporary migration bridge and retired once confidence is established in canonical-only accumulation
-
-### 3. JSL layer is still manual and external
-
-The orchestrator depends on the operator having already refreshed the raw JSL CSVs. This is acceptable for now, but it is an operational dependency that should be documented clearly for scheduling.
-
-### 4. Image runtime dependency is fail-open by design
-
-The coordinate stage currently has `DOWNLOAD_IMAGES = True`, but SecureFTP/CLR runtime load is intentionally fail-open.
-
-Implication:
-
-- if the SecureFTP runtime is available, image metadata/download/reorg runs
-- if unavailable, the run continues, and per-run manifest reconciliation still executes
-
-This keeps the scheduled pipeline resilient, but image acquisition health must still be monitored.
-
-### 5. Benchmark continuity should be checked automatically
-
-The benchmark stage now uses a better seed selection strategy, but the pipeline still lacks a built-in post-run validation that explicitly checks for missing 7-day periods.
-
-## Remaining Work Before Production
-
-### Highest-priority remaining tasks
-
-1. Validate the current consolidated wafer table against expected historical counts and confirm the accumulation result is correct by month and layer.
-2. Remove dependence on the legacy root wafer CSV as an accumulation seed once confidence in the consolidated `outputs/wafer` file is sufficient.
-3. Remove dependence on the legacy root coordinate CSV as an accumulation seed once confidence in the consolidated `outputs/defects` file is sufficient.
-4. Add a post-run validation step that checks benchmark continuity, especially missing or partial 7-day periods.
-5. Add explicit monitoring/alerting for image acquisition health (for example, zero-download streaks, unexpected unreferenced spikes, runtime dependency warnings).
-6. Add a scheduler-friendly wrapper or runbook for VM execution using the required Python interpreter.
-
-### Secondary hardening tasks
-
-1. Make freshness windows configurable from one obvious operator surface.
-2. Add a validation report comparing prior and current wafer outputs by normalized wafer key.
-3. Add a validation report comparing benchmark periods before and after each extension run.
-4. Add a validation report comparing prior and current coordinate outputs by normalized coordinate key.
-5. Clean up any remaining obsolete direct-root outputs once the new layout is trusted.
-6. Review whether additional processors should be re-enabled in the orchestrated path.
-
-## Recommended Production Readiness Checklist
-
-Before declaring the pipeline production-ready, confirm all of the following:
-
-1. The JSL jobs are consistently writing refresh CSVs that pass the orchestrator freshness gate (<= 7 days old).
-2. The orchestrator completes end-to-end without manual repair.
-3. The consolidated wafer output is validated and no longer needs the legacy root file as a seed.
-4. The consolidated defect-coordinate output is validated and no longer needs the legacy root file as a seed.
-5. The defect-coordinate output remains stable under repeated overlap reruns.
-6. The benchmark output is confirmed to have no missing weekly periods.
-7. The operator run procedure is documented for both manual and scheduled runs.
-8. Image handling behavior is documented as: runtime fail-open download + per-run manifest sync/prune/append.
-
-## Recommended Next Implementation Steps
-
-The next implementation tasks that would most improve production readiness are:
-
-1. add a post-run benchmark-gap validator
-2. add a post-run wafer-output validator by normalized key and month/layer
-3. add a post-run coordinate-output validator by normalized coordinate key
-4. retire the legacy root wafer and coordinate seeds once validation passes
-5. add image-acquisition observability checks to scheduled monitoring
-6. package the orchestrator into a VM scheduler wrapper with explicit environment settings
-
-## Proposed Scheduled Git Backup For CSV Protection
-
-Yes, the same roaming-bot scheduler pattern can be used for GitHub backup pushes.
-
-Rationale:
-
-- the current design already targets thin, scheduler-friendly launchers
-- a daily wrapper pattern already exists in the workspace (`surf_scan_daily.py`)
-- Git provides versioned recovery for CSV changes from UI/user input workflows
-
-A scheduler-safe backup launcher is now available at:
-
-- `BE_QUERY_FILES/csv_backup_daily.py`
-
-POC behavior:
-
-- no files are backed up unless `--include` globs are explicitly provided
-- creates a timestamped commit only when changes exist
-- pushes current branch to `origin`
-- exits cleanly with no-op when there are no include globs or no data changes
-
-Example scheduler command (same interpreter contract):
-
-```powershell
-& "c:/Users/tbatson/My Programs/SQLPathFinder3/Python3/python.exe" "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\csv_backup_daily.py"
-```
-
-Optional custom include globs for web-app-managed CSVs:
-
-```powershell
-& "c:/Users/tbatson/My Programs/SQLPathFinder3/Python3/python.exe" "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\csv_backup_daily.py" --include "outputs/web_inputs/*.csv" --include "outputs/wafer/*.csv" --message-prefix "web-csv-backup"
-```
-
-Operational notes:
-
-- Ensure the roaming bot identity can use stored GitHub credentials for non-interactive pushes.
-- Keep `images/` and other bulky/generated binaries excluded from backup commits.
-- Consider a second backup remote (internal Git server) if GitHub network/auth is temporarily unavailable.
+1. JSL refreshes pass orchestrator freshness checks consistently.
+2. End-to-end orchestrator completes reliably with expected artifacts.
+3. Wafer and coordinate outputs are validated and legacy seed bridges are retired.
+4. Benchmark continuity checks are automated and passing.
+5. Image retention and manifest reconciliation behavior are monitored and stable.
+6. Scheduled runbook/launcher is documented with explicit interpreter and workspace contract.
 
 ## Summary
 
-The pipeline is now materially more coherent than the original disconnected script set:
+Inline pipeline structure is now stable and operator-oriented at Tier 2.
 
-- path ownership is centralized
-- outputs are separated from source code
-- images have been migrated
-- benchmark seed selection is corrected
-- a single Python update entry point exists
-- artifact manifests are written for each stage
-
-The main remaining work is not structural integration anymore. It is production hardening:
-
-- final validation of the wafer accumulation contract
-- benchmark continuity validation
-- image-acquisition observability and alerting
-- removal of transitional legacy dependencies
-
-Once those are complete, the pipeline will be in a much stronger state for reliable scheduled execution.
+Use this file for contract and flow, and use [docs/inline_pipeline/README.md](docs/inline_pipeline/README.md) for feature-depth editing paths.

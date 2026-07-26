@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import traceback
 from datetime import datetime
 from html import escape
 from pathlib import Path
@@ -440,7 +441,20 @@ def load_coord_metadata(
         if not os.path.isfile(coords_csv):
             return {}, 0, []
 
-        coords = pd.read_csv(coords_csv)
+        # Read only the columns we need — avoids loading 100+ EDX columns
+        # from the 70 MB network-share CSV unnecessarily.
+        _base_cols = [
+            "PRIMARY_EQUIP", "SUBENTITY", "INSPECTION_TIME",
+            "WAFER_ID", "WAFER_KEY", "DEFECT_ID",
+            "WAFER_X_MM", "WAFER_Y_MM", "SIZE_D_UM",
+            "EVENT_WAFER", "SLOT_ID",
+        ]
+        # Detect available columns first, then load with the intersection
+        _peek = pd.read_csv(coords_csv, nrows=0)
+        _edx = [c for c in _peek.columns if re.match(r"EDX_ELEM\d+_", c, re.IGNORECASE)]
+        _usecols = [c for c in _base_cols if c in _peek.columns] + _edx
+
+        coords = pd.read_csv(coords_csv, usecols=_usecols)
         if "SUBENTITY" in coords.columns:
             coords = coords[
                 coords["SUBENTITY"].astype(str).str.strip() == primary_equip
@@ -530,6 +544,7 @@ def load_coord_metadata(
         return result, len(matched_df), coord_rows
 
     except Exception:
+        traceback.print_exc()
         return {}, 0, []
 
 
@@ -982,7 +997,7 @@ def main():
     )
     parser.add_argument(
         "--event-token",
-        default="260701_1005",
+        default="260710_2002",
         help="Event token from filename prefix yymmdd_hhmm (example: 260701_1005).",
     )
     parser.add_argument(

@@ -20,17 +20,17 @@ The desired operator workflow is:
 1. Run one-time seed/backfill when initializing or recovering historical state.
 2. Schedule a daily incremental run (7-day overlap window) for steady-state operation.
 
-RF-specific production design details are maintained in:
+Feature-level SURF design details are maintained in:
 
-- SURF_SCAN_PIPELINE_DESIGN_RF.md
+- [docs/surf_scan_pipeline/README.md](docs/surf_scan_pipeline/README.md)
 
 ## Document Scope and Tiering
 
 This document is the primary SURF architecture/operations reference (Tier 2) and should stay concise for day-to-day use.
 
 1. Keep core runtime topology, contracts, and operator commands here.
-2. Keep rollout-specific troubleshooting, fallback internals, and edge-case history in [SURF_SCAN_PIPELINE_DESIGN_RF.md](SURF_SCAN_PIPELINE_DESIGN_RF.md) (Tier 3 addendum).
-3. Keep inline-defect design content in [PIPELINE_DESIGN.md](PIPELINE_DESIGN.md); do not merge inline and SURF implementation detail into one document.
+2. Keep feature-specific implementation details in [docs/surf_scan_pipeline/README.md](docs/surf_scan_pipeline/README.md) and linked topic docs (Tier 3).
+3. Keep inline-defect design content in [INLINE_PIPELINE_DESIGN.md](INLINE_PIPELINE_DESIGN.md); do not merge inline and SURF implementation detail into one document.
 
 ## Current Runtime Contract
 
@@ -287,80 +287,40 @@ From surf_scan_config:
 - IMAGE_COUNT_MIN = 16
 - DEFAULT_OVER16_DEFECTS = 20
 
-## Validation Status
+## Detailed Context Locations
 
-The following have been validated during consolidation:
+Feature-specific implementation detail is intentionally kept outside this Tier 2 document.
 
-1. Consolidated output paths under outputs/surf_scan and images/surf_scan are active.
-2. Seed output now recovers historical range consistent with baseline expectations.
-3. Incremental mode updates with overlap and deterministic dedup behavior.
-4. Stacked and zero-timebin outputs regenerate from canonical metrics/coordinates.
-5. Daily scheduled run executes all intended steps and emits step durations.
-6. Image prune step executes with 60-day policy and currently reports zero prune candidates.
-7. Runtime dependency on BE_60day modules has been removed.
-8. Production SURF outputs currently enforce RF-only counter columns (FULLPM_RF, MINIPM_RF) with legacy FULLPM/MINIPM/CNTR_SS excluded.
+Use [docs/surf_scan_pipeline/README.md](docs/surf_scan_pipeline/README.md) as the routing index, then go directly to:
 
-## Subtle Production Nuance (Documented)
+1. Runtime and defaults: [docs/surf_scan_pipeline/runtime_contract.md](docs/surf_scan_pipeline/runtime_contract.md)
+2. Coordinates and metrics lifecycle: [docs/surf_scan_pipeline/coordinates_and_metrics.md](docs/surf_scan_pipeline/coordinates_and_metrics.md)
+3. ELWC RF counter contract and stage/apply behavior: [docs/surf_scan_pipeline/elwc_rf_counters.md](docs/surf_scan_pipeline/elwc_rf_counters.md)
+4. Image retrieval, manifest, and retention behavior: [docs/surf_scan_pipeline/images_and_retention.md](docs/surf_scan_pipeline/images_and_retention.md)
+5. Operations, risks, and hardening tasks: [docs/surf_scan_pipeline/operations_and_hardening.md](docs/surf_scan_pipeline/operations_and_hardening.md)
 
-### Non-fatal FTP partial failure behavior in image stage
+RF counter context is maintained in [docs/surf_scan_pipeline/elwc_rf_counters.md](docs/surf_scan_pipeline/elwc_rf_counters.md).
 
-During scheduled daily execution, FTP download operations can experience connection-refused events for individual files while the overall pipeline run continues to completion.
+## Active Risks Snapshot
 
-Observed behavior in current implementation:
+The key production risks are currently:
 
-1. At least one FTP sub-job can report failed status for a specific file.
-2. The image stage can still continue and complete remaining chunks.
-3. Manifest save still occurs.
-4. Final orchestrator summary still reports successful completion unless an unhandled exception bubbles up.
+1. external DB and FTP dependency volatility
+2. partial image-transfer gaps in fail-tolerant daily runs
+3. schema drift risk if RF-only counter policy is not audited continuously
 
-Operational implication:
+## Tier 2 Readiness Checklist
 
-- A completed daily run does not guarantee every requested image was downloaded.
-- Manifest and organize logs should be monitored for source-not-found or failed-transfer indicators.
+Before treating SURF pipeline operation as production-stable:
 
-Recommended future hardening (optional):
+1. Daily scheduler runs complete with expected artifacts and stable step durations.
+2. Coordinates/metrics/derived outputs are updated with expected overlap and dedup behavior.
+3. RF-only counter contract remains enforced in production outputs.
+4. Image transfer failure indicators and prune outcomes are monitored.
+5. Rollback procedure for canonical outputs and manifests is documented and testable.
 
-1. Add explicit transfer failure counting and include count in run summary.
-2. Add threshold-based failure policy (warning-only below threshold, fail job above threshold).
-3. Add a retry/backoff strategy for transient FTP refusal events.
+## Summary
 
-## Known Remaining Risks
+SURF pipeline architecture and operations are summarized here at Tier 2.
 
-1. FTP availability and transient refusal events can cause partial image gaps in otherwise successful runs.
-2. Current image stage behavior is designed to be fail-tolerant for continuity, not strict fail-fast.
-3. DB and FTP infrastructure health remain external dependencies outside pipeline control.
-
-## Production Readiness Checklist
-
-1. Scheduler command configured to run surf_scan_daily.py once per day.
-2. Runtime account permissions verified for:
-   - UDB query access,
-   - network output write access,
-   - image library write/delete for 60-day prune,
-   - GAJT/FTP dependencies.
-3. Monitoring captures:
-   - step durations,
-   - row deltas,
-   - image source-not-found and FTP refusal counts,
-   - prune counts.
-4. Rollback plan documented for restoring prior CSV/image manifests from backups if needed.
-
-## Change Log
-
-### 2026-04-26
-
-1. Consolidated SURF runtime into BE_QUERY_FILES local modules.
-2. Centralized SURF defaults in surf_scan_config.py.
-3. Removed forced os._exit behavior from copied SURF modules.
-4. Added production-style step timing/logging in surf_scan_update.py.
-5. Documented non-fatal FTP partial failure nuance from scheduled run log.
-
-### 2026-04-29
-
-1. Added recurring PM counter enrichment to SURF query path using XEUS F_ENTITYATTRIBUTEHIST.
-
-### 2026-04-30
-
-1. Added ELWC RF stage/apply refresh into surf_scan_update.py as a recurring orchestrator step.
-2. Established RF-only production counter contract (FULLPM_RF, MINIPM_RF) for SS_METRICS.csv and SS_COORDINATES.csv.
-3. Added staged backfill/apply utility outputs and summaries for ELWC RF refresh operations.
+Use this file for runtime contract and operator flow, and use [docs/surf_scan_pipeline/README.md](docs/surf_scan_pipeline/README.md) for feature-depth editing paths.

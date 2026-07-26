@@ -911,7 +911,7 @@ def main():
     parser.add_argument(
         "--elements",
         nargs="+",
-        default=["Y", "P", "Os"],
+        default=["F", "Fe"],
         help="Element symbols to filter on (space-separated), e.g. --elements F Fe",
     )
     parser.add_argument(
