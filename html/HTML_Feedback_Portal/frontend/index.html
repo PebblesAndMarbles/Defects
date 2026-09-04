@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Feedback Widget (Template)</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background: #f5f5f5; }
+    h1 { color: #1a3a5c; }
+    .item-block { background: #fff; border: 1px solid #ccc; padding: 1em; margin-bottom: 1.5em; border-radius: 8px; }
+    .item-key { font-weight: bold; color: #333; }
+    label { display: block; margin-top: 0.5em; }
+    textarea { width: 100%; min-height: 60px; }
+    select, input[type=text] { width: 100%; }
+    .feedback-list { margin-top: 2em; }
+    .feedback-entry { background: #e8f0fb; margin-bottom: 0.5em; padding: 0.5em; border-radius: 5px; }
+    .offline-warning { background: #fff3cd; border: 1px solid #ffe08a; padding: 0.75em; border-radius: 6px; margin-bottom: 1em; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Report Feedback Widget (Template)</h1>
+
+  <!-- Shown automatically if this page is opened via file:// instead of
+       through the local Flask server. See apiBase auto-detect below. -->
+  <div id="offline-warning" class="offline-warning">
+    This page was opened directly as a file. Feedback submission requires
+    the local server to be running — start it via the launcher (run_portal.cmd
+    / run_portal.ps1) and open <code>http://127.0.0.1:8000/</code> instead.
+  </div>
+
+  <div id="items"></div>
+  <hr>
+  <div class="feedback-list">
+    <h2>Recent Feedback</h2>
+    <div id="feedback-display"></div>
+  </div>
+
+  <script>
+    // ---------------------------------------------------------------
+    // REUSABLE FEEDBACK WIDGET SNIPPET
+    // Drop this <script> block (and the matching HTML containers above)
+    // into any HTML report to collect reviewer feedback locally.
+    // Backend contract: POST /submit_feedback, GET /feedback
+    // (see backend/main.py in this template).
+    // ---------------------------------------------------------------
+
+    // Customize: the items/rows a reviewer can comment on. In a real
+    // report, generate this list dynamically from your report data
+    // instead of hardcoding it.
+    const itemKeys = [
+      'example_item_1',
+      'example_item_2',
+      'example_item_3'
+    ];
+    const statusOptions = ['Open', 'In Progress', 'Blocked', 'Resolved'];
+
+    // apiBase auto-detect: fixes BUG-001 from the original PCSA portal,
+    // where opening the HTML via file:// silently broke fetch() because
+    // apiBase was hardcoded to '' (same-origin only works when Flask
+    // serves the page). If this file is opened directly, fall back to
+    // the known local server address.
+    const apiBase = (window.location.protocol === 'file:')
+      ? 'http://127.0.0.1:8000'
+      : '';
+
+    if (window.location.protocol === 'file:') {
+      document.getElementById('offline-warning').style.display = 'block';
+    }
+
+    function renderItems() {
+      const container = document.getElementById('items');
+      itemKeys.forEach(item => {
+        const block = document.createElement('div');
+        block.className = 'item-block';
+        block.innerHTML = `
+          <div class="item-key">Item: ${item}</div>
+          <label>Comment:<br><textarea id="comment_${item}"></textarea></label>
+          <label>Status:
+            <select id="status_${item}">
+              ${statusOptions.map(s => `<option value="${s}">${s}</option>`).join('')}
+            </select>
+          </label>
+          <label>Your Name:<br><input type="text" id="user_${item}" placeholder="Enter your name"></label>
+          <button onclick="submitFeedback('${item}')">Submit</button>
+        `;
+        container.appendChild(block);
+      });
+    }
+
+    async function submitFeedback(item) {
+      const text = document.getElementById(`comment_${item}`).value;
+      const status = document.getElementById(`status_${item}`).value;
+      const user = document.getElementById(`user_${item}`).value;
+      if (!text.trim() || !user.trim()) {
+        alert('Comment and your name are required.');
+        return;
+      }
+      const payload = {
+        item_key: item,
+        comment_text: text,
+        status: status,
+        user: user
+      };
+      try {
+        await fetch(`${apiBase}/submit_feedback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        alert('Feedback submitted!');
+        loadFeedback();
+      } catch (e) {
+        alert('Submission failed. Is the local server running? See offline warning above.');
+      }
+    }
+
+    async function loadFeedback() {
+      const list = document.getElementById('feedback-display');
+      list.innerHTML = 'Loading...';
+      try {
+        const resp = await fetch(`${apiBase}/feedback`);
+        const data = await resp.json();
+        if (!data.length) {
+          list.innerHTML = '<em>No feedback yet.</em>';
+          return;
+        }
+        list.innerHTML = '';
+        data.slice(-10).reverse().forEach(row => {
+          const div = document.createElement('div');
+          div.className = 'feedback-entry';
+          div.innerHTML = `<b>${row.item_key}</b> [${row.status}]<br>
+            <i>${row.comment_text}</i><br>
+            <small>By: ${row.user} | ${row.timestamp}</small>`;
+          list.appendChild(div);
+        });
+      } catch (e) {
+        list.innerHTML = '<em>Failed to load feedback (server not reachable).</em>';
+      }
+    }
+
+    renderItems();
+    loadFeedback();
+  </script>
+</body>
+</html>
