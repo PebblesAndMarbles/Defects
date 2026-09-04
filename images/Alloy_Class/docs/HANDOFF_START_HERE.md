@@ -15,6 +15,10 @@ ScriptHost-compatible production packaging is intentionally deferred to a later 
 5. `DEFECT_CLASSIFICATION_NEXT_STEPS_HANDOFF.md`
 6. `RUNTIME_SCAFFOLD.md`
 7. `PHASE1_RUNBOOK.md`
+8. `PROJECT_STRUCTURE.md`
+9. `WHEELHOUSE_BLOCKER_20260726.md`
+10. `PHASE1_ACCEPTANCE_CHECKLIST.md`
+11. `RAW_IMAGE_REDOWNLOAD_PLAN.md`
 
 ## Inline Context Bridge
 
@@ -47,6 +51,11 @@ Use the inline context system below when Alloy work needs current pipeline behav
 - Use wheelhouse-first dependency strategy for deterministic behavior.
 - Keep upstream `alloy-sandbox` repo clean; do not reintroduce old wheel hacks there.
 - Do not assume legacy Alloy import paths; discover imports from the currently installed Alloy environment before patching examples.
+
+Execution policy:
+
+- Continue Phase 1 development/testing immediately with the currently working Alloy API environment.
+- Treat wheelhouse gaps as a ScriptHost-parity gate, not a Phase 1 experimentation gate.
 
 ## Phase 1 Required Deliverables
 1. Import compatibility matrix

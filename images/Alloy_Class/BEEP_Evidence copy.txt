@@ -1,0 +1,87 @@
+{Image context}
+	SEM images are taken from angle that is normal to wafer surface.
+	Strong evidence in either brightfield or darkfield image sufficient to call Blocked Etch verdict.
+
+{Provide substrate description context. (texture, light, Silicone oxide)}
+	Bright contrast regions of brightfield and darkfield images is SiO surface.
+	SiO surface has a relatively uniform, bumpy texture.
+
+{Provide comparator descriptions}
+	Dark regions of image represent etched structures (comparator).
+	Contrast can change slightly, within comparator depending on light source location.
+	Long-dimensions of all comparators within an image are parallel to each other.
+	Positioning of comparators may be regular or irregular, in one dimension, or both.
+	Line trench is a comparator that may terminate to a rounded cap in the image, or span entire image height or width.
+	Short line trenches can terminate at both ends to rounded caps.
+	Vias are comparators with a long and short side, with rounded corners.
+	Wide vias are comparators with a long side that is longer than standard vias and a short side dimension comparable to a via short side, with rounded corners.
+	Vias and wide vias may only land partially in the image frame.
+
+{Provide material defect context.}
+	Material defect is residual material that may rest on the SiO surface, an etched feature, or both.
+	Material defects have boundaries that do not match the regular etched feature shapes.
+	Material defects can be round.
+	Material defects can be angular.
+	Material defects can be porous.
+	Material defects can have layered appearance.
+	Material defects infrequently have similar and never identical texture to SiO surface.
+	Large material defects can be out of focus.
+
+{Pre-etch evidence}
+	Material defects present before etch begins can block etch of underlying layers and structures.
+	Principal goal is to decide whether imaged material defect is pre or post etch.
+	Evidence has to be determined by inference of interaction between surface SiO, etched feature and material defect, in the direct vicinity of material defect.
+
+{Comparator concavity}
+	Slight comparator concavity is normal, especially on long dimensions of vias and wide vias, or as undulations in a line trench boundary.
+	Uncertainty in normality of comparator concavity should be addressed by comparing to other comparators in the image.
+	Sharp concavities, including acute angles in comparator boundaries are evidence of pre-etch material defect regardless of material defect presence.
+
+{Inset surface lines}
+	Presents as strip of SiO substrate bounded by a comparator concavity and material defect boundary.	
+	Strips extending far enough can create bridge across an expected comparator.
+	Evidence is strengthened by confirmation that strip has same texture as of SiO substrate.
+	Evidence is strengthened by confirming strip contrast matches to SiO substrate.	
+
+{Occluding defect Boundary conformance}
+	Confirmed when a line within a material defect closely matches an inferred comparator boundary line.
+	A line within an occluding defect often is accompanied by a distinct change in defect contrast when moving across the line.
+	A conforming line within an occluding defect can be curved or (mostly) straight.
+
+{Non-Occluding defect Boundary conformance}
+	Confirmed when a defect boundary closely matches a real comparator boundary line.
+	A small portion or bump of a conforming line may extend into comparator.
+	A conforming line of a non-occluding defect can be curved or (mostly) straight.
+	
+{Sunken residual material}
+	Material defect existing within a comparator that shares conforming boundary with material defect sitting on SiO surface.
+	Material defect that shares either partial or full width of the conforming boundary.
+	Often presents as a darker contrast than conforming SiO surface material.
+	Used to elevated blocked etch confidence when conforming boundary is not perfect match to real or inferred comparator boundary.
+
+{Multiple material defects in image}
+	Strong evidence associated with one defect solidifies pre-etch behavior of all
+
+{Comparator occlusion}
+	Existence determines relevant evidentiary pathways to confirming pre-etch material defect.
+	May require comparison of etched features to other etched features on basis of size and shape.
+	Inference of expected boundaries of occluded comparators is needed to assess boundary conformance blocked etch.
+	Boundary inference for occluded comparators most straightforward for regular, repeating comparator layouts.
+
+{Blocked Etch evidentiary requirements}
+	Material defects present before etch process begins can drive SEM image behavior in different manners depending on composition of material and incoming process step at which it is deposited.  
+	Confirm Blocked Etch evidence using, as needed, one of following three scenarios depicted in images:
+	
+
+1.  Material defect Spans at least one inferred comparator boundary.
+	A. Comparator concavity supported by Inset Surface Lines 
+	B. Occluding Defect Boundary Conformance and support from Sunken residual material.
+
+2.  Material defect situated entirely within a real or inferred comparator boundary.
+	A.  Blocked etch confirmed only by confirmation via contrast & texture that within-boundary defect is Surface SiO.
+
+3.  Material defect spans no real comparator boundary.
+	A. Comparator concavity - close inspection of nearby comparators needed to confirm that long ends of comparators are parallel with only natural undulations and no sharp concavities.
+	
+
+	

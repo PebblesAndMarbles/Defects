@@ -1,0 +1,2 @@
+benchmark_id,pair_key,split,source_pool,adjudicated_coarse_class,adjudicated_blocked_etch_evidence,bright_image_path,dark_image_path
+BMK_0001,8425615_20260803_195852_10911,eval,non_beep_control,possible_beep,strong,\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\images\defects\AME403_PM3\260803_1800_D616465_064_SMP_8M6CL_10911_2.jpg,\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\images\defects\AME403_PM3\260803_1800_D616465_064_SMP_8M6CL_10911_3.jpg

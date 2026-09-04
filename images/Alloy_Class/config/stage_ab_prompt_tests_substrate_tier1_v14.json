@@ -1,0 +1,22 @@
+{
+  "suite_name": "stage_ab_particle25_claude_sonnet_4_6_v14_verdict_gate",
+  "models": [
+    "claude-sonnet-4-6"
+  ],
+  "max_completion_tokens": 1800,
+  "max_pairs": 25,
+  "stage_a": {
+    "prompt_version": "stageA_substrate_tier1_v1",
+    "prompt": "Not used in v14. Same note as v13: Stage A may still run unchanged for provenance/comparison, but its output is NOT injected into Stage B."
+  },
+  "stage_b": {
+    "prompt_version": "stageB_describe_then_classify_v14_verdict_gate",
+    "prompt": "N/A -- Stage B is a two-call architecture defined in code (tools/probe_describe_then_classify_v14.py), not by this field. This is the throwaway/probe implementation of passdown docs/iGPT_v13_FN_plan_passdown.md Step 3, plus two additional domain-feedback fixes not yet incorporated anywhere upstream.",
+    "note": "Changes vs v13 (stageB_describe_then_classify_v13): (1) Call 1 (CALL1_PROMPT_V14) now ends with a mandatory VERDICT line -- 'No blocking evidence observed.' / 'Possible blocking evidence -- [signal].' / 'Ambiguous -- ...'. (2) Call 2 hard-gates on that verdict: 'No blocking evidence observed' short-circuits straight to a particle result and skips pathway assessment entirely; 'Possible' or 'Ambiguous' runs the full V11-derived pathway assessment as before. (3) DOMAIN FEEDBACK FIX -- tonal/darkness ban: per user correction (2026-08-27), trench/comparator interior tone or darkness differences (one feature appearing lighter/darker/grayer than another) must NOT be used as blocking-etch evidence -- it is a lighting/imaging artifact (light-source angle/position dependent), not an etch signal. This was previously V11's PATHWAY 1 (TONAL FILL), which is now rewritten in Call 2 (see _neutralize_tonal_darkness_pathway in the script) to require a discrete, bounded, locatable material patch rather than a general tone/darkness comparison; the same instruction is added to Call 1's observation prompt so the bias is not introduced upstream either. Root-cause note: manual review of the actual Call 1 texts from benchmark_particle25_v13_describe_then_classify_rerun2 (the 21-FP run) found the passdown's Category-A claim ('Call 1 texts explicitly state no blocked etch evidence') did not hold -- 0 of 21 FP Call 1 texts contained negative/no-evidence language; all 21 contained tonal-fill-style affirmative language (lighter/darker/asymmetric trench descriptions), which is exactly the pathway this fix targets. (4) DOMAIN FEEDBACK FIX -- sunken-residual texture correlation: per user note on BMK_0011, genuine sunken residual is normally paired with matching-texture material visible adjacent to the feature on the surrounding SiO substrate outside the comparator boundary. Call 2's evidence_check_sunken_residual text (see _add_sunken_residual_texture_check in the script) now requires this texture comparison before scoring yes: inset surface lines can still occur with no material at all on the adjacent substrate (that absence alone does not disqualify sunken_residual), but if material IS present inside the recessed feature and its texture does not match anything on the adjacent substrate, that mismatch is now treated as a signal favoring particle over sunken residual. BMK_0011 added to the probe's test cases as the motivating edge case for this rule."
+  },
+  "known_issues_not_yet_fixed": [
+    "Step 1 (categorize the 21 FPs into A/B/C) was not completed as originally scoped -- the taxonomy itself needed revision first, see stage_b.note above.",
+    "This config has NOT been run end-to-end yet. Do not treat it as validated. Next step per passdown Step 2/4: run tools/probe_describe_then_classify_v14.py on the 5 FN cases + particle controls (incl. BMK_0011) first to confirm FN cases still verdict as 'Possible blocking evidence' before running the full particle-25 set.",
+    "reporting/run_stage_ab_prompt_tests.py (production runner) has NOT been touched -- fix is throwaway-script-only per established convention until validated."
+  ]
+}

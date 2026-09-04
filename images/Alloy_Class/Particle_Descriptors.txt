@@ -1,0 +1,44 @@
+
+
+
+Size - might need calibration w.r.t defect pixels vs image pixel width ?  or 'percent of image' - I was also thinking of 'would fit in a comparator' as a label.
+
+Total number of particles
+
+layered
+
+roughness
+
+Fractured
+
+porosity
+
+smoothness
+
+tapered
+
+lumpy
+
+textured
+
+spherical
+
+elongated
+
+rounded
+
+flake like
+
+shard
+
+flat
+
+angular 
+
+interior striation
+
+outline concavity
+
+clumped
+
+jagged

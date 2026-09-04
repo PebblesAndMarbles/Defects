@@ -59,15 +59,19 @@ These retained fields are source metadata from the defect / coordinate pipeline.
 
 1. `HANDOFF_START_HERE.md`
 2. `PHASE1_RUNBOOK.md`
+3. `HANDOFF_PROMPT_ITERATION_1PAIR_RUNTIME.md` (prompt-evolution and 1-pair runtime optimization handoff)
 3. `../Image_classification_needs.txt`
 4. `DEFECT_CLASSIFICATION_NEXT_STEPS_HANDOFF.md`
+5. `WHEELHOUSE_BLOCKER_20260726.md` (runtime parity blocker and verification steps)
+6. `PHASE1_ACCEPTANCE_CHECKLIST.md` (promotion gates and context-policy discussion timing)
+7. `RAW_IMAGE_REDOWNLOAD_PLAN.md` (non-burned image strategy and helper workflow)
 
 Important supporting scripts:
 
-- `../classify_phase1_batch.py`
-- `../caption_phase1_batch.py`
-- `../build_phase1_html_report.py`
-- `../build_defect_size_metadata.py`
+- `../pipelines/classify_phase1_batch.py`
+- `../pipelines/caption_phase1_batch.py`
+- `../reporting/build_phase1_html_report.py`
+- `../metadata/build_defect_size_metadata.py`
 
 ## Rob And Doruk Context
 
@@ -81,7 +85,7 @@ Rob's example established the captioning-style workflow:
 
 That idea is now represented by:
 
-- `../caption_phase1_batch.py`
+- `../pipelines/caption_phase1_batch.py`
 - `../outputs/captions/caption_results.jsonl`
 
 ### Doruk contribution
@@ -94,7 +98,7 @@ Doruk's example established the structured batch-processing direction:
 
 That idea is now represented by:
 
-- `../classify_phase1_batch.py`
+- `../pipelines/classify_phase1_batch.py`
 - `../outputs/phase1/phase1_results.jsonl`
 
 ### Current interpretation
@@ -126,7 +130,7 @@ The older `alloy.llm` style did not match the installed package layout in this e
 
 ### Current metadata builder behavior
 
-`../build_defect_size_metadata.py` now:
+`../metadata/build_defect_size_metadata.py` now:
 
 - reads production coordinates from `outputs/defects/DEFECT_COORDINATES_EXTENDED.csv`
 - reads image manifest from `outputs/defects/DEFECT_COORDINATES_EXTENDED_IMAGES.csv`
@@ -318,5 +322,5 @@ That later phase should happen only after:
 2. `DEFECT_CLASSIFICATION_NEXT_STEPS_HANDOFF.md`
 3. `PHASE1_RUNBOOK.md`
 4. `../config/phase1_settings.json`
-5. `../build_defect_size_metadata.py`
-6. `../classify_phase1_batch.py`
+5. `../metadata/build_defect_size_metadata.py`
+6. `../pipelines/classify_phase1_batch.py`

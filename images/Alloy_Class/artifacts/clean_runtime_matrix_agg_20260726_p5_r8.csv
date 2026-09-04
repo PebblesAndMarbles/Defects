@@ -1,0 +1,4 @@
+"pair_set","variant","runs","classify_median_s","classify_p90_s","classify_p95_s","outliers_iqr_upper","select_avg_s","copy_avg_s","total_avg_s","per_pair_avg_s"
+"p5","baseline","8","40.541","41.482","41.482","0","1.098","7.154","48.427","9.685"
+"p5","prompt_short","8","39.61","65.414","65.414","1","1.064","7.01","51.06","10.212"
+"p5","cap180","8","44.221","61.253","61.253","0","1.267","7.65","56.327","11.265"

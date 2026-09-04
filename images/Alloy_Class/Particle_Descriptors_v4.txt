@@ -1,0 +1,102 @@
+DRAFT (v4) -- NOT YET PROMOTED TO CANONICAL. For your review before we replace
+Particle_Descriptors_v3_canonical.txt. Diffs from v3 are called out inline; unchanged
+sections are carried forward as-is.
+
+1a. Coarse Shape -- SINGLE-select (unchanged from v3)
+Circle
+Round
+Angular
+Clumped
+
+Calibration guidance (unchanged from v3):
+  - Circle: reserve for a close-to-true circular/disc outline only -- smooth and
+    symmetric all the way around, with no flat/faceted segment or notch anywhere on
+    the boundary. Max acceptable deviation: one distinctly flatter facet on one
+    portion of an otherwise round outline (reference: AME425_PM5 D6231600 W023 ID1).
+    Model confidence on "circle" calls in v2 was measurably lower than other
+    coarse_shape calls (e.g. 0.78 vs. a typical 0.86-0.96) -- prefer Round or Angular
+    when not clearly circular rather than defaulting to Circle under uncertainty.
+  - Round: soft/blobby outline, no circle-level regularity and no straight/angular
+    edges.
+  - Angular: at least one relatively straight edge or corner-like feature is visible.
+  - Clumped: reserve for ONE outline that itself looks fused/multi-lobed (multiple
+    bumps/lobes on a single connected silhouette, ambiguous whether it's one particle
+    or several merged). Do not use Clumped just because defect_count > 1 with clearly
+    separate, individually-outlined particles -- describe each particle's own shape
+    in that case (defect_count already captures the multiplicity).
+
+[NOTE, not a spec change] v3 called "circle" on only 1 of 40 cases, and that one case
+was still judged a miss on review -- this pilot set genuinely contains zero real
+circles. We cannot yet confirm the tightened calibration is working correctly (only
+that it suppressed a shape that may never have belonged here); revisit once a larger
+sample includes actual circular particles.
+
+1b. Fine Shape -- independent True/False (unchanged from v3)
+Elongated
+Rounded_Corners
+Rounded_Edges
+Flake-like
+Shard
+Jagged
+Concave
+
+2a. Coarse Texture (implied height/relief) -- SINGLE-select, ordinal low-to-high relief
+(unchanged from v3)
+Flat
+Smooth
+Textured
+Rough
+
+2b. Fine Texture -- independent True/False
+Layered
+Interior_Striation
+Fractured
+Scraggly [NEW]
+
+[CHANGE] Porous removed -- never fired in v2 or v3 (0/40 both runs); coarse_texture
+=Rough already covers what it was meant to capture, so it added a field with no
+observed discriminating value.
+
+Fractured trigger definition [TIGHTENED from v3]: a visible, irregular gap/break
+separating or nearly separating two to four parts of the particle body -- distinct from
+Layered (a line that follows a fold or a comparator edge) and Interior_Striation
+(straight internal lines), and explicitly NOT just "the surface looks rough/craggy
+overall" (that's Scraggly, see below, or coarse_texture=Rough). Reference examples:
+SMP_PILOT_036 and SMP_PILOT_011 both show a real, visible discontinuity and should
+trigger this; SMP_PILOT_020 was a weak/incorrect call under the old undefined
+version -- its craggy-all-over surface has no single identifiable break and should
+NOT trigger Fractured under this tightened definition.
+
+Scraggly trigger definition [NEW]: overall craggy, nodular, multi-bump surface
+across the particle body -- many small knobs/lobes giving a cauliflower-like
+impression, without one single identifiable break (that's Fractured) or a fold/
+boundary-following line (that's Layered). Reference examples, all judged the same
+morphology: SMP_PILOT_020, SMP_PILOT_040, SMP_PILOT_005, plus two references outside
+the test set (AME425_PM1 D618204 W128 ID16 -- same image as SMP_PILOT_040; AME411_PM5
+D619313 W481 ID155).
+
+3. Aggregation/Count (unchanged from v3)
+defect_count -- quantitative int. Known to sometimes undercount fused/clumped
+particles as a single defect; coarse_shape=Clumped is the intended hedge for that
+case (see 1a).
+
+4. Size
+size_percent_of_image (unchanged from v3) -- quantitative float, model's visual
+estimate of defect area as a percent of total image area. Binning into categorical
+size labels is deferred until the distribution across a larger sample is known.
+
+[CHANGE] Comparator_Fit REMOVED -- returned "yes" on 40/40 cases in both v2 and v3,
+zero discriminating value observed across both runs.
+
+5. Position (unchanged from v3)
+location_relative -- single-select: on_sio / in_comparator / spanning_both / unclear.
+  - on_sio: defect either (1) does not touch a comparator's real or inferred boundary
+    at all, or (2) touches that boundary but does not cross over/into it (stays fully
+    on the SiO side).
+  - in_comparator: defect is fully within a comparator's real or inferred boundary.
+  - spanning_both: defect's own edge crosses at least one comparator's real or
+    inferred boundary line (part of the defect on the SiO side, part on the
+    comparator side).
+
+6. Image Quality (unchanged from v3)
+focus_quality -- single-select: in_focus / out_of_focus / mixed.

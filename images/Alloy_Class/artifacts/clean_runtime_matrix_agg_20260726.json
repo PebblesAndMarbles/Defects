@@ -1,0 +1,62 @@
+﻿[
+    {
+        "pair_set":  "p1",
+        "variant":  "baseline",
+        "runs":  3,
+        "classify_median_s":  11.015,
+        "classify_p90_s":  12.016,
+        "select_avg_s":  0.285,
+        "copy_avg_s":  1.331,
+        "total_avg_s":  12.578
+    },
+    {
+        "pair_set":  "p1",
+        "variant":  "prompt_short",
+        "runs":  3,
+        "classify_median_s":  10.478,
+        "classify_p90_s":  11.786,
+        "select_avg_s":  0.271,
+        "copy_avg_s":  1.426,
+        "total_avg_s":  12.467
+    },
+    {
+        "pair_set":  "p1",
+        "variant":  "cap180",
+        "runs":  3,
+        "classify_median_s":  10.694,
+        "classify_p90_s":  10.744,
+        "select_avg_s":  0.32,
+        "copy_avg_s":  1.416,
+        "total_avg_s":  12.474
+    },
+    {
+        "pair_set":  "p5",
+        "variant":  "baseline",
+        "runs":  3,
+        "classify_median_s":  39.709,
+        "classify_p90_s":  40.915,
+        "select_avg_s":  1.114,
+        "copy_avg_s":  6.936,
+        "total_avg_s":  47.903
+    },
+    {
+        "pair_set":  "p5",
+        "variant":  "prompt_short",
+        "runs":  3,
+        "classify_median_s":  40.346,
+        "classify_p90_s":  65.414,
+        "select_avg_s":  1.016,
+        "copy_avg_s":  6.826,
+        "total_avg_s":  55.865
+    },
+    {
+        "pair_set":  "p5",
+        "variant":  "cap180",
+        "runs":  3,
+        "classify_median_s":  42.052,
+        "classify_p90_s":  53.56,
+        "select_avg_s":  1.493,
+        "copy_avg_s":  9.613,
+        "total_avg_s":  56.571
+    }
+]

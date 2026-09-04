@@ -13,6 +13,7 @@ import base64
 import hashlib
 import json
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -82,14 +83,20 @@ def _iter_images(folder: Path) -> list[Path]:
     return sorted(p for p in folder.iterdir() if p.suffix.lower() in IMAGE_EXTENSIONS)
 
 
-def _post_caption(image_path: Path, model: str, prompt: str, timeout_seconds: int) -> str:
+def _post_caption(
+    image_path: Path,
+    model: str,
+    prompt: str,
+    timeout_seconds: int,
+    max_completion_tokens: int,
+) -> str:
     from alloy.core.llm import image
 
     result = image(
         str(image_path),
         prompt=prompt,
         model=model,
-        max_completion_tokens=500,
+        max_completion_tokens=max_completion_tokens,
     )
     if not isinstance(result, str):
         return json.dumps(result)
@@ -103,6 +110,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--model", default="gpt-5.4", help="Model name")
     parser.add_argument("--prompt", default=DEFAULT_PROMPT, help="Caption prompt")
     parser.add_argument("--timeout-seconds", type=int, default=60, help="Request timeout")
+    parser.add_argument("--max-completion-tokens", type=int, default=500, help="Max completion tokens")
     parser.add_argument("--run-id", default=f"caption_{datetime.now().strftime('%Y%m%d_%H%M%S')}", help="Run identifier")
     return parser.parse_args()
 
@@ -135,17 +143,23 @@ def main() -> int:
         }
 
         try:
+            row_t0 = time.perf_counter()
             caption = _post_caption(
                 image_path=image_path,
                 model=args.model,
                 prompt=args.prompt,
                 timeout_seconds=args.timeout_seconds,
+                max_completion_tokens=args.max_completion_tokens,
             )
+            row_total_seconds = time.perf_counter() - row_t0
             record = {
                 **base,
                 "status": "ok",
                 "caption": caption,
                 "raw_response_excerpt": caption[:1000],
+                "timing_seconds": {
+                    "row_total": round(row_total_seconds, 3),
+                },
             }
             out_file.write_text(json.dumps(record, indent=2), encoding="utf-8")
             with batch_jsonl.open("a", encoding="utf-8") as f:

@@ -6,18 +6,9 @@
   "verify_ssl": true,
   "use_shared_ca_bundle": false,
   "require_bf_df_pairs": true,
-  "max_pairs": 5,
-  "use_transient_raw_images": false,
-  "raw_image_app_name": "GAJT_INLINE_24601",
-  "raw_image_technology": "1278",
-  "raw_image_strict": false,
-  "raw_keep_temp": false,
-  "gajt_dll_search_paths": [
-    "D:\\gajtv\\configurations\\wijt",
-    "C:\\Users\\tbatson\\AppData\\Roaming\\SAS\\JMP\\AddIns\\gajtv.intel.com\\wijt"
-  ],
-  "input_folder": "./inputs",
-  "output_folder": "./outputs/phase1",
+  "max_pairs": 3,
+  "input_folder": "./inputs_pairsafe",
+  "output_folder": "./outputs/phase1_pairsafe",
   "prompt_version": "phase1_v1",
   "prompt": "You are an expert SEM defect classifier for backend etch wafers. Classify visible defect morphology with attention to shape, orientation, line-bridge interaction, relative size, and location context. Return strict JSON only. If uncertain, set review_required=true and lower confidence."
 }

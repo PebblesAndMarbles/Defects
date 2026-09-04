@@ -1,0 +1,117 @@
+SPEC UPDATE (v2 -> v3 candidate) -- diffs from "Particle_Descriptors copy.txt", based on
+review of the v2 pilot run (40 cases) against the actual burned images + your feedback CSV
+(outputs/probes/generic_description_v1_pilot_feedback.csv, entries from the v2 review pass).
+Items marked [CONFIRMED] are ready to wire into the prompt. Items marked [PROPOSED --
+PENDING YOUR CONFIRMATION] are not decided yet -- see chat discussion before implementing.
+
+1a. Coarse shape SINGLE-select
+Circle
+Clumped
+Angular
+Round
+
+[CONFIRMED] Calibration guidance to add to the prompt text (not a vocabulary change --
+same 4 options, tighter instruction for when to use each):
+  - Reserve "Circle" for a close-to-true circular/disc outline only. Model confidence on
+    "circle" calls was measurably lower than other coarse_shape calls in v2 (e.g. 0.78 vs.
+    a typical 0.86-0.96), suggesting it defaults to "circle" under uncertainty rather than
+    a more honest "round" or "angular" -- explicitly tell it to prefer "round" or "angular"
+    when not clearly circular.
+  - Visual anchor for "Circle," from your own reference examples outside the test set:
+    the outline must be smooth and symmetric all the way around, with no flat/faceted
+    segment or notch anywhere on the boundary. Your accepted boundary case
+    (AME425_PM5, D6231600 W023 ID1) has one distinctly flatter facet on its lower-left
+    side and is the maximum deviation still acceptable as "circle" -- anything with more
+    asymmetry than that (more than one facet, a clear notch, an elongated axis) should
+    fall to "round" or "angular" instead. Your four "rigorous circle" examples
+    (AME423_PM4 D6182110 W448 ID303; AME425_PM4 D6182330 W050 ID19; AME425_PM4 D6182330
+    W050 ID11; AME411_PM1 D6192710 W018 ID182525) are all small, compact, and uniformly
+    smooth-edged with zero visible facets -- the clean end of the spectrum.
+    Cross-check against the actual pilot set: SMP_PILOT_013 (model's own description
+    noted "a slight central depression") and SMP_PILOT_027 (notched, lowest-confidence
+    circle call at 0.78) both show more irregularity than even the accepted boundary
+    case above, supporting that both were likely over-called and should have been
+    "round."
+  - "Round" = soft/blobby outline, no circle-level regularity and no straight/angular
+    edges.
+  - "Angular" = at least one relatively straight edge or corner-like feature is visible.
+  - "Clumped" = reserve for ONE outline that itself looks fused/multi-lobed (multiple
+    bumps/lobes on a single connected silhouette, ambiguous whether it's one particle or
+    several merged). Do NOT use "Clumped" just because defect_count > 1 with clearly
+    separate, individually-outlined particles -- describe each particle's own shape in
+    that case (defect_count already captures the multiplicity). [Finding: SMP_PILOT_030
+    had 2 clearly separate particles, correctly counted, but coarse_shape was still
+    "clumped" -- should have been the primary particle's actual outline shape, e.g.
+    angular.]
+
+1b. Fine Shape True/False
+Elongated
+Rounded_Corners
+Rounded_Edges
+Flake-like
+Shard
+Jagged
+Concave
+
+[CONFIRMED] Tapered removed per your instruction.
+
+2a. Coarse Ordinal Texture SINGLE SELECT
+Flat
+Smooth
+Textured
+Rough
+
+2b. Fine Texture True/False
+Porous
+Layered
+Interior Striation
+Fractured
+
+[PROPOSED -- PENDING YOUR CONFIRMATION] Layered trigger definition (currently undefined in
+the prompt beyond the label name itself -- this is why SMP_PILOT_002 missed it). Two
+independent triggers, either one sufficient:
+  (a) Visible internal fold/crease lines within the particle body itself, independent of
+      any comparator (the SMP_PILOT_002 case: a crumpled/foil-like blob sitting free on
+      SiO with visible fold lines and a slightly irregular outline).
+  (b) A boundary-following contrast/texture line running along a real or inferred
+      comparator edge through the defect (adapted from BEEP_Evidence copy 2.txt's "Inset
+      surface lines" section -- observational vocabulary only, not the pre-etch
+      disposition conclusion logic).
+
+3. Aggregation/Count
+defect_count (existing, quantitative int -- known to sometimes undercount fused/clumped
+particles as 1; coarse_shape=clumped is the intended hedge for that case, see 1a above)
+
+4. Size
+size_percent_of_image (quantitative float -- model's visual estimate; binning deferred
+until we see the distribution)
+Comparator_Fit (Yes, Comparable, No) -- unchanged, no feedback against this field yet
+
+5. Position
+[PROPOSED -- PENDING YOUR CONFIRMATION]
+location_relative: on_sio / in_comparator (renamed from "on_comparator" per your note --
+a defect nested inside a recessed trench/via is physically "in" it, not "on" it) /
+spanning_both / unclear
+
+Definition tightening (adapted from BEEP_Evidence copy 2.txt's "Comparator occlusion" /
+"inset surface lines" sections -- observational vocabulary only):
+  - on_sio: defect either (1) does not touch a comparator's real or inferred boundary at all, or (2) touches that boundary but does not cross over/into it (stays fully on the SiO side).  
+  - in_comparator: defect is fully within a comparator's real or inferred boundary.
+  - spanning_both: defect's own edge crosses at least one comparator's real or inferred
+    boundary line (part of the defect on the SiO side, part on the comparator side).
+  [Findings this would target: SMP_PILOT_008 -- particle visibly straddles a trench line,
+  touching SiO on both sides, but was labeled on_sio. SMP_PILOT_005 -- both particles sit
+  inside via footprints per the model's own free-text description, but the field said
+  spanning_both, disagreeing with its own description.]
+
+6. Image Quality (unchanged)
+focus_quality: in_focus / out_of_focus / mixed
+
+---
+Open items still needing your input before any of this is wired in:
+1. Confirm the layered (2b) and location_relative (5) proposals above match your intent.
+2. SMP_PILOT_033 and SMP_PILOT_040 both have a feedback comment saying "shape_concave
+   should be False," but the model already output concave=true for both, and I agree with
+   the model on both images (040 is the multi-lobed cauliflower case with clear concave
+   dips between lobes; 033 has a visible notch too) -- please double-check those two
+   comments before I treat them as real corrections.

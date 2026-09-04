@@ -1,0 +1,88 @@
+CANONICAL PARTICLE DESCRIPTOR SPEC (v6) -- ready for prompt construction.
+Supersedes Particle_Descriptors_v5_canonical.txt.
+
+1a. Coarse Shape -- SINGLE-select
+Circle
+Round
+Angular
+Clumped
+
+Calibration guidance:
+  - Circle: reserve for a close-to-true circular/disc outline only -- smooth and
+    symmetric all the way around, with no facet or notch anywhere on the boundary.
+    Prefer Round or Angular when not clearly circular rather than defaulting to
+    Circle under uncertainty.
+  - Round: soft/blobby outline, no circle-level regularity and no straight/angular
+    edges.
+  - Angular: at least one relatively straight edge or corner-like feature is visible.
+  - Clumped: reserve for ONE outline that itself looks fused/multi-lobed (multiple
+    bumps/lobes on a single connected silhouette, ambiguous whether it's one particle
+    or several merged). Do not use Clumped just because defect_count > 1 with clearly
+    separate, individually-outlined particles -- describe each particle's own shape
+    instead.
+
+1b. Fine Shape -- independent True/False
+Elongated
+Rounded_Corners
+Rounded_Edges
+Flake-like
+Shard
+Jagged
+Concave
+
+2a. Coarse Texture (implied height/relief) -- SINGLE-select, ordinal low-to-high relief
+Smooth
+Textured
+Rough
+
+[CHANGE] Flat removed -- never called across v2-v5 (0/40 every run); no observed
+discriminating value.
+
+2b. Fine Texture -- independent True/False, three binary triggers now clearly
+distinguished from each other:
+Layered
+Interior_Striation
+Fractured
+Scraggly
+
+Layered trigger definition [CHANGED, simplified]: a line within the defect that
+follows a defect boundary or comparator edge.
+
+Interior_Striation trigger definition [CHANGED, now explicit]: a straight line
+within the defect.
+
+Fractured trigger definition [CHANGED]: a visible, irregular gap/break separating
+or nearly separating one to three parts of the particle body -- distinct from
+Layered (a line following a boundary/edge) and Interior_Striation (a straight
+line), and explicitly not just general rough/craggy surface appearance (that's
+Scraggly, or coarse_texture=Rough).
+
+Scraggly trigger definition (unchanged from v5): overall craggy and nodular
+surface -- many small knobs/lobes giving a cauliflower-like impression.
+
+3. Aggregation/Count
+defect_count -- quantitative int. Known to sometimes undercount fused/clumped
+particles as a single defect; coarse_shape=Clumped is the intended hedge for that
+case (see 1a).
+
+4. Size
+size_percent_of_image -- quantitative float, model's visual estimate of defect area
+as a percent of total image area. Binning into categorical size labels is deferred
+until the distribution across a larger sample is known.
+
+5. Position
+location_relative -- single-select: on_sio / in_comparator / spanning_both / unclear.
+[CHANGE] wording restructured to separate the enum list from its explanation, after
+a v5 case (SMP_PILOT_013) returned the literal phrase "touches without crossing"
+instead of a valid enum value -- the model had echoed a phrase from the definition
+text itself. Definitions unchanged in meaning:
+  - on_sio: defect either (1) does not touch a comparator's real or inferred boundary
+    at all, or (2) touches that boundary but does not cross over/into it (stays fully
+    on the SiO side).
+  - in_comparator: defect is fully within a comparator's real or inferred boundary.
+  - spanning_both: defect's own edge crosses at least one comparator's real or
+    inferred boundary line (part of the defect on the SiO side, part on the
+    comparator side).
+
+6. Image Quality
+focus_quality -- single-select: in_focus / out_of_focus / mixed.

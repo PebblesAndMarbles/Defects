@@ -1,0 +1,40 @@
+1a. Coarse shape SINGLE-select
+Circle
+Clumped
+Angular
+Round
+
+1b. Fine Shape True/False
+Elongated
+Rounded_Corners
+Rounded_Edges
+Tapered
+Flake-like
+Shard
+Jagged
+Concave
+
+2a. Coarse Ordinal Texture SINGLE SELECT
+Flat
+Smooth
+Textured
+Rough
+
+2b. Fine Texture True/False
+Porous
+Layered
+Interior Striation
+Fractured
+
+3. Aggregation/Count
+defect_count (existing, quantitative int — known to sometimes undercount)
+
+4. Size
+size_percent_of_image (new, quantitative float — model's visual estimate; binning deferred until we see the distribution)
+Comparator_Fit (Yes, Comparable, No)
+
+5. Position (existing from v1, not from your file)
+location_relative: on_sio / on_comparator / spanning_both / unclear
+
+6. Image Quality (existing from v1, not from your file)
+focus_quality: in_focus / out_of_focus / mixed

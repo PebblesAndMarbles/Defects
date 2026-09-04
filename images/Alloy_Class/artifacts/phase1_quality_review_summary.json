@@ -1,0 +1,78 @@
+{
+  "row_counts": {
+    "rows": 10,
+    "ok_rows": 10,
+    "paired_rows": 10,
+    "paired_pairs": 5
+  },
+  "confidence": {
+    "avg": 0.86,
+    "min": 0.76,
+    "max": 0.95,
+    "buckets": {
+      "0_75_to_0_90": 8,
+      "gte_0_90": 2
+    }
+  },
+  "review_required": {
+    "true_count": 0,
+    "rate": 0.0
+  },
+  "class_distribution": {
+    "bridging_particle": 1,
+    "particle": 5,
+    "particle_residue": 1,
+    "particle_contamination": 2,
+    "line_bridge": 1
+  },
+  "bf_df_consistency": {
+    "pair_disagreement_count": 4,
+    "pair_disagreement_rate": 0.8,
+    "disagreement_examples": [
+      {
+        "pair_key": "260530_1734_D609178_002_SMP_8M6CL_1251",
+        "bf_image": "260530_1734_D609178_002_SMP_8M6CL_1251_2.jpg",
+        "df_image": "260530_1734_D609178_002_SMP_8M6CL_1251_3.jpg",
+        "bf_class": "bridging_particle",
+        "df_class": "particle",
+        "bf_confidence": 0.76,
+        "df_confidence": 0.86,
+        "bf_review_required": false,
+        "df_review_required": false
+      },
+      {
+        "pair_key": "260601_0940_D608625_015_SMP_8M6CL_112",
+        "bf_image": "260601_0940_D608625_015_SMP_8M6CL_112_2.jpg",
+        "df_image": "260601_0940_D608625_015_SMP_8M6CL_112_3.jpg",
+        "bf_class": "particle_residue",
+        "df_class": "particle_contamination",
+        "bf_confidence": 0.89,
+        "df_confidence": 0.91,
+        "bf_review_required": false,
+        "df_review_required": false
+      },
+      {
+        "pair_key": "260612_0429_D611326_066_SMP_8M6CL_80",
+        "bf_image": "260612_0429_D611326_066_SMP_8M6CL_80_2.jpg",
+        "df_image": "260612_0429_D611326_066_SMP_8M6CL_80_3.jpg",
+        "bf_class": "particle",
+        "df_class": "line_bridge",
+        "bf_confidence": 0.83,
+        "df_confidence": 0.88,
+        "bf_review_required": false,
+        "df_review_required": false
+      },
+      {
+        "pair_key": "260709_2007_D613614_130_SMP_8M6CL_34",
+        "bf_image": "260709_2007_D613614_130_SMP_8M6CL_34_2.jpg",
+        "df_image": "260709_2007_D613614_130_SMP_8M6CL_34_3.jpg",
+        "bf_class": "particle_contamination",
+        "df_class": "particle",
+        "bf_confidence": 0.88,
+        "df_confidence": 0.87,
+        "bf_review_required": false,
+        "df_review_required": false
+      }
+    ]
+  }
+}

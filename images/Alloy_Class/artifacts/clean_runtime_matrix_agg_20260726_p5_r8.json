@@ -1,0 +1,41 @@
+﻿[
+    {
+        "pair_set":  "p5",
+        "variant":  "baseline",
+        "runs":  8,
+        "classify_median_s":  40.541,
+        "classify_p90_s":  41.482,
+        "classify_p95_s":  41.482,
+        "outliers_iqr_upper":  0,
+        "select_avg_s":  1.098,
+        "copy_avg_s":  7.154,
+        "total_avg_s":  48.427,
+        "per_pair_avg_s":  9.685
+    },
+    {
+        "pair_set":  "p5",
+        "variant":  "prompt_short",
+        "runs":  8,
+        "classify_median_s":  39.61,
+        "classify_p90_s":  65.414,
+        "classify_p95_s":  65.414,
+        "outliers_iqr_upper":  1,
+        "select_avg_s":  1.064,
+        "copy_avg_s":  7.01,
+        "total_avg_s":  51.06,
+        "per_pair_avg_s":  10.212
+    },
+    {
+        "pair_set":  "p5",
+        "variant":  "cap180",
+        "runs":  8,
+        "classify_median_s":  44.221,
+        "classify_p90_s":  61.253,
+        "classify_p95_s":  61.253,
+        "outliers_iqr_upper":  0,
+        "select_avg_s":  1.267,
+        "copy_avg_s":  7.65,
+        "total_avg_s":  56.327,
+        "per_pair_avg_s":  11.265
+    }
+]

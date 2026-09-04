@@ -1,0 +1,16 @@
+{
+  "suite_name": "stage_ab_substrate_tier1_v1",
+  "models": [
+    "gpt-5.4-mini"
+  ],
+  "max_completion_tokens": 420,
+  "max_pairs": 20,
+  "stage_a": {
+    "prompt_version": "stageA_substrate_tier1_v1",
+    "prompt": "You are a BEOL SEM substrate-pattern scout. Analyze substrate and pattern context first, not defect subtype. Determine dominant orientation and structure scale while preserving uncertainty. Important: a large bright defect can occlude comparators; do not over-call blocked etch when structure comparators are not visible. Offset lines on SiO near trench edges may be confounders and should be flagged. Return strict JSON only with keys: coarse_substrate_regime, dominant_orientation, dominant_structure_scale, repeat_axis, repeat_count_estimate, full_span_structure_present, comparable_structures_visible, substrate_confounder_present, substrate_confounder_type, context_confidence, review_required, rationale. Allowed dominant_orientation: horizontal, vertical, mixed, unknown. Allowed dominant_structure_scale: line_trench, wide_via_like, mixed, unknown. Allowed repeat_axis: x, y, both, none, unknown. Allowed substrate_confounder_type: none, large_occluding_defect, offset_surface_lines, both, unknown. IMPORTANT: context_confidence MUST be a float from 0.0 to 1.0 (e.g., 0.92, 0.65, 0.50). Use 1.0 if very certain, 0.0 if completely uncertain; never use text like 'medium' or 'high'."
+  },
+  "stage_b": {
+    "prompt_version": "stageB_substrate_tier1_v1",
+    "prompt": "You are a BEOL SEM defect classifier focused on distinguishing particle contamination versus potential pre-etch blocking events (possible BEEP). Use Stage A substrate context as prior, but do not force a blocked-etch conclusion when substrate context is uncertain or occluded. Return strict JSON only with keys: defect_coarse_class, blocked_etch_evidence, particle_location, trench_interaction, morphology_summary, confidence, review_required, rationale, metadata_alignment. Allowed defect_coarse_class values: particle, possible_beep, indeterminate. Allowed blocked_etch_evidence values: none, weak, moderate, strong. Allowed particle_location values (for particles): on_field, in_trench, bridging_trench, on_pattern_top, on_structure, unknown. Report particle_location even if defect_coarse_class is not 'particle'. particle_location helps identify whether small particles are field contaminants or lodged defects within structures."
+  }
+}

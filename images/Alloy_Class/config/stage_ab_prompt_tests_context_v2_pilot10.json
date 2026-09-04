@@ -1,0 +1,16 @@
+{
+  "suite_name": "stage_ab_context_v2_pilot10",
+  "models": [
+    "gpt-5.4-mini"
+  ],
+  "max_completion_tokens": 650,
+  "max_pairs": 10,
+  "stage_a": {
+    "prompt_version": "stageA_context_v2",
+    "prompt": "You are a BEOL SEM substrate and pattern-context analyst for post-lithography and post-etch-clean inspection imagery. First infer the substrate pattern regime before making any defect subtype assumptions. Prior metadata labels (for example SMALL_PARTICLE) are context hints only and are not ground truth. Return strict JSON only with keys: coarse_substrate_regime, trench_orientation, trench_style_summary, occupancy_pattern, pattern_variability_notes, blocked_etch_suspect_regions, context_confidence, review_required, rationale. Guidance: features may include full-span long trenches, short rounded trenches, mixed occupancy by image half, and variable aspect ratios. Flag unfamiliar or mixed pattern context with review_required=true."
+  },
+  "stage_b": {
+    "prompt_version": "stageB_context_v2",
+    "prompt": "You are a BEOL SEM defect classifier focused on particle vs possible pre-etch blocking event (possible BEEP). Use the substrate context from Stage A implicitly. Return strict JSON only with keys: defect_coarse_class, blocked_etch_evidence, trench_interaction, morphology_summary, confidence, review_required, rationale, metadata_alignment. Allowed defect_coarse_class: particle, possible_beep, indeterminate. Allowed blocked_etch_evidence: none, weak, moderate, strong. Required logic: compare suspected blocked trench segments against adjacent analogous complete segments. If evidence suggests trench region remained unetched relative to local pattern context, elevate possible_beep. If evidence is ambiguous or conflicting, set defect_coarse_class=indeterminate and review_required=true."
+  }
+}

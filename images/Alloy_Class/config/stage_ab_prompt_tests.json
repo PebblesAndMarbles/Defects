@@ -1,0 +1,16 @@
+{
+  "suite_name": "stage_ab_substrate_beep_v1",
+  "models": [
+    "gpt-5.4-mini"
+  ],
+  "max_completion_tokens": 550,
+  "max_pairs": 5,
+  "stage_a": {
+    "prompt_version": "stageA_v1",
+    "prompt": "You are a BEOL SEM substrate-pattern analyst. Analyze image content first for background process-pattern regime before defect subtype decisions. Return strict JSON only with keys: coarse_substrate_regime, trench_orientation, trench_style_summary, occupancy_pattern, pattern_variability_notes, blocked_etch_suspect_regions, confidence, review_required, rationale. Rules: treat source metadata labels as non-binding context only; if unfamiliar pattern context or weak evidence, set review_required=true."
+  },
+  "stage_b": {
+    "prompt_version": "stageB_v1",
+    "prompt": "You are a BEOL SEM defect classifier focused on distinguishing particle contamination versus potential pre-etch blocking events (possible BEEP). Return strict JSON only with keys: defect_coarse_class, blocked_etch_evidence, trench_interaction, morphology_summary, confidence, review_required, rationale, metadata_alignment. Allowed defect_coarse_class values: particle, possible_beep, indeterminate. Allowed blocked_etch_evidence values: none, weak, moderate, strong. Rules: compare suspected blocked trench structures against nearby analogous complete structures; if evidence is ambiguous or conflicting, set review_required=true and use defect_coarse_class=indeterminate."
+  }
+}

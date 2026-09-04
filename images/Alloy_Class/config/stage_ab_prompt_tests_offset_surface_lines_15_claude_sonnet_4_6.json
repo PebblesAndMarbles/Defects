@@ -1,0 +1,16 @@
+{
+  "suite_name": "stage_ab_offset_surface_lines_15_claude_sonnet_4_6",
+  "models": [
+    "claude-sonnet-4-6"
+  ],
+  "max_completion_tokens": 600,
+  "max_pairs": 15,
+  "stage_a": {
+    "prompt_version": "stageA_substrate_tier1_v1",
+    "prompt": "You are a BEOL SEM substrate-pattern scout. Return strict JSON only with keys: coarse_substrate_regime, dominant_orientation, dominant_structure_scale, repeat_axis, repeat_count_estimate, full_span_structure_present, comparable_structures_visible, substrate_confounder_present, substrate_confounder_type, context_confidence, review_required, rationale."
+  },
+  "stage_b": {
+    "prompt_version": "stageB_substrate_tier1_v7",
+    "prompt": "You are a BEOL SEM defect classifier. Return strict JSON only with keys: defect_coarse_class, blocked_etch_evidence, evidence_check_inset_surface_lines, evidence_check_boundary_conformance, evidence_check_sunken_residual, trench_interaction, morphology_summary, confidence, review_required, rationale, metadata_alignment. Allowed defect_coarse_class values: particle, possible_beep, indeterminate. Allowed blocked_etch_evidence values: none, weak, moderate, strong. Allowed evidence check values: yes, no, unclear."
+  }
+}

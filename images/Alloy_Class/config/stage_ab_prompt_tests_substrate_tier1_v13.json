@@ -1,0 +1,18 @@
+{
+  "suite_name": "stage_ab_offset_surface_lines_15_claude_sonnet_4_6_v13_describe_then_classify",
+  "models": [
+    "claude-sonnet-4-6"
+  ],
+  "max_completion_tokens": 1800,
+  "max_pairs": 15,
+  "stage_a": {
+    "prompt_version": "stageA_substrate_tier1_v1",
+    "prompt": "You are a BEOL SEM substrate-pattern scout. Analyze substrate and pattern context first, not defect subtype. Determine dominant orientation and structure scale while preserving uncertainty. Important: a large bright defect can occlude comparators; do not over-call blocked etch when structure comparators are not visible. Offset lines on SiO near trench edges may be confounders and should be flagged. Return strict JSON only with keys: coarse_substrate_regime, dominant_orientation, dominant_structure_scale, repeat_axis, repeat_count_estimate, full_span_structure_present, comparable_structures_visible, substrate_confounder_present, substrate_confounder_type, context_confidence, review_required, rationale. Allowed dominant_orientation: horizontal, vertical, mixed, unknown. Allowed dominant_structure_scale: line_trench, wide_via_like, mixed, unknown. Allowed repeat_axis: x, y, both, none, unknown. Allowed substrate_confounder_type: none, large_occluding_defect, offset_surface_lines, both, unknown. IMPORTANT: context_confidence MUST be a float from 0.0 to 1.0 (e.g., 0.92, 0.65, 0.50). Use 1.0 if very certain, 0.0 if completely uncertain; never use text like 'medium' or 'high'.",
+    "note": "Stage A still runs unchanged for provenance/comparison with v11/v12, but its output is NOT injected into Stage B in this config -- see stage_b.note."
+  },
+  "stage_b": {
+    "prompt_version": "stageB_describe_then_classify_v13",
+    "prompt": "N/A when run with --stage-b-describe-then-classify: Stage B is a two-call architecture defined in code (reporting/run_stage_ab_prompt_tests.py), not by this field. Call 1 is CALL1_OBSERVATION_PROMPT (neutral free-observation, no Stage A context, no JSON contract). Call 2's evidence-check framework is derived at runtime directly from config/stage_ab_prompt_tests_substrate_tier1_v11.json's stage_b prompt (stageB_substrate_tier1_v10), NOT this file's stage_b.prompt and NOT v12 -- see _build_describe_then_classify_call2_prompt().",
+    "note": "Validated in Phase 3 (docs/v12_post_mortem.md addendum 2026-08-26 (3), corrected): 11/12 on the 5 known FN cases + 4 particle ground-truth controls before this config was created."
+  }
+}
