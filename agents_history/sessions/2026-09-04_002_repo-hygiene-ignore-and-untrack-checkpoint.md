@@ -18,6 +18,7 @@ Capture the hygiene pass that tightened the workspace ignore rules, removed gene
 - [x] Confirmed the current logging layout under `agents_history\` before writing the checkpoint.
 - [x] Recorded the repo-hygiene maintenance step that added ignore rules for `images\Alloy_Class\outputs\`, `rollups\`, and the `html\adhoc_chamber_events\` / `html\adhoc_elements\` report directories.
 - [x] Recorded the subsequent untracking cleanup for the generated `html\adhoc_chamber_events` and `html\adhoc_elements` HTML report files.
+- [x] Corrected the hygiene staging boundary after the first commit accidentally recorded the generated report trees as tracked content; followed with a second commit that removed them from the index so the ignore rules and untrack state match.
 - [x] Reviewed the remaining repository status and confirmed the session-log traceability paths still line up with the logging system.
 
 ## Files Modified
@@ -47,6 +48,7 @@ Capture the hygiene pass that tightened the workspace ignore rules, removed gene
 
 ## Key Decisions Made
 - Kept this log factual and narrow, because the ignore/untrack cleanup was a new maintenance step that had not been logged previously.
+- Recorded the final result as two hygiene commits rather than pretending the cleanup landed in one pass, because the first pass staged the generated trees incorrectly and needed a follow-up removal commit.
 - Avoided altering unrelated historical session content while reconciling the logging records.
 
 ## Recommended Re-Entry
@@ -60,3 +62,32 @@ Capture the hygiene pass that tightened the workspace ignore rules, removed gene
 
 ## Notes for Future Agent
 This checkpoint intentionally records the maintenance step after the fact so the ignore and untrack cleanup is traceable even though it was not logged when it happened.
+
+## Handoff For Next Agent
+The remaining workspace is still intentionally dirty and should be split into separate follow-up commits before any push.
+
+Start by reading these files in this order:
+- `agents_history\index.md`
+- `agents_history\file_map.md`
+- `agents_history\open_threads.md`
+- `git status --short`
+- `git diff --stat`
+
+Use the current dirty-set shape to form commit boundaries, not the hygiene log above. The hygiene log only explains what was already resolved.
+
+Current safe boundaries to keep separate:
+- Keep the BE query / surf-scan / inline report changes together only if they are clearly one feature batch; otherwise split into a BE pipeline commit and an HTML-report commit.
+- Keep the Alloy_Class refactor/removal batch separate from the BE/HTML work.
+- Leave any generated artifacts, summaries, or derivative JSON/CSV outputs out of the push unless they are explicitly required by the code change.
+- Review the untracked `\.github\agents\` files separately before including them in any commit.
+
+What already happened and should not be repeated:
+- The repo-hygiene ignore rules are already committed in `990ea83`.
+- The generated `html\adhoc_chamber_events\` and `html\adhoc_elements\` trees are already untracked from the index in `49ede55`.
+- Do not re-add those generated HTML trees unless the user explicitly asks to version them again.
+
+Suggested next actions for the follow-up agent:
+1. Reconfirm the current dirty set with `git status --short` and `git diff --stat`.
+2. Group the remaining changes into the smallest coherent commit boundaries.
+3. Inspect only the files in the chosen commit slice before editing or staging anything.
+4. If the next agent sees any surprise tracked/generated file in the hygiene area, stop and report it instead of widening scope.
