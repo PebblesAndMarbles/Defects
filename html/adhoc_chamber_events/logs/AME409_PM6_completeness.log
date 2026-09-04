@@ -1,0 +1,11 @@
+Chamber        : AME409_PM6
+Generated      : 2026-07-16 21:49:05
+Files scanned  : 768
+Files parsed   : 768
+Files skipped  : 0
+Events (raw)   : 20
+Cross-chamber excluded: 11
+  Excluded tokens: 260518_0424, 260518_1058, 260529_1904, 260531_0744, 260602_1226, 260606_1800, 260611_0547, 260614_1521, 260616_0316, 260617_1216, 260627_1644
+Events (clean) : 9
+Events in coords: 9
+Total defects  : 155

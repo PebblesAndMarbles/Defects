@@ -10,6 +10,7 @@ images/*
 # But keep sample Alloy inputs and thumbnail junk out of git
 images/Alloy_Class/inputs/
 images/Alloy_Class/**/Thumbs.db
+images/Alloy_Class/outputs/
 
 # Exclude common large file types
 *.zip
@@ -36,6 +37,10 @@ outputs/
 debug_logs/
 OLD/
 rollups/
+html/SS_Subentity_Reports/
+html/Inline_Subentity_Reports/
+html/adhoc_chamber_events/
+html/adhoc_elements/
 
 # Allow manifest and artifacts
 !artifacts/*.json
