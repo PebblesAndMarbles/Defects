@@ -907,12 +907,17 @@ def _find_cross_chamber_tokens(manifest_csv: str, chamber: str) -> set[str]:
 def run_for_chamber(
     chamber: str,
     out_dir: str,
-    lookback_days: int | None = None,
+    lookback_days: int = 60,
 ) -> str:
     """
     Generate SS inline HTML report for one chamber.
 
-    Returns 'ok' on success, 'skipped' if the image directory does not exist.
+    lookback_days (default 60) matches the pipeline’s 60-day image retention
+    policy.  Events whose token date is older than this window are excluded,
+    preventing stale events with pruned or broken image links from appearing.
+    Pass a larger value or None to override (not recommended for scheduled runs).
+
+    Returns ‘ok’ on success, ‘skipped’ if the image directory does not exist.
     Output files:
         <out_dir>/<chamber>.html            (stable filename, overwritten each run)
         <out_dir>/logs/<chamber>_completeness.log
@@ -966,6 +971,7 @@ def run_for_chamber(
     with open(log_path, "w", encoding="utf-8") as f:
         f.write(f"Chamber        : {chamber}\n")
         f.write(f"Generated      : {gen_ts}\n")
+        f.write(f"Lookback days  : {lookback_days}\n")
         f.write(f"Files scanned  : {stats['scanned']}\n")
         f.write(f"Files parsed   : {stats['parsed']}\n")
         f.write(f"Files skipped  : {stats['skipped']}\n")
@@ -998,8 +1004,8 @@ def main() -> None:
         help="Output directory (default: html/SS_Inline_Reports/)",
     )
     parser.add_argument(
-        "--lookback-days", type=int, default=None,
-        help="Include only events within this many days (default: all events in folder)",
+        "--lookback-days", type=int, default=60,
+        help="Include only events within this many days (default: 60, matching image retention policy)",
     )
     args = parser.parse_args()
 

@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+import pandas as pd
+import os
+
+print('='*80)
+print('FINAL CORRECTED RESULTS - OTHER_UNKNOWN DEFECT QUERY WITH PROPER SUBENTITY')
+print('='*80)
+
+# 8M5CL Results
+coords_8m5 = pd.read_csv('rollups/OTHER_UNKNOWN/8M5CL_RESULTS_CORRECTED/OTHER_UNKNOWN_COORDINATES.csv')
+manifest_8m5 = pd.read_csv('rollups/OTHER_UNKNOWN/8M5CL_RESULTS_CORRECTED/OTHER_UNKNOWN_IMAGES_MANIFEST.csv')
+
+print()
+print('8M5CL LAYER - Query from 34 wafers, 180-day lookback')
+print('-' * 80)
+print(f'  Defects found: {len(coords_8m5)}')
+print(f'  Images downloaded: {len(manifest_8m5)}')
+print(f'  Images successfully organized: {manifest_8m5["LOCAL_IMAGE_FILE"].notna().sum()}')
+print()
+print(f'  Unique SUBENTITY (chamber) values: {coords_8m5["SUBENTITY"].nunique()}')
+print(f'  Sample chambers: {", ".join(coords_8m5["SUBENTITY"].unique()[:5])}')
+print()
+print('  Sample defect records with chamber assignments:')
+sample = coords_8m5[['LOT7', 'WAFER_ID', 'SUBENTITY', 'LAYER', 'CLASS', 'DEFECT_ID']].head(5)
+for idx, row in sample.iterrows():
+    print(f'    {row["LOT7"]} {row["WAFER_ID"][:3]} -> {row["SUBENTITY"]} ({row["LAYER"]})')
+
+# 8M6CL Results
+coords_8m6 = pd.read_csv('rollups/OTHER_UNKNOWN/8M6CL_RESULTS_CORRECTED/OTHER_UNKNOWN_COORDINATES.csv')
+manifest_8m6 = pd.read_csv('rollups/OTHER_UNKNOWN/8M6CL_RESULTS_CORRECTED/OTHER_UNKNOWN_IMAGES_MANIFEST.csv')
+
+print()
+print('8M6CL LAYER - Query from 46 wafers, 180-day lookback')
+print('-' * 80)
+print(f'  Defects found: {len(coords_8m6)}')
+print(f'  Images downloaded: {len(manifest_8m6)}')
+print(f'  Images successfully organized: {manifest_8m6["LOCAL_IMAGE_FILE"].notna().sum()}')
+print()
+print(f'  Unique SUBENTITY (chamber) values: {coords_8m6["SUBENTITY"].nunique()}')
+print(f'  Sample chambers: {", ".join(coords_8m6["SUBENTITY"].unique()[:5])}')
+print()
+print('  Sample defect records with chamber assignments:')
+sample = coords_8m6[['LOT7', 'WAFER_ID', 'SUBENTITY', 'LAYER', 'CLASS', 'DEFECT_ID']].head(5)
+for idx, row in sample.iterrows():
+    print(f'    {row["LOT7"]} {row["WAFER_ID"][:3]} -> {row["SUBENTITY"]} ({row["LAYER"]})')
+
+print()
+print('COMBINED TOTALS')
+print('-' * 80)
+total_defects = len(coords_8m5) + len(coords_8m6)
+total_images = len(manifest_8m5) + len(manifest_8m6)
+total_organized = manifest_8m5["LOCAL_IMAGE_FILE"].notna().sum() + manifest_8m6["LOCAL_IMAGE_FILE"].notna().sum()
+print(f'  Total defects: {total_defects}')
+print(f'  Total images: {total_images}')
+print(f'  Total images organized: {total_organized}')
+print()
+total_chambers_8m5 = coords_8m5["SUBENTITY"].nunique()
+total_chambers_8m6 = coords_8m6["SUBENTITY"].nunique()
+print(f'  Total unique chambers (8M5CL): {total_chambers_8m5}')
+print(f'  Total unique chambers (8M6CL): {total_chambers_8m6}')
+
+print()
+print('OUTPUT STRUCTURE')
+print('-' * 80)
+print('8M5CL:')
+print('  Coordinates: rollups/OTHER_UNKNOWN/8M5CL_RESULTS_CORRECTED/OTHER_UNKNOWN_COORDINATES.csv')
+print('  Manifest: rollups/OTHER_UNKNOWN/8M5CL_RESULTS_CORRECTED/OTHER_UNKNOWN_IMAGES_MANIFEST.csv')
+print('  Images: rollups/OTHER_UNKNOWN/8M5CL_RESULTS_CORRECTED/images/')
+print('          AMBIGUOUS_REVIEW/OTHER_UNKNOWN/{CHAMBER_NAME}/{FILENAME}')
+print()
+print('8M6CL:')
+print('  Coordinates: rollups/OTHER_UNKNOWN/8M6CL_RESULTS_CORRECTED/OTHER_UNKNOWN_COORDINATES.csv')
+print('  Manifest: rollups/OTHER_UNKNOWN/8M6CL_RESULTS_CORRECTED/OTHER_UNKNOWN_IMAGES_MANIFEST.csv')
+print('  Images: rollups/OTHER_UNKNOWN/8M6CL_RESULTS_CORRECTED/images/')
+print('          AMBIGUOUS_REVIEW/OTHER_UNKNOWN/{CHAMBER_NAME}/{FILENAME}')
+
+print()
+print('BURN-IN ANNOTATION FORMAT (verified)')
+print('-' * 80)
+print('  Line 1: YYYY/MM/DD HH:MM CHAMBER_NAME LAYER')
+print('          Example: "2026/02/10 13:38 AME421_PM6 8M5CL"')
+print('  Line 2: LOT WSHORT IDNUM CLASS #PICID')
+print('          Example: "D5424130 W283 ID3337 OTHER_UNKNOW #2"')
+
+print()
+print('='*80)

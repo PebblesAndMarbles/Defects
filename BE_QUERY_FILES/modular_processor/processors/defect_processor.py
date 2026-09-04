@@ -22,6 +22,21 @@ from processors.defect_trends_processor import DefectTrendsProcessor
 from processors.elwc2_processor import ELWC2Processor
 
 
+# Helper functions for workweek metadata
+def _get_iso_week_info(date):
+    """Get ISO week information for a given date (for workweek column derivation)"""
+    iso_year, iso_week, iso_weekday = date.isocalendar()
+    days_until_sunday = 7 - iso_weekday
+    week_end = date + timedelta(days=days_until_sunday)
+    return iso_year, iso_week, week_end
+
+
+def _format_yyyyww(iso_year, iso_week):
+    """Format ISO year and week as YYYYWW (e.g., '2607W26')"""
+    yy = iso_year % 100
+    return f"{yy:02d}W{iso_week:02d}"
+
+
 class DefectDataProcessor(ProcessorBase):
     """Main defect data processor that orchestrates all processing steps"""
     
@@ -370,6 +385,29 @@ class DefectDataProcessor(ProcessorBase):
                 self.logger.info("SMP_EDI column not found, skipping SUM_EDI derivation")
         
         dt['YYMM'] = pd.to_datetime(dt['INSPECT_TIME'], errors='coerce').dt.strftime('%y%m')
+        
+        # NEW: Add workweek metadata columns for filtering by workweek
+        self.logger.info("Adding PERIOD_END and YYYYWW workweek columns...")
+        inspect_dt = pd.to_datetime(dt['INSPECT_TIME'], errors='coerce')
+        
+        def get_period_end(dt_val):
+            if pd.isna(dt_val):
+                return None
+            date = dt_val.date()
+            iso_year, iso_week, week_end = _get_iso_week_info(date)
+            return week_end
+        
+        def get_yyyyww(dt_val):
+            if pd.isna(dt_val):
+                return None
+            date = dt_val.date()
+            iso_year, iso_week, _ = _get_iso_week_info(date)
+            return _format_yyyyww(iso_year, iso_week)
+        
+        dt['PERIOD_END'] = inspect_dt.apply(get_period_end)
+        dt['YYYYWW'] = inspect_dt.apply(get_yyyyww)
+        self.logger.info(f"PERIOD_END: {dt['PERIOD_END'].notna().sum()}/{len(dt)} non-null")
+        self.logger.info(f"YYYYWW: {dt['YYYYWW'].notna().sum()}/{len(dt)} non-null")
                         
         # NEW: Test ColumnManager for NCDD derived columns
         self.logger.info("Testing new ColumnManager for NCDD derived columns...")
@@ -765,7 +803,7 @@ class DefectDataProcessor(ProcessorBase):
         
         # Base columns - UPDATED to include N_SCAN and new stepper and SIF columns
         desired_order = [
-            'YYMM',
+            'YYMM', 'PERIOD_END', 'YYYYWW',
             'LOT', 'WAFER_ID', 'PRODUCT', 'ROUTE', 'LAYER', 'DEVICE', 'SUBENTITY', 'OPERATION','RECIPE', 
             'SUBENTITY_END_TIME','PILOT_STATUS', 
             'N_SCAN', 'S_SCAN', 'S_ORDER',  # NEW: Added S_SCAN and S_ORDER

@@ -174,6 +174,10 @@ def _append_missing_inventory_rows(
     if "LOCAL_IMAGE_FILE" not in manifest.columns:
         raise ValueError("Manifest missing required LOCAL_IMAGE_FILE column")
 
+    if "INVENTORY_ONLY" not in manifest.columns:
+        manifest = manifest.copy()
+        manifest["INVENTORY_ONLY"] = pd.NA
+
     all_files = [os.path.normpath(p) for p in _list_image_files(image_root)]
     existing_paths = set(
         os.path.normpath(str(p))
@@ -193,6 +197,7 @@ def _append_missing_inventory_rows(
     for path in missing_paths:
         row = {c: pd.NA for c in cols}
         row["LOCAL_IMAGE_FILE"] = path
+        row["INVENTORY_ONLY"] = 1
 
         base = os.path.basename(path)
         m = name_re.match(base)
@@ -212,6 +217,9 @@ def _append_missing_inventory_rows(
 
     appended_df = pd.DataFrame(rows, columns=cols)
     out = pd.concat([manifest, appended_df], ignore_index=True)
+
+    if "INVENTORY_ONLY" in out.columns:
+        out["INVENTORY_ONLY"] = out["INVENTORY_ONLY"].fillna(0)
 
     key_cols = [
         c for c in [

@@ -92,20 +92,20 @@ def _refresh_dashboard_ss_page() -> Path | None:
 # so adding future chambers here before their data arrives is safe.
 FLEET: list[str] = [
     "AME401_PM1", "AME401_PM2", "AME401_PM3",
-    "AME403_PM1", "AME403_PM2", "AME403_PM3", "AME403_PM4",              "AME403_PM6",
+    "AME403_PM1", "AME403_PM2", "AME403_PM3", "AME403_PM4", "AME403_PM5", "AME403_PM6",
     "AME409_PM1", "AME409_PM2", "AME409_PM3", "AME409_PM4", "AME409_PM5", "AME409_PM6",
     "AME411_PM1", "AME411_PM2", "AME411_PM3", "AME411_PM4",
-    "AME417_PM1",                 "AME417_PM3", "AME417_PM4", "AME417_PM5", "AME417_PM6",
+    "AME417_PM1", "AME417_PM2", "AME417_PM3", "AME417_PM4", "AME417_PM5", "AME417_PM6",
     "AME419_PM3", "AME419_PM4", "AME419_PM5", "AME419_PM6",
-    "AME421_PM1", "AME421_PM2", "AME421_PM3", "AME421_PM4",               "AME421_PM6",
+    "AME421_PM1", "AME421_PM2", "AME421_PM3", "AME421_PM4", "AME421_PM5", "AME421_PM6",
     "AME423_PM1", "AME423_PM2", "AME423_PM3", "AME423_PM4", "AME423_PM5", "AME423_PM6",
-    "AME425_PM1", "AME425_PM2",               "AME425_PM4",               "AME425_PM6",
+    "AME425_PM1", "AME425_PM2", "AME425_PM3", "AME425_PM4", "AME425_PM5", "AME425_PM6",
     "AME427_PM2", "AME427_PM3", "AME427_PM4", "AME427_PM5", "AME427_PM6",
 ]
 
 
 # ─── Entry point ─────────────────────────────────────────────────────────────
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         description="Generate SS inline HTML reports for the full fleet."
     )
@@ -118,10 +118,10 @@ def main() -> None:
         help="Run for a single chamber only (overrides the fleet list).",
     )
     parser.add_argument(
-        "--lookback-days", type=int, default=None,
-        help="Pass through to run_for_chamber: include only events within N days.",
+        "--lookback-days", type=int, default=60,
+        help="Pass through to run_for_chamber: include only events within N days (default: 60).",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     chambers     = [args.chamber] if args.chamber else list(FLEET)
     lookback     = args.lookback_days
@@ -130,11 +130,10 @@ def main() -> None:
 
     print(f"Fleet        : {len(chambers)} chamber(s)")
     print(f"Output dir   : {OUT_DIR}")
-    if lookback:
-        print(f"Lookback     : {lookback} days")
+    print(f"Lookback     : {lookback} days")
 
     if args.dry_run:
-        print("\nDry run — chambers that would be processed:")
+        print("\nDry run - chambers that would be processed:")
         for c in chambers:
             img_dir = os.path.join(_WORKSPACE, "images", "surf_scan", c)
             status  = "ok" if os.path.isdir(img_dir) else "NO IMAGE DIR"
@@ -159,7 +158,7 @@ def main() -> None:
             errors.append((chamber, str(exc)))
 
     elapsed = (datetime.now() - start).total_seconds()
-    print(f"\n{'─' * 52}")
+    print(f"\n{'-' * 52}")
     print(
         f"Done  {n_ok} ok  |  {n_skip} skipped  |  "
         f"{len(errors)} error(s)  ({elapsed:.1f}s)"
@@ -169,7 +168,7 @@ def main() -> None:
     try:
         dashboard_report = _refresh_dashboard_ss_page()
         if dashboard_report:
-            print(f"Dashboard    : refreshed → {dashboard_report}")
+            print(f"Dashboard    : refreshed -> {dashboard_report}")
     except Exception as exc:
         print(f"  [WARN] Dashboard refresh failed: {exc}")
 

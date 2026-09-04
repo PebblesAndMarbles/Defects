@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import sys
+import importlib.util
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -234,6 +235,66 @@ def _run_weekly_zero_rate_aggregator() -> None:
         LOGGER.info("[weekly_zero_rate] Aggregator completed successfully")
 
 
+def _run_inline_html_reports() -> None:
+    """Generate per-chamber inline defect HTML reports for the full 51-chamber fleet."""
+    import subprocess
+    script_path = CURRENT_DIR.parent / "html" / "INLINE_PRODUCTION_SUBENTITY_REPORTS.py"
+    if not script_path.exists():
+        raise FileNotFoundError(f"Inline HTML report generator not found: {script_path}")
+    result = subprocess.run(
+        [sys.executable, str(script_path)],
+        capture_output=True,
+        text=True,
+    )
+    for line in result.stdout.splitlines():
+        if line.strip():
+            LOGGER.info("[inline_html_reports] %s", line)
+    if result.returncode != 0:
+        error_msg = (result.stderr or "Unknown error")[:500]
+        LOGGER.warning("[inline_html_reports] exited with code %s: %s", result.returncode, error_msg)
+        raise RuntimeError(f"INLINE_PRODUCTION_SUBENTITY_REPORTS.py failed (rc={result.returncode})")
+
+
+def _load_long_reclass_module():
+    module_path = CURRENT_DIR / "ncdd_edi_reclass.py"
+    spec = importlib.util.spec_from_file_location("ncdd_edi_reclass", module_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Unable to load reclass module from {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _run_long_reclass_audit() -> Path:
+    module = _load_long_reclass_module()
+    output_path = module.run_long_reclass_audit()
+    LOGGER.info("[long_reclass_audit] wrote %s", output_path)
+    return output_path
+
+
+def _run_coordinate_backfill() -> None:
+    import subprocess
+
+    script_path = CURRENT_DIR / "DEFECT_COORDINATES_QUERY.py"
+    if not script_path.exists():
+        raise FileNotFoundError(f"Coordinate query script not found: {script_path}")
+
+    result = subprocess.run(
+        [sys.executable, str(script_path), "--backfill", "--backfill-lookback-days", "210", "--no-images"],
+        capture_output=True,
+        text=True,
+    )
+
+    for line in result.stdout.splitlines():
+        if line.strip():
+            LOGGER.info("[coordinate_backfill] %s", line)
+
+    if result.returncode != 0:
+        error_msg = (result.stderr or "Unknown error")[:500]
+        LOGGER.warning("[coordinate_backfill] exited with code %s: %s", result.returncode, error_msg)
+        raise RuntimeError(f"DEFECT_COORDINATES_QUERY.py --backfill failed (rc={result.returncode})")
+
+
 def main() -> List[StepResult]:
     ensure_pipeline_dirs()
 
@@ -251,9 +312,12 @@ def main() -> List[StepResult]:
         _run_step("wafer_update", run_wafer_update),
         _run_step("wafer_60day_export", _export_wafer_60day_subset),
         _run_step("defect_coordinates", query_defect_coordinates),
+        _run_step("coordinate_backfill", _run_coordinate_backfill, raise_on_error=False),
         _run_step("manifest_sync", _sync_image_manifest_inventory),
         _run_step("benchmark_extension", run_benchmark_extension, raise_on_error=False),
+        _run_step("long_reclass_audit", _run_long_reclass_audit, raise_on_error=False),
         _run_step("weekly_zero_rate_aggregator", _run_weekly_zero_rate_aggregator, raise_on_error=False),
+        _run_step("inline_html_reports", _run_inline_html_reports, raise_on_error=False),
     ]
 
     failed_steps = [step.name for step in results if not step.success]
@@ -270,7 +334,10 @@ def main() -> List[StepResult]:
             "defect_output_csv": PIPELINE_PATHS.defect_coordinates_csv,
             "defect_output_rows": _rows_for_csv(PIPELINE_PATHS.defect_coordinates_csv),
             "defect_image_manifest_csv": PIPELINE_PATHS.defect_images_manifest_csv,
+            "ncdd_edi_reclass_log_csv": PIPELINE_PATHS.ncdd_edi_reclass_log_csv,
+            "ncdd_edi_reclass_log_rows": _rows_for_csv(PIPELINE_PATHS.ncdd_edi_reclass_log_csv),
             "benchmark_output_dir": PIPELINE_PATHS.benchmark_outputs_dir,
+            "inline_html_reports_dir": str(CURRENT_DIR.parent / "html" / "Inline_Subentity_Reports"),
             "steps_completed": ", ".join(step.name for step in results if step.success),
             "steps_failed": ", ".join(failed_steps),
         },

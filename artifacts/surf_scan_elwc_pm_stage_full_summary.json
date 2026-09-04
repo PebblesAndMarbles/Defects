@@ -1,30 +1,30 @@
 {
-  "generated_at": "2026-07-09T09:46:05.182670",
+  "generated_at": "2026-09-04T06:57:25.829477",
   "input_metrics": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_METRICS.csv",
   "stage_metrics_output": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_METRICS_ELWC_PM_STAGE_FULL.csv",
   "stage_events_output": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_ELWC_STAGE_PM_FULL.csv",
   "lookback_days": 7,
   "chunk_events": 100,
-  "total_surf_rows": 241,
-  "total_unique_events": 78,
+  "total_surf_rows": 170,
+  "total_unique_events": 66,
   "total_chunks": 1,
-  "elwc_match_rows": 241,
-  "elwc_counter_fallback_rows": 0,
+  "elwc_match_rows": 170,
+  "elwc_counter_fallback_rows": 1,
   "elwc_pm_non_null": {
-    "FULLPM_RF": 241,
-    "MINIPM_RF": 241
+    "FULLPM_RF": 170,
+    "MINIPM_RF": 170
   },
   "chunk_summaries": [
     {
       "chunk_id": 0,
-      "surf_rows": 241,
-      "chambers": 40,
-      "start_time": "2026-07-02 10:42:05",
-      "end_time": "2026-07-09 08:51:18",
-      "elwc_rows": 260,
-      "stage_rows": 260,
-      "match_rows": 241,
-      "counter_fallback_rows": 0
+      "surf_rows": 170,
+      "chambers": 46,
+      "start_time": "2026-08-28 08:55:18",
+      "end_time": "2026-09-03 20:50:56",
+      "elwc_rows": 220,
+      "stage_rows": 220,
+      "match_rows": 170,
+      "counter_fallback_rows": 1
     }
   ]
 }

@@ -199,6 +199,16 @@ This is the main orchestrator and currently runs steps in this order:
 
 It also writes an artifact manifest and summary JSON in artifacts.
 
+### SS Inline HTML Reporting Layer
+
+- html/SS_INLINE_CHAMBER_REPORT.py (single-chamber report engine, `run_for_chamber()`)
+- html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS.py (fleet batch runner, writes html/SS_Subentity_Reports/)
+
+This layer is not part of `surf_scan_update.py`'s orchestrated steps. It is triggered
+separately by the daily entrypoint after the core pipeline succeeds (see below), since it
+consumes the images and coordinates produced by the `images`/`image_prune` steps rather
+than being a data-acquisition step itself.
+
 ### Mode-Specific Entrypoints
 
 - BE_QUERY_FILES/surf_scan_seed.py
@@ -210,7 +220,10 @@ Daily entrypoint behavior:
 
 - forces incremental mode,
 - runs image stage by default,
-- runs prune with standard retention behavior.
+- runs prune with standard retention behavior,
+- on successful pipeline completion (exit code 0), regenerates the SS inline fleet HTML
+  reports via `html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS.py` (default 60-day lookback,
+  full fleet).
 
 ### Comparison Utility
 

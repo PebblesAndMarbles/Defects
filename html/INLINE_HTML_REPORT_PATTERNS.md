@@ -197,4 +197,4 @@ Reports:
 ---
 
 *Document created: 2026-07-09*
-*Reference: `html/SS_HTML_REPORT_PATTERNS.md`, `INLINE_PIPELINE_DESIGN.md`*
+*Reference: `html/SS_HTML_REPORT_PATTERNS.md`, `PIPELINE_DESIGN.md`*

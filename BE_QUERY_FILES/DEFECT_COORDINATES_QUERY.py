@@ -25,10 +25,14 @@ Database:  D1D_PROD_YAS_1278  (PyUber)
 import gc
 import os
 import re
+import argparse
+import warnings
 from pathlib import Path
 import PyUber
 import pandas as pd
 from pipeline_config import PIPELINE_PATHS, ensure_pipeline_dirs, validate_pipeline_paths, write_artifact_manifest
+
+CURRENT_DIR = Path(__file__).resolve().parent
 
 # ---------------------------------------------------------------------------
 # CONFIGURATION  -- edit these for each test run
@@ -69,6 +73,10 @@ LOT_FILTER = None
 # Filter to specific STATUS values.  e.g. ['HIGHFLIER'] or None
 STATUS_FILTER = None
 
+# Optional ad hoc audit filters. These remain disabled in the default run.
+WAFER_ID_FILTER = None
+INSPECT_TIME_FILTER = None
+
 # Filter defect CLASS names returned by the coordinate query.
 # Applied as a SQL WHERE filter so only matching defects are fetched.
 # Set to None to return all classes.
@@ -78,6 +86,9 @@ CLASS_FILTER = ['SMALL_PARTICLE', 'BEEP']
 # This keeps DB load bounded while allowing recent reclassifications to replace
 # older coordinate rows in the accumulated output.
 RECENT_LOOKBACK_DAYS = 10
+COORDINATE_BACKFILL_LOOKBACK_DAYS = 210
+COORDINATE_WRITE_MODE = 'accumulate'
+COORDINATE_CHANGE_LOG_CSV = CURRENT_DIR / 'DEFECT_COORDINATES_RECLASS_LOG.csv'
 IMAGE_RETENTION_DAYS = 60
 AMBIGUOUS_CLASSES = ['OTHER_UNKNOWN', 'UNCLASSIFIED', 'NVD_FALSE']
 AMBIGUOUS_IMAGE_FOLDER = 'AMBIGUOUS_REVIEW'
@@ -141,6 +152,8 @@ CONTEXT_COLS = [
     "SRCIP", "CCMR2", "ICCR2", "CV", "GF", "TS",
     "PILOT_STATUS", "SUM_NCDD", "STATUS", "BEEP_NCDD", "SMP_NCDD"
 ]
+
+METROLOGY_COLS = ["SIZE_X", "SIZE_Y", "SIZE_D", "AREA", "MANUAL_OPTICAL_CLASS"]
 
 # Max number of (INSPECTION_TIME, WAFER_KEY) pairs per INSP_DEFECT query chunk
 # (Oracle row-value IN clause; keep conservative)
@@ -247,7 +260,8 @@ def _fetch_defect_coords(conn, pairs, class_filter=None):
 
     Returned columns:
         WAFER_KEY, INSPECTION_TIME, WAFER_ID (scribe), LOT7, ACTUAL_LOT,
-        LAYER, DEFECT_ID, CLASS, FINEBIN, WAFER_X_MM, WAFER_Y_MM, IMAGE_COUNT
+        LAYER, DEFECT_ID, CLASS, FINEBIN, WAFER_X_MM, WAFER_Y_MM, IMAGE_COUNT,
+        SIZE_X, SIZE_Y, SIZE_D, AREA, MANUAL_OPTICAL_CLASS
     """
     class_sql_filter = ""
     if class_filter:
@@ -278,7 +292,12 @@ SELECT
     f.NAME                                            AS FINEBIN,
     TO_CHAR((d.WAFER_X - s.CENTER_X) / 1000000.0)    AS WAFER_X_MM,
     TO_CHAR((d.WAFER_Y - s.CENTER_Y) / 1000000.0)    AS WAFER_Y_MM,
-    TO_CHAR(d.IMAGES)                                 AS IMAGE_COUNT
+    TO_CHAR(d.IMAGES)                                 AS IMAGE_COUNT,
+    TO_CHAR(d.SIZE_X)                                 AS SIZE_X,
+    TO_CHAR(d.SIZE_Y)                                 AS SIZE_Y,
+    TO_CHAR(d.SIZE_D)                                 AS SIZE_D,
+    TO_CHAR(d.AREA)                                   AS AREA,
+    TO_CHAR(d.MANUAL_OPTICAL_CLASS)                   AS MANUAL_OPTICAL_CLASS
 FROM UDB.INSP_WAFER_SUMMARY s
 INNER JOIN UDB.INSP_DEFECT d
     ON  d.WAFER_KEY       = s.WAFER_KEY
@@ -361,7 +380,13 @@ WHERE i.WAFER_KEY = {int(wafer_key)}
   AND i.INSPECTION_TIME = TO_DATE('{insp_time_str}','YYYYMMDDHH24MISS')
   AND i.DEFECT_ID IN ({defect_ids}){img_id_clause}
 """
-        chunk_df = pd.read_sql(sql, conn)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=r"pandas only supports SQLAlchemy connectable.*",
+                category=UserWarning,
+            )
+            chunk_df = pd.read_sql(sql, conn)
         all_chunks.append(chunk_df)
 
     if not all_chunks:
@@ -654,12 +679,19 @@ def _reorganize_images(image_df, defects_result, image_folder, annotate=False):
     ctx["_WK"]  = pd.to_numeric(ctx["WAFER_KEY"],  errors="coerce").astype("Int64")
     ctx["_DID"] = pd.to_numeric(ctx["DEFECT_ID"],  errors="coerce").astype("Int64")
 
+    # Only fetch context columns not already enriched onto img by
+    # _enrich_image_rows_with_defect_context; re-merging the same columns
+    # causes pandas suffix collisions (LOT7_x/LOT7_y) that break
+    # _build_image_destination's row.get() lookups.
+    already_in_img = set(img.columns)
     wanted = [c for c in ["_WK", "_DID", "LOT", "LOT7", "ACTUAL_LOT", "WAFER_ID",
                            "CLASS", "LAYER", "SUBENTITY", "SUBENTITY_END_TIME"]
-              if c in ctx.columns]
-    ctx_small = ctx[wanted].drop_duplicates(subset=["_WK", "_DID"])
-
-    merged = img.merge(ctx_small, on=["_WK", "_DID"], how="left")
+              if c in ctx.columns and (c in ("_WK", "_DID") or c not in already_in_img)]
+    if len(wanted) > 2:  # more than just the two merge keys
+        ctx_small = ctx[wanted].drop_duplicates(subset=["_WK", "_DID"])
+        merged = img.merge(ctx_small, on=["_WK", "_DID"], how="left")
+    else:
+        merged = img  # all context already present — skip merge
 
     new_paths = []
     n_skipped = n_copied = n_missing = 0
@@ -729,6 +761,21 @@ def _reorganize_images(image_df, defects_result, image_folder, annotate=False):
     return img
 
 
+def _download_and_reorganize_images(image_df, defects_result, image_folder, app_name,
+                                    technology="1278", ftp_chunk_size=50, annotate=False):
+    """Download raw images into image_folder and reorganize them in-place.
+
+    This is a convenience wrapper for tranche builders and other callers that
+    want a single local cache root, such as C:\\TEMP_IMAGES\\tranche_0007.
+    """
+    downloaded = _download_images(
+        image_df, image_folder, app_name, technology=technology, ftp_chunk_size=ftp_chunk_size
+    )
+    if downloaded.empty:
+        return downloaded
+    return _reorganize_images(downloaded, defects_result, image_folder, annotate=annotate)
+
+
 def _filter_new_images(image_df, defects_result, image_folder):
     """
     Return the subset of image_df whose organized destination does not yet exist
@@ -744,11 +791,15 @@ def _filter_new_images(image_df, defects_result, image_folder):
     ctx["_WK"]  = pd.to_numeric(ctx["WAFER_KEY"],  errors="coerce").astype("Int64")
     ctx["_DID"] = pd.to_numeric(ctx["DEFECT_ID"],  errors="coerce").astype("Int64")
 
+    already_in_img = set(img.columns)
     wanted = [c for c in ["_WK", "_DID", "LOT7", "WAFER_ID", "CLASS", "LAYER",
                            "SUBENTITY", "SUBENTITY_END_TIME"]
-              if c in ctx.columns]
-    ctx_small = ctx[wanted].drop_duplicates(subset=["_WK", "_DID"])
-    merged = img.merge(ctx_small, on=["_WK", "_DID"], how="left")
+              if c in ctx.columns and (c in ("_WK", "_DID") or c not in already_in_img)]
+    if len(wanted) > 2:
+        ctx_small = ctx[wanted].drop_duplicates(subset=["_WK", "_DID"])
+        merged = img.merge(ctx_small, on=["_WK", "_DID"], how="left")
+    else:
+        merged = img
 
     def _dest(row):
         return _build_image_destination(row, image_folder)
@@ -781,15 +832,19 @@ def _backfill_local_image_paths(image_df, defects_result, image_folder):
     ctx["_WK"] = pd.to_numeric(ctx["WAFER_KEY"], errors="coerce").astype("Int64")
     ctx["_DID"] = pd.to_numeric(ctx["DEFECT_ID"], errors="coerce").astype("Int64")
 
+    already_in_img = set(img.columns)
     wanted = [
         c for c in [
             "_WK", "_DID", "LOT7", "WAFER_ID", "CLASS", "LAYER",
             "SUBENTITY", "SUBENTITY_END_TIME",
         ]
-        if c in ctx.columns
+        if c in ctx.columns and (c in ("_WK", "_DID") or c not in already_in_img)
     ]
-    ctx_small = ctx[wanted].drop_duplicates(subset=["_WK", "_DID"])
-    merged = img.merge(ctx_small, on=["_WK", "_DID"], how="left")
+    if len(wanted) > 2:
+        ctx_small = ctx[wanted].drop_duplicates(subset=["_WK", "_DID"])
+        merged = img.merge(ctx_small, on=["_WK", "_DID"], how="left")
+    else:
+        merged = img
 
     resolved = []
     for _, row in merged.iterrows():
@@ -837,8 +892,13 @@ def _filter_defects_needing_images(defects_df, manifest_path, image_id_filter):
 
     required_ids = set(image_id_filter) if image_id_filter else {2, 3}
 
-    # Build lookup set of (WK, DID, IID) tuples already in the manifest
+    # Build lookup set of (WK, DID, IID) tuples already in the manifest.
+    # Exclude rows where LOCAL_IMAGE_FILE is null/blank — those were cleared
+    # during cleanup and the file needs to be re-downloaded.
     m = manifest.copy()
+    if "LOCAL_IMAGE_FILE" in m.columns:
+        has_file = m["LOCAL_IMAGE_FILE"].notna() & (m["LOCAL_IMAGE_FILE"].str.strip() != "")
+        m = m[has_file]
     m["_WK"]  = pd.to_numeric(m["WAFER_KEY"],  errors="coerce")
     m["_DID"] = pd.to_numeric(m["DEFECT_ID"],  errors="coerce")
     m["_IID"] = pd.to_numeric(m["IMAGE_ID"],   errors="coerce")
@@ -887,6 +947,57 @@ def _filter_defects_needing_images(defects_df, manifest_path, image_id_filter):
     # Inner-join to return only rows belonging to incomplete groups
     filtered = defects_df.merge(missing, on=["WAFER_KEY", "INSPECTION_TIME"], how="inner")
     return filtered
+
+
+def _enrich_image_rows_with_defect_context(image_df, defects_result):
+    """
+    Carry defect-level context onto image rows so the image manifest includes
+    class/metrology fields for downstream model enrichment.
+    """
+    if image_df.empty or defects_result.empty:
+        return image_df
+
+    img = image_df.copy()
+    img["_WK"] = pd.to_numeric(img["WAFER_KEY"], errors="coerce").astype("Int64")
+    img["_DID"] = pd.to_numeric(img["DEFECT_ID"], errors="coerce").astype("Int64")
+
+    ctx = defects_result.copy()
+    ctx["_WK"] = pd.to_numeric(ctx["WAFER_KEY"], errors="coerce").astype("Int64")
+    ctx["_DID"] = pd.to_numeric(ctx["DEFECT_ID"], errors="coerce").astype("Int64")
+
+    wanted = [
+        c
+        for c in [
+            "_WK",
+            "_DID",
+            "CLASS",
+            "FINEBIN",
+            "IMAGE_COUNT",
+            "LOT",
+            "LOT7",
+            "ACTUAL_LOT",
+            "WAFER_ID",
+            "LAYER",
+            "SUBENTITY",
+            "SUBENTITY_END_TIME",
+            "INSPECT_TIME",
+            "INSPECT_TOOL",
+            "PILOT_STATUS",
+            "STATUS",
+            "WAFER_X_MM",
+            "WAFER_Y_MM",
+            *METROLOGY_COLS,
+        ]
+        if c in ctx.columns
+    ]
+
+    if not wanted:
+        return image_df
+
+    ctx_small = ctx[wanted].drop_duplicates(subset=["_WK", "_DID"])
+    merged = img.merge(ctx_small, on=["_WK", "_DID"], how="left")
+    merged.drop(columns=["_WK", "_DID"], inplace=True, errors="ignore")
+    return merged
 
 
 def _filter_recent_rows(df, output_csv, lookback_days):
@@ -963,6 +1074,297 @@ def _accumulate_coordinates(result, output_csv):
     return _normalize_coordinate_schema(combined)
 
 
+def _replace_coordinate_window(result, output_csv, lookback_days):
+    output_path = Path(output_csv)
+    key_cols = ["WAFER_KEY", "INSPECTION_TIME", "DEFECT_ID"]
+
+    if result.empty:
+        print("  Backfill produced no rows; leaving coordinates output unchanged")
+        return _normalize_coordinate_schema(result)
+
+    work = _normalize_coordinate_schema(result)
+    work["INSPECTION_TIME"] = pd.to_datetime(work["INSPECTION_TIME"], errors="coerce")
+    newest_ts = work["INSPECTION_TIME"].max()
+    if pd.isna(newest_ts):
+        print("  Backfill window could not be established; writing current result only")
+        return work
+
+    cutoff = newest_ts - pd.Timedelta(days=lookback_days)
+    if not output_path.exists():
+        print(f"  Backfill write has no existing output; writing {len(work)} rows")
+        return work
+
+    existing = pd.read_csv(output_path, low_memory=False)
+    existing = _normalize_coordinate_schema(existing)
+    if "INSPECTION_TIME" not in existing.columns:
+        print("  Existing output lacks INSPECTION_TIME; replacing with current backfill window only")
+        return work
+
+    existing["INSPECTION_TIME"] = pd.to_datetime(existing["INSPECTION_TIME"], errors="coerce")
+    retained = existing[existing["INSPECTION_TIME"] < cutoff].copy()
+    combined = pd.concat([retained, work], ignore_index=True, sort=False)
+
+    missing_keys = [col for col in key_cols if col not in combined.columns]
+    if missing_keys:
+        raise KeyError(
+            "Missing coordinate dedup key columns during backfill replace: "
+            f"{missing_keys}. Found columns: {sorted(combined.columns.tolist())}"
+        )
+
+    combined = combined.drop_duplicates(subset=key_cols, keep="last")
+    print(
+        "  Replaced coordinates window using cutoff "
+        f"{cutoff.strftime('%Y-%m-%d %H:%M:%S')} with backfill rows={len(work)} -> {len(combined)} total"
+    )
+    return _normalize_coordinate_schema(combined)
+
+
+def _build_coordinate_backfill_change_log(existing: pd.DataFrame, updated: pd.DataFrame, *, lookback_days: int) -> pd.DataFrame:
+    key_cols = ["WAFER_KEY", "INSPECTION_TIME", "DEFECT_ID"]
+    tracked_cols = [
+        "LOT",
+        "WAFER_ID",
+        "LAYER",
+        "CLASS",
+        "MANUAL_OPTICAL_CLASS",
+        "LOT7",
+        "ACTUAL_LOT",
+        "YYMM",
+    ]
+
+    old = existing.copy()
+    new = updated.copy()
+
+    for frame in (old, new):
+        for col in key_cols:
+            if col in frame.columns:
+                frame[col] = frame[col].astype(str)
+
+    old = old[[col for col in key_cols + tracked_cols if col in old.columns]].copy()
+    new = new[[col for col in key_cols + tracked_cols if col in new.columns]].copy()
+
+    compare = old.merge(new, on=key_cols, how="outer", indicator=True, suffixes=("_old", "_new"))
+    if compare.empty:
+        return compare
+
+    def _status(row: pd.Series) -> str:
+        # CLASS is the sole basis for reclassification detection.
+        # MANUAL_OPTICAL_CLASS disagreements are not reclassifications and
+        # are intentionally excluded from this comparison.
+        if row["_merge"] == "both":
+            old_class = str(row.get("CLASS_old", "<NA>"))
+            new_class = str(row.get("CLASS_new", "<NA>"))
+            if old_class == new_class:
+                return "match"
+            return "class_changed"
+        if row["_merge"] == "left_only":
+            return "removed_by_backfill"
+        return "added_by_backfill"
+
+    compare["change_type"] = compare.apply(_status, axis=1)
+    compare = compare[compare["change_type"] != "match"].copy()
+    if compare.empty:
+        return compare
+
+    compare["lookback_days"] = lookback_days
+    compare["logged_at"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
+    return compare
+
+
+def _fetch_unfiltered_defect_state(conn, keys: list) -> pd.DataFrame:
+    """
+    Re-query UDB.INSP_DEFECT for exact (INSPECTION_TIME, WAFER_KEY, DEFECT_ID)
+    triples with NO CLASS_FILTER and NO ADDER restriction.
+
+    Used to resolve 'removed_by_backfill' rows: a blank CLASS_new there only
+    means the key was absent from the CLASS_FILTER-restricted requery, not
+    that the DB record itself is gone.
+    """
+    if not keys:
+        return pd.DataFrame()
+
+    chunk_size = 300  # 3-column row-value IN clause; keep conservative for Oracle
+    all_chunks = []
+    for i in range(0, len(keys), chunk_size):
+        chunk = keys[i : i + chunk_size]
+        rows = ",\n".join(
+            f"(TO_DATE('{t.strftime('%Y%m%d%H%M%S')}','YYYYMMDDHH24MISS'), {wk}, {did})"
+            for t, wk, did in chunk
+        )
+        sql = f"""
+SELECT
+    d.WAFER_KEY,
+    d.INSPECTION_TIME,
+    TO_CHAR(d.DEFECT_ID)                AS DEFECT_ID,
+    c.NAME                               AS CURRENT_CLASS,
+    TO_CHAR(d.MANUAL_OPTICAL_CLASS)      AS CURRENT_MANUAL_OPTICAL_CLASS,
+    d.ADDER                              AS CURRENT_ADDER
+FROM UDB.INSP_DEFECT d
+LEFT JOIN udb.CLASS c
+    ON c.CLASS_ID = d.CLASS_NUMBER
+WHERE (d.INSPECTION_TIME, d.WAFER_KEY, d.DEFECT_ID) IN (
+{rows}
+)
+"""
+        print(f"  [removed_by_backfill follow-up] chunk {i // chunk_size + 1}: {len(chunk)} keys...")
+        chunk_df = pd.read_sql(sql, conn)
+        print(f"    -> {len(chunk_df)} rows returned")
+        all_chunks.append(chunk_df)
+
+    if not all_chunks:
+        return pd.DataFrame()
+    return pd.concat(all_chunks, ignore_index=True)
+
+
+def _resolve_removed_by_backfill_rows(changes: pd.DataFrame) -> pd.DataFrame:
+    """
+    Follow-up pass for 'removed_by_backfill' rows.
+
+    The normal requery is restricted to CLASS_FILTER (SMALL_PARTICLE/BEEP), so
+    a defect reclassified to any other CLASS simply disappears from it and
+    looks like a removal with blank *_new columns. This re-pulls those exact
+    keys directly from UDB.INSP_DEFECT with no class/adder restriction so we
+    can record the real current CLASS instead of leaving it blank, and drop
+    the (rare) case where the key was only transiently missed by the
+    upstream wafer-matching/window logic and never actually changed.
+    """
+    if changes.empty or "change_type" not in changes.columns:
+        return changes
+
+    removed_mask = changes["change_type"] == "removed_by_backfill"
+    if not removed_mask.any():
+        return changes
+
+    removed = changes.loc[removed_mask].copy()
+    removed["INSPECTION_TIME_DT"] = pd.to_datetime(removed["INSPECTION_TIME"], errors="coerce")
+    removed = removed.dropna(subset=["INSPECTION_TIME_DT", "WAFER_KEY", "DEFECT_ID"])
+
+    keys = [
+        (row.INSPECTION_TIME_DT, int(float(row.WAFER_KEY)), int(float(row.DEFECT_ID)))
+        for row in removed.itertuples(index=False)
+    ]
+
+    print(f"[removed_by_backfill follow-up] Re-checking {len(keys)} removed_by_backfill key(s) directly against UDB.INSP_DEFECT...")
+    conn = _connect(DATABASE)
+    try:
+        current_df = _fetch_unfiltered_defect_state(conn, keys)
+    finally:
+        conn.close()
+
+    others = changes.loc[~removed_mask].copy()
+
+    if current_df.empty:
+        print("[removed_by_backfill follow-up] No matching keys found in DB -- all confirmed removed.")
+        return changes
+
+    current_df["INSPECTION_TIME"] = pd.to_datetime(current_df["INSPECTION_TIME"], errors="coerce").dt.strftime("%Y-%m-%d %H:%M:%S")
+    current_df["WAFER_KEY"] = current_df["WAFER_KEY"].astype(str)
+    current_df["DEFECT_ID"] = current_df["DEFECT_ID"].astype(str)
+
+    removed["WAFER_KEY"] = removed["WAFER_KEY"].astype(str)
+    removed["DEFECT_ID"] = removed["DEFECT_ID"].astype(str)
+    removed = removed.merge(current_df, on=["WAFER_KEY", "INSPECTION_TIME", "DEFECT_ID"], how="left")
+
+    found = removed["CURRENT_CLASS"].notna()
+    unchanged = found & (removed["CURRENT_CLASS"].astype(str) == removed["CLASS_old"].astype(str))
+    reclassified = found & ~unchanged
+
+    print(
+        "[removed_by_backfill follow-up] resolved: "
+        f"reclassified_outside_filter={int(reclassified.sum())}, "
+        f"false_positive_unchanged(dropped)={int(unchanged.sum())}, "
+        f"confirmed_removed_from_db={int((~found).sum())}"
+    )
+
+    removed.loc[reclassified, "CLASS_new"] = removed.loc[reclassified, "CURRENT_CLASS"]
+    removed.loc[reclassified, "MANUAL_OPTICAL_CLASS_new"] = removed.loc[reclassified, "CURRENT_MANUAL_OPTICAL_CLASS"]
+    removed.loc[reclassified, "change_type"] = "class_changed"
+
+    # Drop false positives entirely: the record never actually changed.
+    removed = removed.loc[~unchanged].copy()
+    removed = removed.drop(
+        columns=["INSPECTION_TIME_DT", "CURRENT_CLASS", "CURRENT_MANUAL_OPTICAL_CLASS", "CURRENT_ADDER"],
+        errors="ignore",
+    )
+
+    return pd.concat([others, removed], ignore_index=True, sort=False)
+
+
+def _append_coordinate_backfill_log(changes: pd.DataFrame) -> Path:
+    target = COORDINATE_CHANGE_LOG_CSV
+    target.parent.mkdir(parents=True, exist_ok=True)
+
+    if changes.empty:
+        if not target.exists():
+            target.write_text(
+                "WAFER_KEY,INSPECTION_TIME,DEFECT_ID,change_type,lookback_days,logged_at\n",
+                encoding="utf-8",
+            )
+        return target
+
+    output = changes.copy()
+    desired_columns = [
+        "WAFER_KEY",
+        "INSPECTION_TIME",
+        "DEFECT_ID",
+        "LOT_old",
+        "LOT_new",
+        "WAFER_ID_old",
+        "WAFER_ID_new",
+        "LAYER_old",
+        "LAYER_new",
+        "CLASS_old",
+        "CLASS_new",
+        "MANUAL_OPTICAL_CLASS_old",
+        "MANUAL_OPTICAL_CLASS_new",
+        "LOT7_old",
+        "LOT7_new",
+        "ACTUAL_LOT_old",
+        "ACTUAL_LOT_new",
+        "YYMM_old",
+        "YYMM_new",
+        "change_type",
+        "lookback_days",
+        "logged_at",
+    ]
+    for column in desired_columns:
+        if column not in output.columns:
+            output[column] = pd.NA
+    output = output[desired_columns]
+
+    if target.exists():
+        existing = pd.read_csv(target, low_memory=False)
+        combined = pd.concat([existing, output], ignore_index=True, sort=False)
+    else:
+        combined = output
+
+    combined = combined.drop_duplicates(
+        subset=[
+            "WAFER_KEY",
+            "INSPECTION_TIME",
+            "DEFECT_ID",
+            "CLASS_old",
+            "CLASS_new",
+            "MANUAL_OPTICAL_CLASS_old",
+            "MANUAL_OPTICAL_CLASS_new",
+            "change_type",
+            "lookback_days",
+        ],
+        keep="last",
+    ).reset_index(drop=True)
+
+    temp_target = target.with_name(f"{target.stem}.tmp{target.suffix}")
+    combined.to_csv(temp_target, index=False)
+
+    try:
+        os.replace(temp_target, target)
+        return target
+    except PermissionError:
+        sidecar = target.with_name(f"{target.stem}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}{target.suffix}")
+        os.replace(temp_target, sidecar)
+        return sidecar
+
+
 def _normalize_coordinate_schema(df):
     normalized = df.copy()
     time_col = None
@@ -979,6 +1381,79 @@ def _normalize_coordinate_schema(df):
         normalized = normalized[ordered]
 
     return normalized
+
+
+def _print_recent_image_manifest_validation(coords_df, image_manifest_df, lookback_days):
+    if coords_df.empty:
+        print("  Manifest validation: no coordinate rows available")
+        return
+
+    if image_manifest_df.empty:
+        print("  Manifest validation: image manifest is empty")
+        return
+
+    work = coords_df.copy()
+    work["INSPECTION_TIME_DT"] = pd.to_datetime(work.get("INSPECTION_TIME"), errors="coerce")
+    max_time = work["INSPECTION_TIME_DT"].max()
+    if pd.isna(max_time):
+        print("  Manifest validation: coordinate INSPECTION_TIME unavailable")
+        return
+
+    cutoff = max_time - pd.Timedelta(days=60 if lookback_days is None else max(60, lookback_days))
+    recent = work[work["INSPECTION_TIME_DT"] >= cutoff].copy()
+    if recent.empty:
+        print("  Manifest validation: no recent coordinate rows in coverage window")
+        return
+
+    recent["IMAGE_COUNT_NUM"] = pd.to_numeric(recent.get("IMAGE_COUNT"), errors="coerce").fillna(0)
+    recent = recent[recent["IMAGE_COUNT_NUM"] > 0].copy()
+    if recent.empty:
+        print("  Manifest validation: no recent coordinate rows with IMAGE_COUNT > 0")
+        return
+
+    manifest = image_manifest_df.copy()
+    manifest["WAFER_KEY_N"] = manifest.get("WAFER_KEY", pd.Series(index=manifest.index)).astype(str).str.replace(r"\.0$", "", regex=True)
+    manifest["DEFECT_ID_N"] = manifest.get("DEFECT_ID", pd.Series(index=manifest.index)).astype(str).str.replace(r"\.0$", "", regex=True)
+    manifest["INSPECTION_TIME_N"] = manifest.get("INSPECTION_TIME", pd.Series(index=manifest.index)).astype(str)
+    manifest = manifest[
+        manifest["WAFER_KEY_N"].str.strip().ne("")
+        & manifest["DEFECT_ID_N"].str.strip().ne("")
+        & manifest["INSPECTION_TIME_N"].str.strip().ne("")
+    ].copy()
+    manifest_keys = set(zip(manifest["WAFER_KEY_N"], manifest["INSPECTION_TIME_N"], manifest["DEFECT_ID_N"]))
+
+    recent["WAFER_KEY_N"] = recent["WAFER_KEY"].astype(str).str.replace(r"\.0$", "", regex=True)
+    recent["DEFECT_ID_N"] = recent["DEFECT_ID"].astype(str).str.replace(r"\.0$", "", regex=True)
+    recent["INSPECTION_TIME_N"] = recent["INSPECTION_TIME"].astype(str)
+    recent["HAS_MANIFEST"] = [
+        (wk, it, did) in manifest_keys
+        for wk, it, did in zip(recent["WAFER_KEY_N"], recent["INSPECTION_TIME_N"], recent["DEFECT_ID_N"])
+    ]
+
+    matched = int(recent["HAS_MANIFEST"].sum())
+    total = int(len(recent))
+    missing = total - matched
+    pct = (matched * 100.0 / total) if total else 0.0
+
+    inventory_only_count = 0
+    if "INVENTORY_ONLY" in image_manifest_df.columns:
+        inv = pd.to_numeric(image_manifest_df["INVENTORY_ONLY"], errors="coerce").fillna(0)
+        inventory_only_count = int((inv > 0).sum())
+
+    print(
+        "  Manifest validation: "
+        f"recent defects with images={total}, matched={matched}, missing={missing}, coverage={pct:.2f}%"
+    )
+    print(f"  Manifest validation: inventory-only rows={inventory_only_count}")
+
+    if missing:
+        sample_cols = [
+            c for c in ["WAFER_KEY", "DEFECT_ID", "INSPECTION_TIME", "IMAGE_COUNT", "CLASS", "LAYER"]
+            if c in recent.columns
+        ]
+        sample = recent[~recent["HAS_MANIFEST"]][sample_cols].head(10)
+        print("  Manifest validation: sample missing recent rows")
+        print(sample.to_string(index=False))
 
 
 # ---------------------------------------------------------------------------
@@ -1011,6 +1486,10 @@ def query_defect_coordinates():
     if LOT_FILTER:
         df = df[df["LOT7"].isin(LOT_FILTER if isinstance(LOT_FILTER, list) else [LOT_FILTER])]
         print(f"  After LOT filter: {len(df)} rows")
+
+    if WAFER_ID_FILTER:
+        df = df[df["WAFER_ID"].isin(WAFER_ID_FILTER if isinstance(WAFER_ID_FILTER, list) else [WAFER_ID_FILTER])]
+        print(f"  After WAFER_ID filter: {len(df)} rows")
 
     if STATUS_FILTER:
         df = df[df["STATUS"].isin(STATUS_FILTER if isinstance(STATUS_FILTER, list) else [STATUS_FILTER])]
@@ -1131,8 +1610,15 @@ def query_defect_coordinates():
     # Tidy column order: identifiers first, then coordinates, then context
     id_cols   = ["YYMM", "LOT", "LOT7", "ACTUAL_LOT", "WAFER_ID", "LAYER",
                  "WAFER_KEY", "INSPECTION_TIME"]
-    coord_cols = ["DEFECT_ID", "CLASS", "FINEBIN",
-                  "WAFER_X_MM", "WAFER_Y_MM", "IMAGE_COUNT"]
+    coord_cols = [
+        "DEFECT_ID",
+        "CLASS",
+        "FINEBIN",
+        "WAFER_X_MM",
+        "WAFER_Y_MM",
+        "IMAGE_COUNT",
+        *METROLOGY_COLS,
+    ]
     ctx_cols  = [c for c in context_cols_present if c not in id_cols]
 
     ordered = (
@@ -1146,7 +1632,10 @@ def query_defect_coordinates():
     # ------------------------------------------------------------------
     # 6. Save coordinates
     # ------------------------------------------------------------------
-    accumulated_result = _accumulate_coordinates(result, OUTPUT_CSV)
+    if COORDINATE_WRITE_MODE == "replace_window":
+        accumulated_result = _replace_coordinate_window(result, OUTPUT_CSV, RECENT_LOOKBACK_DAYS)
+    else:
+        accumulated_result = _accumulate_coordinates(result, OUTPUT_CSV)
     accumulated_result.to_csv(OUTPUT_CSV, index=False)
     print(f"\nSaved {len(accumulated_result)} accumulated records -> {OUTPUT_CSV}")
     manifest_path = write_artifact_manifest(
@@ -1192,6 +1681,7 @@ def query_defect_coordinates():
                 gc.collect()
 
             if not image_df.empty:
+                image_df = _enrich_image_rows_with_defect_context(image_df, result)
                 image_df_new = _filter_new_images(image_df, result, IMAGE_OUTPUT_FOLDER)
                 if not image_df_new.empty:
                     image_df_new = _download_images(
@@ -1271,6 +1761,11 @@ def query_defect_coordinates():
                     retention_days=IMAGE_RETENTION_DAYS,
                     active_overlap_days=RECENT_LOOKBACK_DAYS,
                 )
+                _print_recent_image_manifest_validation(
+                    accumulated_result,
+                    accumulated,
+                    lookback_days=RECENT_LOOKBACK_DAYS,
+                )
             else:
                 print("  No image records returned from DB for the queried groups.")
     else:
@@ -1279,5 +1774,145 @@ def query_defect_coordinates():
     return accumulated_result
 
 
-if __name__ == "__main__":
+def run_coordinate_backfill(lookback_days: int = COORDINATE_BACKFILL_LOOKBACK_DAYS):
+    global RECENT_LOOKBACK_DAYS, DOWNLOAD_IMAGES, OUTPUT_CSV, COORDINATE_WRITE_MODE
+    previous_values = (RECENT_LOOKBACK_DAYS, DOWNLOAD_IMAGES, OUTPUT_CSV, COORDINATE_WRITE_MODE)
+
+    try:
+        RECENT_LOOKBACK_DAYS = lookback_days
+        DOWNLOAD_IMAGES = False
+        OUTPUT_CSV = str(PIPELINE_PATHS.defect_coordinates_csv)
+        COORDINATE_WRITE_MODE = "replace_window"
+        print(f"[coordinate_backfill] Running {lookback_days}-day reclassification backfill")
+        existing = pd.read_csv(OUTPUT_CSV, low_memory=False) if Path(OUTPUT_CSV).exists() else pd.DataFrame()
+        updated = query_defect_coordinates()
+        if updated is None:
+            return None
+        changes = _build_coordinate_backfill_change_log(existing, updated, lookback_days=lookback_days)
+        changes = _resolve_removed_by_backfill_rows(changes)
+        log_path = _append_coordinate_backfill_log(changes)
+        print(f"[coordinate_backfill] change log written -> {log_path}")
+        return updated
+    finally:
+        RECENT_LOOKBACK_DAYS, DOWNLOAD_IMAGES, OUTPUT_CSV, COORDINATE_WRITE_MODE = previous_values
+
+
+def _parse_filter_values(raw_value):
+    if raw_value is None:
+        return None
+    if isinstance(raw_value, list):
+        return raw_value
+    return [part.strip() for part in str(raw_value).split(",") if part.strip()]
+
+
+def audit_coordinate_reclassification(lot7, wafer_id, output_csv, inspect_time=None, layer=None, status=None):
+    global LOT_FILTER, WAFER_ID_FILTER, LAYER_FILTER, STATUS_FILTER, INSPECT_TIME_FILTER, RECENT_LOOKBACK_DAYS, DOWNLOAD_IMAGES, OUTPUT_CSV
+
+    previous_values = (
+        LOT_FILTER,
+        WAFER_ID_FILTER,
+        LAYER_FILTER,
+        STATUS_FILTER,
+        INSPECT_TIME_FILTER,
+        RECENT_LOOKBACK_DAYS,
+        DOWNLOAD_IMAGES,
+        OUTPUT_CSV,
+    )
+
+    try:
+        LOT_FILTER = [lot7]
+        WAFER_ID_FILTER = [wafer_id]
+        LAYER_FILTER = [layer] if layer else None
+        STATUS_FILTER = [status] if status else None
+        INSPECT_TIME_FILTER = [inspect_time] if inspect_time else None
+        RECENT_LOOKBACK_DAYS = 4
+        DOWNLOAD_IMAGES = False
+        OUTPUT_CSV = str(output_csv)
+        result = query_defect_coordinates()
+
+        if result is None or getattr(result, "empty", False):
+            return result
+
+        production_csv = PIPELINE_PATHS.defect_coordinates_csv
+        if production_csv.exists() and Path(output_csv) != production_csv:
+            try:
+                temp_df = pd.read_csv(output_csv, low_memory=False)
+                prod_df = pd.read_csv(production_csv, low_memory=False)
+                key_cols = [c for c in ["WAFER_KEY", "INSPECTION_TIME", "DEFECT_ID"] if c in temp_df.columns and c in prod_df.columns]
+                if key_cols:
+                    compare = temp_df[key_cols + [c for c in ["CLASS", "MANUAL_OPTICAL_CLASS", "LOT7", "WAFER_ID", "LAYER"] if c in temp_df.columns]].merge(
+                        prod_df[key_cols + [c for c in ["CLASS", "MANUAL_OPTICAL_CLASS"] if c in prod_df.columns]],
+                        on=key_cols,
+                        how="left",
+                        suffixes=("_temp", "_prod"),
+                    )
+                    print("\nAudit comparison sample:")
+                    sample_cols = [c for c in ["LOT7", "WAFER_ID", "LAYER", "DEFECT_ID", "CLASS_temp", "MANUAL_OPTICAL_CLASS_temp", "CLASS_prod", "MANUAL_OPTICAL_CLASS_prod"] if c in compare.columns]
+                    print(compare[sample_cols].head(20).to_string(index=False))
+            except Exception as exc:
+                print(f"WARNING: Could not compare temp output to production CSV ({exc})")
+
+        return result
+    finally:
+        (
+            LOT_FILTER,
+            WAFER_ID_FILTER,
+            LAYER_FILTER,
+            STATUS_FILTER,
+            INSPECT_TIME_FILTER,
+            RECENT_LOOKBACK_DAYS,
+            DOWNLOAD_IMAGES,
+            OUTPUT_CSV,
+        ) = previous_values
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Query defect coordinates and optionally audit a narrow reclassification slice")
+    parser.add_argument("--output-csv", default=None, help="Output CSV path (default: production coordinates output)")
+    parser.add_argument("--lot7", default=None, help="LOT7 filter, optionally comma-separated")
+    parser.add_argument("--wafer-id", default=None, help="WAFER_ID filter, optionally comma-separated")
+    parser.add_argument("--layer", default=None, help="LAYER filter, optionally comma-separated")
+    parser.add_argument("--status", default=None, help="STATUS filter, optionally comma-separated")
+    parser.add_argument("--inspect-time", default=None, help="Exact INSPECT_TIME filter, optionally comma-separated")
+    parser.add_argument("--audit-reclassification", action="store_true", help="Run the narrow reclassification audit path")
+    parser.add_argument("--backfill", action="store_true", help="Run the explicit 210-day coordinates backfill")
+    parser.add_argument("--backfill-lookback-days", type=int, default=COORDINATE_BACKFILL_LOOKBACK_DAYS, help="Lookback window for --backfill")
+    parser.add_argument("--no-images", action="store_true", help="Skip image metadata/download steps")
+
+    args = parser.parse_args()
+
+    if args.backfill:
+        run_coordinate_backfill(lookback_days=args.backfill_lookback_days)
+        return
+
+    if args.audit_reclassification:
+        if not args.lot7 or not args.wafer_id:
+            raise SystemExit("--audit-reclassification requires --lot7 and --wafer-id")
+        output_csv = args.output_csv or str(PIPELINE_PATHS.defect_outputs_dir / "AUDIT_COORDINATES_TEMP.csv")
+        audit_coordinate_reclassification(
+            lot7=args.lot7,
+            wafer_id=args.wafer_id,
+            output_csv=output_csv,
+            inspect_time=args.inspect_time,
+            layer=args.layer,
+            status=args.status,
+        )
+        return
+
+    global LOT_FILTER, WAFER_ID_FILTER, LAYER_FILTER, STATUS_FILTER, INSPECT_TIME_FILTER, DOWNLOAD_IMAGES
+    LOT_FILTER = _parse_filter_values(args.lot7)
+    WAFER_ID_FILTER = _parse_filter_values(args.wafer_id)
+    LAYER_FILTER = _parse_filter_values(args.layer)
+    STATUS_FILTER = _parse_filter_values(args.status)
+    INSPECT_TIME_FILTER = _parse_filter_values(args.inspect_time)
+    DOWNLOAD_IMAGES = not args.no_images
+
+    if args.output_csv:
+        global OUTPUT_CSV
+        OUTPUT_CSV = args.output_csv
+
     query_defect_coordinates()
+
+
+if __name__ == "__main__":
+    main()

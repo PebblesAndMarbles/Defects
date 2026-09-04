@@ -3,14 +3,14 @@
 Names Default To Here( 1 );
 
 dt = Current Data Table();
-by_group_col = "YYMM";
+by_group_col = "STEP_LAYER_ID";
 
 // Axis limits for full wafer coverage
 wafer_min = -155;
 wafer_max =  155;
-wafer_frame_size = 200;
+wafer_frame_size = 150;
 
-ARRANGEINROWS=8;
+ARRANGEINROWS=5;
 
 Print( "SS_Wafermaps_BivReport BUILD: 2026-04-27I" );
 

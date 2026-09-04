@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-09T09:46:28.885177",
+  "generated_at": "2026-09-04T06:57:47.219025",
   "stage_metrics_input": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_METRICS_ELWC_PM_STAGE_FULL.csv",
   "target_pm_columns": [
     "FULLPM_RF",
@@ -7,26 +7,26 @@
   ],
   "metrics": {
     "path": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_METRICS.csv",
-    "rows": 9743,
+    "rows": 10687,
     "pm_non_null_before": {
-      "FULLPM_RF": 7259,
-      "MINIPM_RF": 7260
+      "FULLPM_RF": 8266,
+      "MINIPM_RF": 8267
     },
     "pm_non_null_after": {
-      "FULLPM_RF": 7500,
-      "MINIPM_RF": 7501
+      "FULLPM_RF": 8436,
+      "MINIPM_RF": 8437
     }
   },
   "coordinates": {
     "path": "\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\surf_scan\\SS_COORDINATES.csv",
-    "rows": 222547,
+    "rows": 231948,
     "pm_non_null_before": {
-      "FULLPM_RF": 199577,
-      "MINIPM_RF": 199577
+      "FULLPM_RF": 205915,
+      "MINIPM_RF": 205915
     },
     "pm_non_null_after": {
-      "FULLPM_RF": 200350,
-      "MINIPM_RF": 200350
+      "FULLPM_RF": 209747,
+      "MINIPM_RF": 209747
     }
   }
 }

@@ -85,6 +85,18 @@ class PipelinePaths:
         return self.query_dir / "8M6CL_NCDD_EDI.csv"
 
     @property
+    def m5_ncdd_edi_long_csv(self) -> Path:
+        return self.query_dir / "8M5CL_NCDD_EDI_LONG.csv"
+
+    @property
+    def m6_ncdd_edi_long_csv(self) -> Path:
+        return self.query_dir / "8M6CL_NCDD_EDI_LONG.csv"
+
+    @property
+    def ncdd_edi_reclass_log_csv(self) -> Path:
+        return self.query_dir / "NCDD_EDI_RECLASS_LOG.csv"
+
+    @property
     def merged_m5_csv(self) -> Path:
         return self.merged_sources_dir / "8M5CL_NCDD_merged_dedup.csv"
 
@@ -206,11 +218,14 @@ def build_artifact_manifest(extra_outputs: Optional[Dict[str, Path]] = None) -> 
         "artifacts_dir": str(PIPELINE_PATHS.artifacts_dir),
         "m5_jsl_csv": str(PIPELINE_PATHS.m5_jsl_csv),
         "m6_jsl_csv": str(PIPELINE_PATHS.m6_jsl_csv),
+        "m5_ncdd_edi_long_csv": str(PIPELINE_PATHS.m5_ncdd_edi_long_csv),
+        "m6_ncdd_edi_long_csv": str(PIPELINE_PATHS.m6_ncdd_edi_long_csv),
         "merged_m5_csv": str(PIPELINE_PATHS.merged_m5_csv),
         "merged_m6_csv": str(PIPELINE_PATHS.merged_m6_csv),
         "extended_output_csv": str(PIPELINE_PATHS.extended_output_csv),
         "defect_coordinates_csv": str(PIPELINE_PATHS.defect_coordinates_csv),
         "defect_images_manifest_csv": str(PIPELINE_PATHS.defect_images_manifest_csv),
+        "ncdd_edi_reclass_log_csv": str(PIPELINE_PATHS.ncdd_edi_reclass_log_csv),
         "surf_coordinates_csv": str(PIPELINE_PATHS.surf_coordinates_csv),
         "surf_metrics_csv": str(PIPELINE_PATHS.surf_metrics_csv),
         "surf_edx_csv": str(PIPELINE_PATHS.surf_edx_csv),

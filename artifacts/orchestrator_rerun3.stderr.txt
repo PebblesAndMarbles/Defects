@@ -1,0 +1,1116 @@
+2026-08-19 09:30:38,052 - INFO - OK: m5_jsl_csv -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\8M5CL_NCDD_EDI.csv
+2026-08-19 09:30:38,066 - INFO - OK: m6_jsl_csv -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\8M6CL_NCDD_EDI.csv
+2026-08-19 09:30:38,081 - INFO - OK: m5_ncdd_edi_csv -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\8M5CL_NCDD_EDI.csv (age_days=-0.18)
+2026-08-19 09:30:38,088 - INFO - OK: m6_ncdd_edi_csv -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\8M6CL_NCDD_EDI.csv (age_days=-0.19)
+2026-08-19 09:30:38,094 - INFO - [wafer_update] started
+2026-08-19 09:30:40,197 - INFO - OK: merged_m5_csv -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\merged_sources\8M5CL_NCDD_merged_dedup.csv
+2026-08-19 09:30:40,302 - INFO - OK: merged_m6_csv -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\merged_sources\8M6CL_NCDD_merged_dedup.csv
+2026-08-19 09:30:40,312 - INFO - === PROCESSOR STATUS ===
+2026-08-19 09:30:40,317 - INFO - ELWC Lookbacks: DISABLED
+2026-08-19 09:30:40,329 - INFO - ELWC2 Production Utilization: DISABLED
+2026-08-19 09:30:40,334 - INFO - Dry Pump Failures: DISABLED
+2026-08-19 09:30:40,343 - INFO - Leak Rates: DISABLED
+2026-08-19 09:30:40,348 - INFO - Leak By (Gas-specific): DISABLED
+2026-08-19 09:30:40,353 - INFO - SPC Monitors: DISABLED
+2026-08-19 09:30:40,358 - INFO - Defect Trends: DISABLED
+2026-08-19 09:30:40,363 - INFO - Recoat Status: DISABLED
+2026-08-19 09:30:40,368 - INFO - ========================
+
+2026-08-19 09:30:40,374 - INFO - Loading and concatenating data files...
+2026-08-19 09:30:40,566 - INFO - Successfully loaded \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\merged_sources\8M5CL_NCDD_merged_dedup.csv
+2026-08-19 09:30:40,573 - INFO -   Shape: (99, 245)
+2026-08-19 09:30:40,579 - INFO -   Memory: 0.6MB
+2026-08-19 09:30:40,586 - INFO -   Load time: 0.2s
+2026-08-19 09:30:40,769 - INFO - Successfully loaded \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\merged_sources\8M6CL_NCDD_merged_dedup.csv
+2026-08-19 09:30:40,776 - INFO -   Shape: (89, 255)
+2026-08-19 09:30:40,787 - INFO -   Memory: 0.6MB
+2026-08-19 09:30:40,792 - INFO -   Load time: 0.2s
+2026-08-19 09:30:40,811 - INFO - Combined dataframe shape: (188, 458)
+2026-08-19 09:30:40,817 - INFO - Applying date range filter...
+2026-08-19 09:30:40,829 - INFO - Using INSPECTION_TIME@DEFECT for date filtering
+2026-08-19 09:30:40,848 - INFO - After start date filter (2025-01-01): 188 rows
+2026-08-19 09:30:40,965 - INFO - Date filtering reduced dataset by 0.0% (188 -> 188 rows)
+2026-08-19 09:30:40,985 - INFO - Cleaning and renaming columns...
+2026-08-19 09:30:41,265 - INFO - Creating ROUTE column from ROUTE_STARTS (first 2 characters)...
+2026-08-19 09:30:41,277 - INFO - Sample ROUTE extraction:
+2026-08-19 09:30:41,283 - INFO -   FL78.6FCTE_SNIP_DLP2401668-1_278 -> FL
+2026-08-19 09:30:41,287 - INFO -   FL78.6FCTE_SNIP_DLP2401668-1_278 -> FL
+2026-08-19 09:30:41,292 - INFO -   FL78.6K93E_SNIP_DLP2427585-1_1 -> FL
+2026-08-19 09:30:41,295 - INFO -   FL78.6K93E_SNIP_DLP2427585-1_1 -> FL
+2026-08-19 09:30:41,300 - INFO -   FL78.6K93E_SNIP_DLP2427585-1_1 -> FL
+2026-08-19 09:30:41,305 - INFO -   FL78.6K93E_SNIP_DLP2427585-1_1 -> FL
+2026-08-19 09:30:41,309 - INFO -   FL78.31YJC_SNIP_DLP2295515-1_43121 -> FL
+2026-08-19 09:30:41,315 - INFO -   FL78.31YJC_SNIP_DLP2295515-1_43121 -> FL
+2026-08-19 09:30:41,325 - INFO -   FL78.6H0QE_SNIP_DLP2344620-1_26179 -> FL
+2026-08-19 09:30:41,333 - INFO -   FL78.6H0QE_SNIP_DLP2344620-1_26179 -> FL
+2026-08-19 09:30:41,341 - INFO - Column renaming and cleanup complete!
+2026-08-19 09:30:41,343 - INFO - New columns added: STEPPER, RETICLE, SIF_SED, SIF_ETCH, SIF_DEFECT
+2026-08-19 09:30:41,348 - INFO - 
+=== NEW COLUMN SUMMARY ===
+2026-08-19 09:30:41,360 - INFO - STEPPER: 188/188 (100.0%) non-null values
+2026-08-19 09:30:41,366 - INFO -   Unique steppers: 5
+2026-08-19 09:30:41,373 - INFO -   Top steppers: {'SNY510': 117, 'SNY512': 51, 'SNY511': 12, 'SNV442': 6, 'SNV440': 2}
+2026-08-19 09:30:41,377 - INFO - RETICLE: 188/188 (100.0%) non-null values
+2026-08-19 09:30:41,384 - INFO -   Unique reticles: 13
+2026-08-19 09:30:41,522 - INFO - SIF_SED: 50 ones (26.6%), 138 zeros (73.4%)
+2026-08-19 09:30:41,526 - INFO - SIF_ETCH: 69 ones (36.7%), 119 zeros (63.3%)
+2026-08-19 09:30:41,530 - INFO - SIF_DEFECT: 109 ones (58.0%), 79 zeros (42.0%)
+2026-08-19 09:30:41,541 - INFO - ===========================
+
+2026-08-19 09:30:41,547 - INFO - Adding pilot status columns...
+2026-08-19 09:30:41,582 - INFO - Successfully loaded \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\BE_AME_PILOT_TURN_ON_DATES.csv
+2026-08-19 09:30:41,585 - INFO -   Shape: (66, 10)
+2026-08-19 09:30:41,590 - INFO -   Memory: 0.0MB
+2026-08-19 09:30:41,599 - INFO -   Load time: 0.0s
+2026-08-19 09:30:41,664 - INFO - Creating pilot status columns...
+2026-08-19 09:30:45,484 - INFO - Creating basic calculated columns...
+2026-08-19 09:30:45,490 - INFO - Creating SUM_EDI column from BEEP_EDI + SMP_EDI...
+2026-08-19 09:30:45,502 - INFO - Adding PERIOD_END and YYYYWW workweek columns...
+2026-08-19 09:30:45,511 - INFO - PERIOD_END: 188/188 non-null
+2026-08-19 09:30:45,520 - INFO - YYYYWW: 188/188 non-null
+2026-08-19 09:30:45,550 - INFO - Testing new ColumnManager for NCDD derived columns...
+2026-08-19 09:30:45,595 - INFO - Creating ColumnManager for EDI derived columns...
+2026-08-19 09:30:45,617 - INFO - Creating N_SCAN column (wafers scanned per LAYER+LOT)...
+2026-08-19 09:30:45,669 - INFO - Creating S_SCAN column (wafers scanned per LAYER+LOT+SUBENTITY)...
+2026-08-19 09:30:45,676 - INFO - Creating S_ORDER column (average P_ORDER per LAYER+LOT+SUBENTITY)...
+2026-08-19 09:30:45,712 - INFO - Current dataframe memory usage: 0.4MB
+2026-08-19 09:30:45,726 - INFO - N_SCAN statistics:
+2026-08-19 09:30:45,730 - INFO -   Range: 2 to 6 wafers per LAYER+LOT
+2026-08-19 09:30:45,737 - INFO -   Mean: 3.6 wafers per LAYER+LOT
+2026-08-19 09:30:45,742 - INFO -   Unique N_SCAN values: [2, 3, 4, 5, 6]
+2026-08-19 09:30:45,748 - INFO - S_SCAN statistics:
+2026-08-19 09:30:45,788 - INFO -   Range: 1 to 6 wafers per LAYER+LOT+SUBENTITY
+2026-08-19 09:30:45,791 - INFO -   Mean: 2.8 wafers per LAYER+LOT+SUBENTITY
+2026-08-19 09:30:45,799 - INFO -   Unique S_SCAN values: [1, 2, 3, 4, 5, 6]
+2026-08-19 09:30:45,802 - INFO - S_ORDER statistics:
+2026-08-19 09:30:45,807 - INFO -   Range: 1.0 to 16.8
+2026-08-19 09:30:45,815 - INFO -   Mean: 6.8
+2026-08-19 09:30:45,820 - INFO - Creating BEEP_NCDD derived columns (threshold = 0.0094)...
+2026-08-19 09:30:45,834 - INFO - Creating SMP_NCDD derived columns (threshold = 0.013)...
+2026-08-19 09:30:45,845 - INFO - Creating defect rate columns (BP_RATE, SP_RATE, NC_RATE) by LOT+LAYER+SUBENTITY...
+2026-08-19 09:30:45,934 - INFO - BP_RATE statistics (BEEP defect rate by LOT+LAYER+SUBENTITY):
+2026-08-19 09:30:45,939 - INFO -   Range: 0.000 to 1.000
+2026-08-19 09:30:45,944 - INFO -   Mean: 0.176
+2026-08-19 09:30:45,950 - INFO - SP_RATE statistics (SMP defect rate by LOT+LAYER+SUBENTITY):
+2026-08-19 09:30:45,955 - INFO -   Range: 0.000 to 1.000
+2026-08-19 09:30:45,959 - INFO -   Mean: 0.207
+2026-08-19 09:30:45,962 - INFO - NC_RATE statistics (NCDD defect rate by LOT+LAYER+SUBENTITY):
+2026-08-19 09:30:45,969 - INFO -   Range: 0.000 to 1.000
+2026-08-19 09:30:45,973 - INFO -   Mean: 0.330
+2026-08-19 09:30:45,977 - INFO - Creating lot-level ZERO columns (ZERO_BEEP_LOT, ZERO_SMP_LOT, ZERO_NCDD_LOT)...
+2026-08-19 09:30:45,983 - INFO - ZERO_BEEP_LOT statistics (BP_RATE = 0):
+2026-08-19 09:30:45,993 - INFO -   True: 112/188 (59.6%) - no BEEP defects in LOT+LAYER+SUBENTITY
+2026-08-19 09:30:45,998 - INFO - ZERO_SMP_LOT statistics (SP_RATE = 0):
+2026-08-19 09:30:46,005 - INFO -   True: 105/188 (55.9%) - no SMP defects in LOT+LAYER+SUBENTITY
+2026-08-19 09:30:46,009 - INFO - ZERO_NCDD_LOT statistics (NC_RATE = 0):
+2026-08-19 09:30:46,012 - INFO -   True: 65/188 (34.6%) - no NCDD defects in LOT+LAYER+SUBENTITY
+2026-08-19 09:30:46,015 - INFO - RECOAT processing is DISABLED - skipping
+2026-08-19 09:30:46,019 - INFO - Leak rate processing SKIPPED
+2026-08-19 09:30:46,022 - INFO - Dry pump processing SKIPPED
+2026-08-19 09:30:46,029 - INFO - Leak by processing SKIPPED
+2026-08-19 09:30:46,032 - INFO - SPC monitor processing SKIPPED
+2026-08-19 09:30:46,044 - INFO - ELWC2 production utilization processing SKIPPED
+2026-08-19 09:30:46,050 - INFO - ELWC lookback processing SKIPPED
+2026-08-19 09:30:46,055 - INFO - Removing 9 unwanted columns: ['STATUS_EDI', 'CLASS_EDI', 'ZERO_EDI', 'STATUS_BEEP_EDI', 'CLASS_BEEP_EDI', 'ZERO_BEEP_EDI', 'STATUS_SMP_EDI', 'CLASS_SMP_EDI', 'ZERO_SMP_EDI']
+2026-08-19 09:30:46,068 - INFO - Processing complete!
+2026-08-19 09:30:46,071 - INFO - Final dataframe shape: (188, 68)
+2026-08-19 09:30:47,457 - INFO - Accumulated wafer output using seeds ['\\\\orshfs.intel.com\\ORAnalysis$\\1276_MAODATA\\Config\\etch\\AME\\tbatson\\Defects\\BE\\outputs\\wafer\\8M5CL_8M6CL_EXTENDED.csv'] -> 11800 rows
+2026-08-19 09:30:52,308 - INFO - Processed data saved to: \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\wafer\8M5CL_8M6CL_EXTENDED.csv
+2026-08-19 09:30:52,363 - INFO - Artifact manifest saved to: \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\artifacts\main_run_artifacts.json
+2026-08-19 09:30:52,374 - INFO - 
+Final enhanced dataframe shape: (11800, 70)
+2026-08-19 09:30:52,378 - INFO - 
+CLASS column distribution (SUM_NCDD, threshold=0.02):
+2026-08-19 09:30:52,383 - INFO - CLASS
+ZERO         7865
+BSL          3579
+HIGHFLIER     356
+Name: count, dtype: int64
+2026-08-19 09:30:52,387 - INFO - 
+CLASS_BEEP column distribution (BEEP_NCDD, threshold=0.0094):
+2026-08-19 09:30:52,393 - INFO - CLASS_BEEP
+ZERO         9907
+BSL          1579
+HIGHFLIER     314
+Name: count, dtype: int64
+2026-08-19 09:30:52,398 - INFO - 
+CLASS_SMP column distribution (SMP_NCDD, threshold=0.013):
+2026-08-19 09:30:52,405 - INFO - CLASS_SMP
+ZERO         9069
+BSL          2355
+HIGHFLIER     376
+Name: count, dtype: int64
+2026-08-19 09:30:52,408 - INFO - 
+STATUS column distribution (SUM_NCDD, threshold=0.02):
+2026-08-19 09:30:52,415 - INFO - STATUS
+BSL          11444
+HIGHFLIER      356
+Name: count, dtype: int64
+2026-08-19 09:30:52,419 - INFO - 
+STATUS_BEEP column distribution (BEEP_NCDD, threshold=0.0094):
+2026-08-19 09:30:52,423 - INFO - STATUS_BEEP
+BSL          11486
+HIGHFLIER      314
+Name: count, dtype: int64
+2026-08-19 09:30:52,428 - INFO - 
+STATUS_SMP column distribution (SMP_NCDD, threshold=0.013):
+2026-08-19 09:30:52,433 - INFO - STATUS_SMP
+BSL          11424
+HIGHFLIER      376
+Name: count, dtype: int64
+2026-08-19 09:30:52,436 - INFO - 
+ZERO columns summary:
+2026-08-19 09:30:52,440 - INFO - ZERO_NCDD: 7865/11800 (66.7%) are zero
+2026-08-19 09:30:52,442 - INFO - ZERO_BEEP: 9907/11800 (84.0%) are zero
+2026-08-19 09:30:52,446 - INFO - ZERO_SMP: 9069/11800 (76.9%) are zero
+2026-08-19 09:30:52,456 - INFO - 
+ROUTE column distribution:
+2026-08-19 09:30:52,471 - INFO - ROUTE
+FL    11551
+RE      210
+SE       35
+FE        4
+Name: count, dtype: int64
+2026-08-19 09:30:52,482 - INFO - 
+DEVICE column distribution:
+2026-08-19 09:30:52,500 - INFO - DEVICE
+PXMG    4337
+PNCB    4284
+PXSA    1059
+X78D    1033
+PXSB     334
+PR8B     269
+PYZA     211
+X78E     137
+X78C      82
+PYZB      23
+Name: count, dtype: int64
+2026-08-19 09:30:52,504 - INFO - 
+STEPPER column summary:
+2026-08-19 09:30:52,508 - INFO - STEPPER
+SNY510    2976
+SNY449    2566
+SNY511    1896
+SNY512    1647
+SNV440    1575
+SNV442    1126
+Name: count, dtype: int64
+2026-08-19 09:30:52,514 - INFO - 
+RETICLE column summary:
+2026-08-19 09:30:52,517 - INFO - Non-null reticles: 11786/11800 (99.9%)
+2026-08-19 09:30:52,520 - INFO - Unique reticles: 50
+2026-08-19 09:30:52,524 - INFO - 
+SIF flag summaries:
+2026-08-19 09:30:52,541 - INFO - SIF_SED: 1855/11800 (15.7%) have SIF data
+2026-08-19 09:30:52,554 - INFO - SIF_ETCH: 2320/11800 (19.7%) have SIF data
+2026-08-19 09:30:52,562 - INFO - SIF_DEFECT: 8819/11800 (74.7%) have SIF data
+2026-08-19 09:30:52,565 - INFO - 
+N_SCAN column summary:
+2026-08-19 09:30:52,572 - INFO - N_SCAN statistics: count    11800.000000
+mean         5.990678
+std          4.738979
+min          1.000000
+25%          2.000000
+50%          4.000000
+75%          8.000000
+max         25.000000
+Name: N_SCAN, dtype: float64
+2026-08-19 09:30:52,576 - INFO - N_SCAN distribution: {1: 19, 2: 3150, 3: 237, 4: 3504, 5: 395, 6: 1194, 7: 133, 8: 416, 9: 180, 10: 250, 11: 407, 12: 1440, 13: 65, 15: 15, 16: 16, 17: 17, 21: 21, 23: 46, 24: 120, 25: 175}
+2026-08-19 09:30:52,581 - INFO - [wafer_update] finished
+2026-08-19 09:30:52,587 - INFO - [wafer_60day_export] started
+2026-08-19 09:30:53,573 - INFO - [wafer_60day_export] source=\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\wafer\8M5CL_8M6CL_EXTENDED.csv output=\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\wafer\8M5CL_8M6CL_EXTENDED_60DAY.csv rows=1046 lookback_days=60
+2026-08-19 09:30:53,580 - INFO - [wafer_60day_export] finished
+2026-08-19 09:30:53,583 - INFO - [defect_coordinates] started
+2026-08-19 09:30:54,250 - INFO - Backend not specified
+2026-08-19 09:30:58,549 - INFO - Running:
+
+SELECT
+    s.WAFER_KEY,
+    s.INSPECTION_TIME,
+    s.SCRIBE_ID                    AS WAFER_ID,
+    SUBSTR(s.LOT_ID, 1, 7)         AS LOT7,
+    s.LOT_ID                       AS ACTUAL_LOT,
+    s.LAYER_ID                     AS LAYER,
+    s.INSPECT_EQUIP_ID             AS INSPECTION_TOOL,
+    s.WAFER_ID                     AS WAFER_NUM,
+    s.CENTER_X,
+    s.CENTER_Y,
+    s.DEFECTS                      AS N_DEFECTS,
+    s.ADDER_DEFECTS
+FROM udb.INSP_WAFER_SUMMARY s
+WHERE (s.LOT_ID LIKE 'D616560%' ESCAPE '\' OR s.LOT_ID LIKE 'D619297%' ESCAPE '\' OR s.LOT_ID LIKE 'D619331%' ESCAPE '\' OR s.LOT_ID LIKE 'D618171%' ESCAPE '\' OR s.LOT_ID LIKE 'D618190%' ESCAPE '\' OR s.LOT_ID LIKE 'D617114%' ESCAPE '\' OR s.LOT_ID LIKE 'D619358%' ESCAPE '\' OR s.LOT_ID LIKE 'D617637%' ESCAPE '\' OR s.LOT_ID LIKE 'D619248%' ESCAPE '\' OR s.LOT_ID LIKE 'D616463%' ESCAPE '\' OR s.LOT_ID LIKE 'D618146%' ESCAPE '\' OR s.LOT_ID LIKE 'D615342%' ESCAPE '\' OR s.LOT_ID LIKE 'D618223%' ESCAPE '\' OR s.LOT_ID LIKE 'D620384%' ESCAPE '\' OR s.LOT_ID LIKE 'D619294%' ESCAPE '\' OR s.LOT_ID LIKE 'D620446%' ESCAPE '\' OR s.LOT_ID LIKE 'D617638%' ESCAPE '\' OR s.LOT_ID LIKE 'D618168%' ESCAPE '\' OR s.LOT_ID LIKE 'D617587%' ESCAPE '\' OR s.LOT_ID LIKE 'D619288%' ESCAPE '\' OR s.LOT_ID LIKE 'D617586%' ESCAPE '\' OR s.LOT_ID LIKE 'D602107%' ESCAPE '\' OR s.LOT_ID LIKE 'D606ECQ%' ESCAPE '\' OR s.LOT_ID LIKE 'D618197%' ESCAPE '\' OR s.LOT_ID LIKE 'D618137%' ESCAPE '\' OR s.LOT_ID LIKE 'D620421%' ESCAPE '\' OR s.LOT_ID LIKE 'D619348%' ESCAPE '\' OR s.LOT_ID LIKE 'D619311%' ESCAPE '\' OR s.LOT_ID LIKE 'D619272%' ESCAPE '\' OR s.LOT_ID LIKE 'D616558%' ESCAPE '\')
+  AND s.LAYER_ID IN ('8M6CL', '8M5CL')
+  AND NVL(LENGTH(TRIM(TRANSLATE(s.WAFER_ID, ' 0123456789', ' '))), 0) = 0
+
+{}
+2026-08-19 09:30:58,553 - INFO - ExecuteJob starting
+2026-08-19 09:30:58,922 - INFO - ExecuteJob done
+2026-08-19 09:30:58,928 - INFO - Activating cursor for 1 IUberTables
+2026-08-19 09:30:59,147 - INFO - ColumnCount done
+2026-08-19 09:30:59,278 - INFO - Running:
+
+SELECT
+    s.WAFER_KEY,
+    s.INSPECTION_TIME,
+    s.SCRIBE_ID                    AS WAFER_ID,
+    SUBSTR(s.LOT_ID, 1, 7)         AS LOT7,
+    s.LOT_ID                       AS ACTUAL_LOT,
+    s.LAYER_ID                     AS LAYER,
+    s.INSPECT_EQUIP_ID             AS INSPECTION_TOOL,
+    s.WAFER_ID                     AS WAFER_NUM,
+    s.CENTER_X,
+    s.CENTER_Y,
+    s.DEFECTS                      AS N_DEFECTS,
+    s.ADDER_DEFECTS
+FROM udb.INSP_WAFER_SUMMARY s
+WHERE (s.LOT_ID LIKE 'D623160%' ESCAPE '\' OR s.LOT_ID LIKE 'D619287%' ESCAPE '\' OR s.LOT_ID LIKE 'D614175%' ESCAPE '\' OR s.LOT_ID LIKE 'D620920%' ESCAPE '\' OR s.LOT_ID LIKE 'D617984%' ESCAPE '\' OR s.LOT_ID LIKE 'D610EPK%' ESCAPE '\' OR s.LOT_ID LIKE 'D531193%' ESCAPE '\' OR s.LOT_ID LIKE 'D618140%' ESCAPE '\' OR s.LOT_ID LIKE 'D617639%' ESCAPE '\')
+  AND s.LAYER_ID IN ('8M6CL', '8M5CL')
+  AND NVL(LENGTH(TRIM(TRANSLATE(s.WAFER_ID, ' 0123456789', ' '))), 0) = 0
+
+{}
+2026-08-19 09:30:59,283 - INFO - ExecuteJob starting
+2026-08-19 09:30:59,402 - INFO - ExecuteJob done
+2026-08-19 09:30:59,406 - INFO - Activating cursor for 1 IUberTables
+2026-08-19 09:30:59,520 - INFO - ColumnCount done
+2026-08-19 09:30:59,597 - INFO - Backend not specified
+2026-08-19 09:30:59,687 - INFO - Running:
+
+SELECT
+    s.WAFER_KEY,
+    s.INSPECTION_TIME,
+    s.SCRIBE_ID                                       AS WAFER_ID,
+    SUBSTR(s.LOT_ID, 1, 7)                            AS LOT7,
+    s.LOT_ID                                          AS ACTUAL_LOT,
+    s.LAYER_ID                                        AS LAYER,
+    TO_CHAR(d.DEFECT_ID)                              AS DEFECT_ID,
+    c.NAME                                            AS CLASS,
+    f.NAME                                            AS FINEBIN,
+    TO_CHAR((d.WAFER_X - s.CENTER_X) / 1000000.0)    AS WAFER_X_MM,
+    TO_CHAR((d.WAFER_Y - s.CENTER_Y) / 1000000.0)    AS WAFER_Y_MM,
+    TO_CHAR(d.IMAGES)                                 AS IMAGE_COUNT,
+    TO_CHAR(d.SIZE_X)                                 AS SIZE_X,
+    TO_CHAR(d.SIZE_Y)                                 AS SIZE_Y,
+    TO_CHAR(d.SIZE_D)                                 AS SIZE_D,
+    TO_CHAR(d.AREA)                                   AS AREA,
+    TO_CHAR(d.MANUAL_OPTICAL_CLASS)                   AS MANUAL_OPTICAL_CLASS
+FROM UDB.INSP_WAFER_SUMMARY s
+INNER JOIN UDB.INSP_DEFECT d
+    ON  d.WAFER_KEY       = s.WAFER_KEY
+    AND d.INSPECTION_TIME = s.INSPECTION_TIME
+    AND d.ADDER           = 1
+LEFT JOIN udb.CLASS c
+    ON  c.CLASS_ID = d.CLASS_NUMBER
+LEFT JOIN udb.FINEBIN f
+    ON  f.FINEBIN_ID = d.AUTOMATED_OPTICAL_CLASS
+WHERE (s.INSPECTION_TIME, s.WAFER_KEY) IN (
+(TO_DATE('20260819024846','YYYYMMDDHH24MISS'), 8447979),
+(TO_DATE('20260819011554','YYYYMMDDHH24MISS'), 8447923),
+(TO_DATE('20260819024846','YYYYMMDDHH24MISS'), 8448034),
+(TO_DATE('20260819011554','YYYYMMDDHH24MISS'), 8448004),
+(TO_DATE('20260819024846','YYYYMMDDHH24MISS'), 8447960),
+(TO_DATE('20260818220018','YYYYMMDDHH24MISS'), 8556006),
+(TO_DATE('20260818220018','YYYYMMDDHH24MISS'), 8555898),
+(TO_DATE('20260818115140','YYYYMMDDHH24MISS'), 8565201),
+(TO_DATE('20260818115140','YYYYMMDDHH24MISS'), 8565283),
+(TO_DATE('20260818115140','YYYYMMDDHH24MISS'), 8565207),
+(TO_DATE('20260818115140','YYYYMMDDHH24MISS'), 8565173),
+(TO_DATE('20260818085427','YYYYMMDDHH24MISS'), 8512402),
+(TO_DATE('20260818085427','YYYYMMDDHH24MISS'), 8512414),
+(TO_DATE('20260818164940','YYYYMMDDHH24MISS'), 8519043),
+(TO_DATE('20260818164940','YYYYMMDDHH24MISS'), 8518999),
+(TO_DATE('20260818073223','YYYYMMDDHH24MISS'), 8519076),
+(TO_DATE('20260818073223','YYYYMMDDHH24MISS'), 8519078),
+(TO_DATE('20260818062127','YYYYMMDDHH24MISS'), 9154905),
+(TO_DATE('20260818062127','YYYYMMDDHH24MISS'), 9154904),
+(TO_DATE('20260818062127','YYYYMMDDHH24MISS'), 9154885),
+(TO_DATE('20260818071442','YYYYMMDDHH24MISS'), 9154734),
+(TO_DATE('20260818062127','YYYYMMDDHH24MISS'), 9154762),
+(TO_DATE('20260818071442','YYYYMMDDHH24MISS'), 9154730),
+(TO_DATE('20260818071442','YYYYMMDDHH24MISS'), 9154726),
+(TO_DATE('20260818071442','YYYYMMDDHH24MISS'), 9154667),
+(TO_DATE('20260818093317','YYYYMMDDHH24MISS'), 8500913),
+(TO_DATE('20260818093317','YYYYMMDDHH24MISS'), 8500977),
+(TO_DATE('20260818032411','YYYYMMDDHH24MISS'), 9141526),
+(TO_DATE('20260818032411','YYYYMMDDHH24MISS'), 9141470),
+(TO_DATE('20260818032411','YYYYMMDDHH24MISS'), 9141519),
+(TO_DATE('20260818032411','YYYYMMDDHH24MISS'), 9141515),
+(TO_DATE('20260817222407','YYYYMMDDHH24MISS'), 8487129),
+(TO_DATE('20260817222407','YYYYMMDDHH24MISS'), 8487303),
+(TO_DATE('20260818022927','YYYYMMDDHH24MISS'), 8544722),
+(TO_DATE('20260818022927','YYYYMMDDHH24MISS'), 8544776),
+(TO_DATE('20260818022927','YYYYMMDDHH24MISS'), 8544702),
+(TO_DATE('20260818022927','YYYYMMDDHH24MISS'), 8544849),
+(TO_DATE('20260818013456','YYYYMMDDHH24MISS'), 8431069),
+(TO_DATE('20260818013456','YYYYMMDDHH24MISS'), 8430974),
+(TO_DATE('20260817181302','YYYYMMDDHH24MISS'), 9149671),
+(TO_DATE('20260817181302','YYYYMMDDHH24MISS'), 9149668),
+(TO_DATE('20260817181302','YYYYMMDDHH24MISS'), 9149622),
+(TO_DATE('20260817181302','YYYYMMDDHH24MISS'), 9149646),
+(TO_DATE('20260817092314','YYYYMMDDHH24MISS'), 8507275),
+(TO_DATE('20260817092314','YYYYMMDDHH24MISS'), 8507387),
+(TO_DATE('20260817073150','YYYYMMDDHH24MISS'), 8405820),
+(TO_DATE('20260817073150','YYYYMMDDHH24MISS'), 8406025),
+(TO_DATE('20260817061856','YYYYMMDDHH24MISS'), 8572123),
+(TO_DATE('20260817061856','YYYYMMDDHH24MISS'), 8572133),
+(TO_DATE('20260817063811','YYYYMMDDHH24MISS'), 8447923),
+(TO_DATE('20260817063811','YYYYMMDDHH24MISS'), 8448004),
+(TO_DATE('20260817042031','YYYYMMDDHH24MISS'), 8526580),
+(TO_DATE('20260817034020','YYYYMMDDHH24MISS'), 8588806),
+(TO_DATE('20260817034020','YYYYMMDDHH24MISS'), 8588737),
+(TO_DATE('20260817042031','YYYYMMDDHH24MISS'), 8526745),
+(TO_DATE('20260817042031','YYYYMMDDHH24MISS'), 8526616),
+(TO_DATE('20260817042031','YYYYMMDDHH24MISS'), 8526626),
+(TO_DATE('20260816151443','YYYYMMDDHH24MISS'), 8519076),
+(TO_DATE('20260816151443','YYYYMMDDHH24MISS'), 8519078),
+(TO_DATE('20260816133130','YYYYMMDDHH24MISS'), 8555757),
+(TO_DATE('20260816133130','YYYYMMDDHH24MISS'), 8555716),
+(TO_DATE('20260816133130','YYYYMMDDHH24MISS'), 8555829),
+(TO_DATE('20260816133130','YYYYMMDDHH24MISS'), 8555729),
+(TO_DATE('20260816120300','YYYYMMDDHH24MISS'), 8565201),
+(TO_DATE('20260816120300','YYYYMMDDHH24MISS'), 8565283),
+(TO_DATE('20260816120300','YYYYMMDDHH24MISS'), 8565207),
+(TO_DATE('20260816120300','YYYYMMDDHH24MISS'), 8565173),
+(TO_DATE('20260816124245','YYYYMMDDHH24MISS'), 8601753),
+(TO_DATE('20260816124245','YYYYMMDDHH24MISS'), 8601783),
+(TO_DATE('20260816124245','YYYYMMDDHH24MISS'), 8601716),
+(TO_DATE('20260816124245','YYYYMMDDHH24MISS'), 8601715),
+(TO_DATE('20260816041616','YYYYMMDDHH24MISS'), 9141526),
+(TO_DATE('20260816041616','YYYYMMDDHH24MISS'), 9141470),
+(TO_DATE('20260816041616','YYYYMMDDHH24MISS'), 9141519),
+(TO_DATE('20260816035304','YYYYMMDDHH24MISS'), 8572123),
+(TO_DATE('20260816035304','YYYYMMDDHH24MISS'), 8572133),
+(TO_DATE('20260816041616','YYYYMMDDHH24MISS'), 9141515),
+(TO_DATE('20260816001130','YYYYMMDDHH24MISS'), 8486782),
+(TO_DATE('20260816001130','YYYYMMDDHH24MISS'), 8486869),
+(TO_DATE('20260815235658','YYYYMMDDHH24MISS'), 8512691),
+(TO_DATE('20260815235658','YYYYMMDDHH24MISS'), 8512790),
+(TO_DATE('20260815203022','YYYYMMDDHH24MISS'), 8470834),
+(TO_DATE('20260815203022','YYYYMMDDHH24MISS'), 8470824),
+(TO_DATE('20260815193018','YYYYMMDDHH24MISS'), 8553156),
+(TO_DATE('20260815193018','YYYYMMDDHH24MISS'), 8553122),
+(TO_DATE('20260815193018','YYYYMMDDHH24MISS'), 8553116),
+(TO_DATE('20260815193018','YYYYMMDDHH24MISS'), 8553187),
+(TO_DATE('20260815104752','YYYYMMDDHH24MISS'), 8470791),
+(TO_DATE('20260815104752','YYYYMMDDHH24MISS'), 8470737),
+(TO_DATE('20260815015355','YYYYMMDDHH24MISS'), 9035540),
+(TO_DATE('20260815015355','YYYYMMDDHH24MISS'), 9035548),
+(TO_DATE('20260815015355','YYYYMMDDHH24MISS'), 9035513),
+(TO_DATE('20260815015355','YYYYMMDDHH24MISS'), 9035602),
+(TO_DATE('20260815015355','YYYYMMDDHH24MISS'), 9035569),
+(TO_DATE('20260814210745','YYYYMMDDHH24MISS'), 8501847),
+(TO_DATE('20260814210745','YYYYMMDDHH24MISS'), 8501865),
+(TO_DATE('20260814201755','YYYYMMDDHH24MISS'), 8522643),
+(TO_DATE('20260814201755','YYYYMMDDHH24MISS'), 8522536),
+(TO_DATE('20260814212143','YYYYMMDDHH24MISS'), 8555716),
+(TO_DATE('20260814212143','YYYYMMDDHH24MISS'), 8555729),
+(TO_DATE('20260814175612','YYYYMMDDHH24MISS'), 9135315),
+(TO_DATE('20260814175612','YYYYMMDDHH24MISS'), 9135343),
+(TO_DATE('20260814175612','YYYYMMDDHH24MISS'), 9135252),
+(TO_DATE('20260814164822','YYYYMMDDHH24MISS'), 8596110),
+(TO_DATE('20260814164822','YYYYMMDDHH24MISS'), 8596113),
+(TO_DATE('20260814172550','YYYYMMDDHH24MISS'), 8568373),
+(TO_DATE('20260814172550','YYYYMMDDHH24MISS'), 8568486),
+(TO_DATE('20260814172550','YYYYMMDDHH24MISS'), 8568507),
+(TO_DATE('20260814172550','YYYYMMDDHH24MISS'), 8568426),
+(TO_DATE('20260814183547','YYYYMMDDHH24MISS'), 8596155),
+(TO_DATE('20260814164822','YYYYMMDDHH24MISS'), 8596206),
+(TO_DATE('20260814164822','YYYYMMDDHH24MISS'), 8596101),
+(TO_DATE('20260814064330','YYYYMMDDHH24MISS'), 8559375),
+(TO_DATE('20260814064330','YYYYMMDDHH24MISS'), 8559443),
+(TO_DATE('20260814050348','YYYYMMDDHH24MISS'), 8588806),
+(TO_DATE('20260814050348','YYYYMMDDHH24MISS'), 8588737),
+(TO_DATE('20260814052213','YYYYMMDDHH24MISS'), 8512691),
+(TO_DATE('20260814052213','YYYYMMDDHH24MISS'), 8512790),
+(TO_DATE('20260814001717','YYYYMMDDHH24MISS'), 8550380),
+(TO_DATE('20260814001717','YYYYMMDDHH24MISS'), 8550405),
+(TO_DATE('20260813210417','YYYYMMDDHH24MISS'), 8470834),
+(TO_DATE('20260813210417','YYYYMMDDHH24MISS'), 8470824),
+(TO_DATE('20260813023119','YYYYMMDDHH24MISS'), 8447980),
+(TO_DATE('20260813023119','YYYYMMDDHH24MISS'), 8447997),
+(TO_DATE('20260813011742','YYYYMMDDHH24MISS'), 8705250),
+(TO_DATE('20260813011742','YYYYMMDDHH24MISS'), 8705230),
+(TO_DATE('20260812153409','YYYYMMDDHH24MISS'), 8470791),
+(TO_DATE('20260812153409','YYYYMMDDHH24MISS'), 8470737),
+(TO_DATE('20260813054809','YYYYMMDDHH24MISS'), 8552991),
+(TO_DATE('20260813054809','YYYYMMDDHH24MISS'), 8552877),
+(TO_DATE('20260813054809','YYYYMMDDHH24MISS'), 8553049),
+(TO_DATE('20260813054809','YYYYMMDDHH24MISS'), 8553070),
+(TO_DATE('20260812015103','YYYYMMDDHH24MISS'), 8501847),
+(TO_DATE('20260812015103','YYYYMMDDHH24MISS'), 8501865),
+(TO_DATE('20260812001653','YYYYMMDDHH24MISS'), 8340112),
+(TO_DATE('20260812001653','YYYYMMDDHH24MISS'), 8339939),
+(TO_DATE('20260812001653','YYYYMMDDHH24MISS'), 8339938),
+(TO_DATE('20260812001653','YYYYMMDDHH24MISS'), 8340001),
+(TO_DATE('20260811214037','YYYYMMDDHH24MISS'), 9117477),
+(TO_DATE('20260811213731','YYYYMMDDHH24MISS'), 9117471),
+(TO_DATE('20260811213731','YYYYMMDDHH24MISS'), 9117388),
+(TO_DATE('20260811213731','YYYYMMDDHH24MISS'), 9117351),
+(TO_DATE('20260811214037','YYYYMMDDHH24MISS'), 9117445),
+(TO_DATE('20260811214037','YYYYMMDDHH24MISS'), 9117376),
+(TO_DATE('20260811180206','YYYYMMDDHH24MISS'), 8550380),
+(TO_DATE('20260811180206','YYYYMMDDHH24MISS'), 8550405),
+(TO_DATE('20260811201040','YYYYMMDDHH24MISS'), 8218647),
+(TO_DATE('20260811201040','YYYYMMDDHH24MISS'), 8218623),
+(TO_DATE('20260811201040','YYYYMMDDHH24MISS'), 8218586),
+(TO_DATE('20260811201040','YYYYMMDDHH24MISS'), 8218649),
+(TO_DATE('20260812154954','YYYYMMDDHH24MISS'), 8559508),
+(TO_DATE('20260812154954','YYYYMMDDHH24MISS'), 8559440),
+(TO_DATE('20260812154954','YYYYMMDDHH24MISS'), 8559416),
+(TO_DATE('20260811201218','YYYYMMDDHH24MISS'), 8559375),
+(TO_DATE('20260811201218','YYYYMMDDHH24MISS'), 8559443),
+(TO_DATE('20260811000710','YYYYMMDDHH24MISS'), 8447980),
+(TO_DATE('20260811000710','YYYYMMDDHH24MISS'), 8447997),
+(TO_DATE('20260810200308','YYYYMMDDHH24MISS'), 8522643),
+(TO_DATE('20260811202735','YYYYMMDDHH24MISS'), 8522588),
+(TO_DATE('20260811202735','YYYYMMDDHH24MISS'), 8522542),
+(TO_DATE('20260811202735','YYYYMMDDHH24MISS'), 8522546),
+(TO_DATE('20260810200308','YYYYMMDDHH24MISS'), 8522536),
+(TO_DATE('20260810122629','YYYYMMDDHH24MISS'), 8833258),
+(TO_DATE('20260810122629','YYYYMMDDHH24MISS'), 8833205),
+(TO_DATE('20260810122629','YYYYMMDDHH24MISS'), 8833115),
+(TO_DATE('20260810122629','YYYYMMDDHH24MISS'), 9109848),
+(TO_DATE('20260810122629','YYYYMMDDHH24MISS'), 8833356),
+(TO_DATE('20260810122629','YYYYMMDDHH24MISS'), 9109792),
+(TO_DATE('20260809195457','YYYYMMDDHH24MISS'), 8504588),
+(TO_DATE('20260809195457','YYYYMMDDHH24MISS'), 8504529),
+(TO_DATE('20260809191235','YYYYMMDDHH24MISS'), 8486604),
+(TO_DATE('20260809191235','YYYYMMDDHH24MISS'), 8486498),
+(TO_DATE('20260809115414','YYYYMMDDHH24MISS'), 8218647),
+(TO_DATE('20260809115414','YYYYMMDDHH24MISS'), 8218623),
+(TO_DATE('20260809115414','YYYYMMDDHH24MISS'), 8218586),
+(TO_DATE('20260809115414','YYYYMMDDHH24MISS'), 8218649)
+)  AND c.NAME IN ('SMALL_PARTICLE', 'BEEP')
+
+{}
+2026-08-19 09:30:59,697 - INFO - ExecuteJob starting
+2026-08-19 09:30:59,806 - INFO - ExecuteJob done
+2026-08-19 09:30:59,810 - INFO - Activating cursor for 1 IUberTables
+2026-08-19 09:31:08,785 - INFO - ColumnCount done
+2026-08-19 09:31:12,907 - INFO - [defect_coordinates] finished
+2026-08-19 09:31:12,915 - INFO - [manifest_sync] started
+2026-08-19 09:31:46,746 - INFO - [manifest_sync] backfilled=0 renamed=0 appended=0 prune_candidates=0 deleted=0 unreferenced=0
+2026-08-19 09:31:46,751 - INFO - [manifest_sync] summary manifest=\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\defects\DEFECT_COORDINATES_EXTENDED_IMAGES.csv appended=0 existing_unreferenced=0 retention_days=60
+2026-08-19 09:31:46,755 - INFO - [manifest_sync] finished
+2026-08-19 09:31:46,765 - INFO - [benchmark_extension] started
+2026-08-19 09:31:47,872 - INFO - Backend not specified
+2026-08-19 09:31:47,881 - INFO - Running:
+
+    /*BEGIN SQL*/
+    SELECT
+              CASE WHEN  wch.operation  = 8288  THEN '>>'
+                   WHEN  wch.operation  = 116398 THEN '[]'
+                   WHEN  wch.operation  = 8289   THEN '[]'
+                   ELSE '--' END AS wt
+             ,wch.wafer           AS wafer
+             ,e.entity            AS entity
+             ,wch.subentity       AS subentity
+             ,wch.lot             AS lot
+             ,wch.slot            AS slot
+             ,wch.operation       AS oper
+             ,To_Char(wch.start_time,'yyyy-mm-dd hh24:mi:ss') AS start_date
+             ,wch.state           AS state
+             ,lwr.recipe          AS seq_recipe
+             ,lrc.oper_short_desc AS oper_short_desc
+             ,lwr.recipe          AS wafer_recipe
+             ,leh.product         AS lot_product
+             ,Replace(Replace(Replace(Replace(Replace(Replace(
+                  p.product_description,',',';'),chr(9),' '),chr(10),' '),
+                  chr(13),' '),chr(34),''''),chr(7),' ') AS product_description
+    FROM  F_LotEntityHist     leh
+    INNER JOIN F_WaferChamberHist wch ON leh.runkey = wch.runkey
+    INNER JOIN F_Entity           e   ON e.facility NOT IN ('Test','Intel')
+                                     AND e.entity = wch.entity
+                                     AND e.entity = leh.entity
+    INNER JOIN F_Lot_Wafer_Recipe lwr ON lwr.recipe_id = wch.wafer_chamber_recipe_id
+    INNER JOIN F_Lot_Run_card     lrc ON lrc.lotoperkey = wch.lotoperkey
+    INNER JOIN F_Product          p   ON p.product = lrc.product
+                                     AND p.facility = lrc.facility
+                                     AND p.latest_version = 'Y'
+    WHERE  wch.start_time >= SYSDATE - 10
+      AND  leh.entity LIKE 'AME%'
+      AND  wch.subentity IN ('AME401_PM1', 'AME401_PM2', 'AME401_PM3', 'AME403_PM1', 'AME403_PM2', 'AME403_PM3', 'AME403_PM4', 'AME403_PM5', 'AME403_PM6', 'AME409_PM1', 'AME409_PM2', 'AME409_PM3', 'AME409_PM4', 'AME409_PM5', 'AME409_PM6', 'AME411_PM1', 'AME411_PM2', 'AME411_PM3', 'AME411_PM4', 'AME417_PM1', 'AME417_PM2', 'AME417_PM3', 'AME417_PM4', 'AME417_PM5', 'AME417_PM6', 'AME419_PM3', 'AME419_PM4', 'AME419_PM5', 'AME419_PM6', 'AME421_PM1', 'AME421_PM2', 'AME421_PM3', 'AME421_PM4', 'AME421_PM5', 'AME421_PM6', 'AME423_PM1', 'AME423_PM2', 'AME423_PM3', 'AME423_PM4', 'AME423_PM5', 'AME423_PM6', 'AME425_PM1', 'AME425_PM2', 'AME425_PM3', 'AME425_PM4', 'AME425_PM5', 'AME425_PM6', 'AME427_PM1', 'AME427_PM2', 'AME427_PM3', 'AME427_PM4', 'AME427_PM5', 'AME427_PM6')
+    ORDER BY wch.subentity, wch.start_time DESC
+    /*END SQL*/
+    
+{}
+2026-08-19 09:31:47,884 - INFO - ExecuteJob starting
+2026-08-19 09:31:48,005 - INFO - ExecuteJob done
+2026-08-19 09:31:48,010 - INFO - Activating cursor for 1 IUberTables
+2026-08-19 09:31:57,872 - INFO - ColumnCount done
+2026-08-19 09:32:03,939 - INFO - [benchmark_extension] finished
+2026-08-19 09:32:03,949 - INFO - [long_reclass_audit] started
+2026-08-19 09:32:09,798 - INFO - [long_reclass_audit] wrote \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\NCDD_EDI_RECLASS_LOG.csv
+2026-08-19 09:32:09,805 - INFO - [long_reclass_audit] finished
+2026-08-19 09:32:09,808 - INFO - [weekly_zero_rate_aggregator] started
+2026-08-19 09:32:09,812 - INFO - [weekly_zero_rate] Skipping - not Sunday (runs only on Sundays)
+2026-08-19 09:32:09,816 - INFO - [weekly_zero_rate_aggregator] finished
+2026-08-19 09:32:09,819 - INFO - [inline_html_reports] started
+2026-08-19 09:32:40,849 - INFO - [inline_html_reports] Fleet        : 51 chamber(s)
+2026-08-19 09:32:40,857 - INFO - [inline_html_reports] Output dir   : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports
+2026-08-19 09:32:40,863 - INFO - [inline_html_reports] [1/51] AME401_PM1
+2026-08-19 09:32:40,869 - INFO - [inline_html_reports]   Files: 24 scanned, 24 parsed  |  LOTs: 4
+2026-08-19 09:32:40,872 - INFO - [inline_html_reports]   Coord rows : 93
+2026-08-19 09:32:40,878 - INFO - [inline_html_reports]     D6165330: 4 defect(s)  [svg ok]
+2026-08-19 09:32:40,881 - INFO - [inline_html_reports]     D6181550: 1 defect(s)  [svg ok]
+2026-08-19 09:32:40,885 - INFO - [inline_html_reports]     D6165590: 6 defect(s)  [svg ok]
+2026-08-19 09:32:40,889 - INFO - [inline_html_reports]     D6124700: 1 defect(s)  [svg ok]
+2026-08-19 09:32:40,896 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME401_PM1.html
+2026-08-19 09:32:40,902 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME401_PM1_completeness.log
+2026-08-19 09:32:40,906 - INFO - [inline_html_reports] [2/51] AME401_PM2
+2026-08-19 09:32:40,910 - INFO - [inline_html_reports]   Files: 16 scanned, 16 parsed  |  LOTs: 3
+2026-08-19 09:32:40,913 - INFO - [inline_html_reports]   Coord rows : 93
+2026-08-19 09:32:40,924 - INFO - [inline_html_reports]     D6159730BU: 1 defect(s)  [svg ok]
+2026-08-19 09:32:40,929 - INFO - [inline_html_reports]     D6165590: 1 defect(s)  [svg ok]
+2026-08-19 09:32:40,933 - INFO - [inline_html_reports]     D5311930B: 6 defect(s)  [svg ok]
+2026-08-19 09:32:40,943 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME401_PM2.html
+2026-08-19 09:32:40,949 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME401_PM2_completeness.log
+2026-08-19 09:32:40,956 - INFO - [inline_html_reports] [3/51] AME401_PM3
+2026-08-19 09:32:40,963 - INFO - [inline_html_reports]   Files: 2 scanned, 2 parsed  |  LOTs: 1
+2026-08-19 09:32:40,970 - INFO - [inline_html_reports]   Coord rows : 211
+2026-08-19 09:32:40,976 - INFO - [inline_html_reports]     D6124680: 1 defect(s)  [svg ok]
+2026-08-19 09:32:40,980 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME401_PM3.html
+2026-08-19 09:32:40,983 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME401_PM3_completeness.log
+2026-08-19 09:32:40,987 - INFO - [inline_html_reports] [4/51] AME403_PM1
+2026-08-19 09:32:40,991 - INFO - [inline_html_reports]   Files: 24 scanned, 24 parsed  |  LOTs: 6
+2026-08-19 09:32:40,994 - INFO - [inline_html_reports]   Coord rows : 59
+2026-08-19 09:32:41,003 - INFO - [inline_html_reports]     D6159730: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,009 - INFO - [inline_html_reports]     D6124720: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,012 - INFO - [inline_html_reports]     D6136070: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,016 - INFO - [inline_html_reports]     D6114620: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,020 - INFO - [inline_html_reports]     D6142180: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,024 - INFO - [inline_html_reports]     D6124900: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,029 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME403_PM1.html
+2026-08-19 09:32:41,045 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME403_PM1_completeness.log
+2026-08-19 09:32:41,056 - INFO - [inline_html_reports] [5/51] AME403_PM2
+2026-08-19 09:32:41,063 - INFO - [inline_html_reports]   Files: 2 scanned, 2 parsed  |  LOTs: 1
+2026-08-19 09:32:41,069 - INFO - [inline_html_reports]   Coord rows : 558
+2026-08-19 09:32:41,078 - INFO - [inline_html_reports]     D6124720: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,083 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME403_PM2.html
+2026-08-19 09:32:41,087 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME403_PM2_completeness.log
+2026-08-19 09:32:41,097 - INFO - [inline_html_reports] [6/51] AME403_PM3
+2026-08-19 09:32:41,101 - INFO - [inline_html_reports]   Files: 114 scanned, 114 parsed  |  LOTs: 14
+2026-08-19 09:32:41,108 - INFO - [inline_html_reports]   Coord rows : 444
+2026-08-19 09:32:41,114 - INFO - [inline_html_reports]     D6193310: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,118 - INFO - [inline_html_reports]     D6204460: 5 defect(s)  [svg ok]
+2026-08-19 09:32:41,121 - INFO - [inline_html_reports]     D6193580P: 6 defect(s)  [svg ok]
+2026-08-19 09:32:41,124 - INFO - [inline_html_reports]     D6176450: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,128 - INFO - [inline_html_reports]     D6164650: 10 defect(s)  [svg ok]
+2026-08-19 09:32:41,133 - INFO - [inline_html_reports]     D6176420: 10 defect(s)  [svg ok]
+2026-08-19 09:32:41,140 - INFO - [inline_html_reports]     D6165200: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,150 - INFO - [inline_html_reports]     D6165300: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,156 - INFO - [inline_html_reports]     D6164700: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,159 - INFO - [inline_html_reports]     D6171090: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,164 - INFO - [inline_html_reports]     D6141770AF: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,168 - INFO - [inline_html_reports]     D6175890: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,171 - INFO - [inline_html_reports]     D6164900: 8 defect(s)  [svg ok]
+2026-08-19 09:32:41,174 - INFO - [inline_html_reports]     D6136350: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,178 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME403_PM3.html
+2026-08-19 09:32:41,181 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME403_PM3_completeness.log
+2026-08-19 09:32:41,186 - INFO - [inline_html_reports] [7/51] AME403_PM4
+2026-08-19 09:32:41,202 - INFO - [inline_html_reports]   Files: 52 scanned, 52 parsed  |  LOTs: 8
+2026-08-19 09:32:41,206 - INFO - [inline_html_reports]   Coord rows : 322
+2026-08-19 09:32:41,212 - INFO - [inline_html_reports]     D6204460: 5 defect(s)  [svg ok]
+2026-08-19 09:32:41,218 - INFO - [inline_html_reports]     D6181400: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,221 - INFO - [inline_html_reports]     D6176390: 5 defect(s)  [svg ok]
+2026-08-19 09:32:41,227 - INFO - [inline_html_reports]     D6182310: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,232 - INFO - [inline_html_reports]     D6176420: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,240 - INFO - [inline_html_reports]     D6171090: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,244 - INFO - [inline_html_reports]     D6181550: 6 defect(s)  [svg ok]
+2026-08-19 09:32:41,248 - INFO - [inline_html_reports]     D6182100: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,252 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME403_PM4.html
+2026-08-19 09:32:41,259 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME403_PM4_completeness.log
+2026-08-19 09:32:41,262 - INFO - [inline_html_reports] [8/51] AME403_PM5
+2026-08-19 09:32:41,268 - INFO - [inline_html_reports]   Files: 26 scanned, 26 parsed  |  LOTs: 4
+2026-08-19 09:32:41,275 - INFO - [inline_html_reports]   Coord rows : 178
+2026-08-19 09:32:41,284 - INFO - [inline_html_reports]     D6153390: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,288 - INFO - [inline_html_reports]     D6113380: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,291 - INFO - [inline_html_reports]     D6153210: 4 defect(s)  [svg ok]
+2026-08-19 09:32:41,298 - INFO - [inline_html_reports]     D6131040: 7 defect(s)  [svg ok]
+2026-08-19 09:32:41,302 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME403_PM5.html
+2026-08-19 09:32:41,305 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME403_PM5_completeness.log
+2026-08-19 09:32:41,311 - INFO - [inline_html_reports] [9/51] AME403_PM6
+2026-08-19 09:32:41,314 - INFO - [inline_html_reports]   Files: 10 scanned, 10 parsed  |  LOTs: 3
+2026-08-19 09:32:41,320 - INFO - [inline_html_reports]   Coord rows : 104
+2026-08-19 09:32:41,324 - INFO - [inline_html_reports]     D6171080: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,329 - INFO - [inline_html_reports]     D6142120: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,336 - INFO - [inline_html_reports]     D6154520: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,340 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME403_PM6.html
+2026-08-19 09:32:41,344 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME403_PM6_completeness.log
+2026-08-19 09:32:41,352 - INFO - [inline_html_reports] [10/51] AME409_PM1
+2026-08-19 09:32:41,355 - INFO - [inline_html_reports]   Files: 66 scanned, 66 parsed  |  LOTs: 5
+2026-08-19 09:32:41,360 - INFO - [inline_html_reports]   Coord rows : 173
+2026-08-19 09:32:41,365 - INFO - [inline_html_reports]     D6192940: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,369 - INFO - [inline_html_reports]     D6165590: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,373 - INFO - [inline_html_reports]     D6021070: 8 defect(s)  [svg ok]
+2026-08-19 09:32:41,377 - INFO - [inline_html_reports]     D6136270: 22 defect(s)  [svg ok]
+2026-08-19 09:32:41,381 - INFO - [inline_html_reports]     D6113430: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,384 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME409_PM1.html
+2026-08-19 09:32:41,389 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME409_PM1_completeness.log
+2026-08-19 09:32:41,393 - INFO - [inline_html_reports] [11/51] AME409_PM2
+2026-08-19 09:32:41,403 - INFO - [inline_html_reports]   Files: 54 scanned, 54 parsed  |  LOTs: 4
+2026-08-19 09:32:41,407 - INFO - [inline_html_reports]   Coord rows : 82
+2026-08-19 09:32:41,410 - INFO - [inline_html_reports]     D6181400: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,417 - INFO - [inline_html_reports]     D6176420: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,421 - INFO - [inline_html_reports]     D6136270: 24 defect(s)  [svg ok]
+2026-08-19 09:32:41,424 - INFO - [inline_html_reports]     D6113430: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,429 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME409_PM2.html
+2026-08-19 09:32:41,434 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME409_PM2_completeness.log
+2026-08-19 09:32:41,437 - INFO - [inline_html_reports] [12/51] AME409_PM3
+2026-08-19 09:32:41,445 - INFO - [inline_html_reports]   Files: 28 scanned, 28 parsed  |  LOTs: 7
+2026-08-19 09:32:41,449 - INFO - [inline_html_reports]   Coord rows : 157
+2026-08-19 09:32:41,452 - INFO - [inline_html_reports]     D6171230: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,455 - INFO - [inline_html_reports]     D6154470: 5 defect(s)  [svg ok]
+2026-08-19 09:32:41,458 - INFO - [inline_html_reports]     D6154520V: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,463 - INFO - [inline_html_reports]     D6164580N: 4 defect(s)  [svg ok]
+2026-08-19 09:32:41,465 - INFO - [inline_html_reports]     D6131450: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,469 - INFO - [inline_html_reports]     D6152940: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,472 - INFO - [inline_html_reports]     D6142110: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,483 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME409_PM3.html
+2026-08-19 09:32:41,491 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME409_PM3_completeness.log
+2026-08-19 09:32:41,494 - INFO - [inline_html_reports] [13/51] AME409_PM4
+2026-08-19 09:32:41,499 - INFO - [inline_html_reports]   Files: 0 scanned, 0 parsed  |  LOTs: 0
+2026-08-19 09:32:41,502 - INFO - [inline_html_reports]   Coord rows : 257
+2026-08-19 09:32:41,507 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME409_PM4.html
+2026-08-19 09:32:41,510 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME409_PM4_completeness.log
+2026-08-19 09:32:41,513 - INFO - [inline_html_reports] [14/51] AME409_PM5
+2026-08-19 09:32:41,517 - INFO - [inline_html_reports]   Files: 22 scanned, 22 parsed  |  LOTs: 4
+2026-08-19 09:32:41,520 - INFO - [inline_html_reports]   Coord rows : 149
+2026-08-19 09:32:41,524 - INFO - [inline_html_reports]     D6181970: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,527 - INFO - [inline_html_reports]     D6142120: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,542 - INFO - [inline_html_reports]     D6152940: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,548 - INFO - [inline_html_reports]     D6124810: 4 defect(s)  [svg ok]
+2026-08-19 09:32:41,557 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME409_PM5.html
+2026-08-19 09:32:41,561 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME409_PM5_completeness.log
+2026-08-19 09:32:41,566 - INFO - [inline_html_reports] [15/51] AME409_PM6
+2026-08-19 09:32:41,570 - INFO - [inline_html_reports]   Files: 48 scanned, 48 parsed  |  LOTs: 7
+2026-08-19 09:32:41,577 - INFO - [inline_html_reports]   Coord rows : 187
+2026-08-19 09:32:41,590 - INFO - [inline_html_reports]     D6181780: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,597 - INFO - [inline_html_reports]     D6171220: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,607 - INFO - [inline_html_reports]     D6165540: 4 defect(s)  [svg ok]
+2026-08-19 09:32:41,619 - INFO - [inline_html_reports]     D6136140: 8 defect(s)  [svg ok]
+2026-08-19 09:32:41,634 - INFO - [inline_html_reports]     D6152940: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,639 - INFO - [inline_html_reports]     D6124810: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,647 - INFO - [inline_html_reports]     D6142660: 4 defect(s)  [svg ok]
+2026-08-19 09:32:41,654 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME409_PM6.html
+2026-08-19 09:32:41,661 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME409_PM6_completeness.log
+2026-08-19 09:32:41,666 - INFO - [inline_html_reports] [16/51] AME411_PM1
+2026-08-19 09:32:41,670 - INFO - [inline_html_reports]   Files: 71 scanned, 71 parsed  |  LOTs: 12
+2026-08-19 09:32:41,674 - INFO - [inline_html_reports]   Coord rows : 302
+2026-08-19 09:32:41,678 - INFO - [inline_html_reports]     D6181710S: 19 defect(s)  [svg ok]
+2026-08-19 09:32:41,683 - INFO - [inline_html_reports]     D6193310: 4 defect(s)  [svg ok]
+2026-08-19 09:32:41,689 - INFO - [inline_html_reports]     D6192710: 4 defect(s)  [svg ok]
+2026-08-19 09:32:41,694 - INFO - [inline_html_reports]     D6176200: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,697 - INFO - [inline_html_reports]     D6176430: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,702 - INFO - [inline_html_reports]     D6141760: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,707 - INFO - [inline_html_reports]     D6142460: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,716 - INFO - [inline_html_reports]     D6152720: 5 defect(s)  [svg ok]
+2026-08-19 09:32:41,723 - INFO - [inline_html_reports]     D6165280: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,730 - INFO - [inline_html_reports]     D6152770: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,737 - INFO - [inline_html_reports]     D6165080: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,740 - INFO - [inline_html_reports]     D6152730: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,747 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME411_PM1.html
+2026-08-19 09:32:41,752 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME411_PM1_completeness.log
+2026-08-19 09:32:41,766 - INFO - [inline_html_reports] [17/51] AME411_PM2
+2026-08-19 09:32:41,770 - INFO - [inline_html_reports]   Files: 28 scanned, 28 parsed  |  LOTs: 9
+2026-08-19 09:32:41,779 - INFO - [inline_html_reports]   Coord rows : 269
+2026-08-19 09:32:41,783 - INFO - [inline_html_reports]     D6181710: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,791 - INFO - [inline_html_reports]     D6176360: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,795 - INFO - [inline_html_reports]     D6176200: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,802 - INFO - [inline_html_reports]     D6171240: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,809 - INFO - [inline_html_reports]     D602107A: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,821 - INFO - [inline_html_reports]     D6165080: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,829 - INFO - [inline_html_reports]     D6142110: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,832 - INFO - [inline_html_reports]     D603E3K0: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,837 - INFO - [inline_html_reports]     D6152730: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,840 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME411_PM2.html
+2026-08-19 09:32:41,844 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME411_PM2_completeness.log
+2026-08-19 09:32:41,848 - INFO - [inline_html_reports] [18/51] AME411_PM3
+2026-08-19 09:32:41,854 - INFO - [inline_html_reports]   Files: 16 scanned, 16 parsed  |  LOTs: 4
+2026-08-19 09:32:41,860 - INFO - [inline_html_reports]   Coord rows : 122
+2026-08-19 09:32:41,863 - INFO - [inline_html_reports]     D6164980: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,871 - INFO - [inline_html_reports]     D6136210: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,876 - INFO - [inline_html_reports]     D6124680: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,887 - INFO - [inline_html_reports]     D6124720: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,891 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME411_PM3.html
+2026-08-19 09:32:41,901 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME411_PM3_completeness.log
+2026-08-19 09:32:41,908 - INFO - [inline_html_reports] [19/51] AME411_PM4
+2026-08-19 09:32:41,914 - INFO - [inline_html_reports]   Files: 14 scanned, 14 parsed  |  LOTs: 4
+2026-08-19 09:32:41,917 - INFO - [inline_html_reports]   Coord rows : 209
+2026-08-19 09:32:41,931 - INFO - [inline_html_reports]     D6136210: 3 defect(s)  [svg ok]
+2026-08-19 09:32:41,934 - INFO - [inline_html_reports]     D6124780: 2 defect(s)  [svg ok]
+2026-08-19 09:32:41,942 - INFO - [inline_html_reports]     D6124860: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,945 - INFO - [inline_html_reports]     D6125590: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,956 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME411_PM4.html
+2026-08-19 09:32:41,962 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME411_PM4_completeness.log
+2026-08-19 09:32:41,969 - INFO - [inline_html_reports] [20/51] AME417_PM1
+2026-08-19 09:32:41,979 - INFO - [inline_html_reports]   Files: 4 scanned, 4 parsed  |  LOTs: 2
+2026-08-19 09:32:41,984 - INFO - [inline_html_reports]   Coord rows : 146
+2026-08-19 09:32:41,990 - INFO - [inline_html_reports]     D6203840: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,995 - INFO - [inline_html_reports]     D6193070: 1 defect(s)  [svg ok]
+2026-08-19 09:32:41,999 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME417_PM1.html
+2026-08-19 09:32:42,002 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME417_PM1_completeness.log
+2026-08-19 09:32:42,014 - INFO - [inline_html_reports] [21/51] AME417_PM2
+2026-08-19 09:32:42,020 - INFO - [inline_html_reports]   Files: 4 scanned, 4 parsed  |  LOTs: 2
+2026-08-19 09:32:42,026 - INFO - [inline_html_reports]   Coord rows : 267
+2026-08-19 09:32:42,031 - INFO - [inline_html_reports]     D6182390: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,035 - INFO - [inline_html_reports]     D6142290: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,039 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME417_PM2.html
+2026-08-19 09:32:42,042 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME417_PM2_completeness.log
+2026-08-19 09:32:42,046 - INFO - [inline_html_reports] [22/51] AME417_PM3
+2026-08-19 09:32:42,055 - INFO - [inline_html_reports]   Files: 12 scanned, 12 parsed  |  LOTs: 4
+2026-08-19 09:32:42,068 - INFO - [inline_html_reports]   Coord rows : 432
+2026-08-19 09:32:42,080 - INFO - [inline_html_reports]     D6175870: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,084 - INFO - [inline_html_reports]     D6164700: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,090 - INFO - [inline_html_reports]     D6165270: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,094 - INFO - [inline_html_reports]     D6125570: 3 defect(s)  [svg ok]
+2026-08-19 09:32:42,102 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME417_PM3.html
+2026-08-19 09:32:42,106 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME417_PM3_completeness.log
+2026-08-19 09:32:42,112 - INFO - [inline_html_reports] [23/51] AME417_PM4
+2026-08-19 09:32:42,119 - INFO - [inline_html_reports]   Files: 8 scanned, 8 parsed  |  LOTs: 4
+2026-08-19 09:32:42,126 - INFO - [inline_html_reports]   Coord rows : 277
+2026-08-19 09:32:42,142 - INFO - [inline_html_reports]     D6176380: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,153 - INFO - [inline_html_reports]     D6175870: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,160 - INFO - [inline_html_reports]     D602107A: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,164 - INFO - [inline_html_reports]     D6165270: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,171 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME417_PM4.html
+2026-08-19 09:32:42,176 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME417_PM4_completeness.log
+2026-08-19 09:32:42,180 - INFO - [inline_html_reports] [24/51] AME417_PM5
+2026-08-19 09:32:42,184 - INFO - [inline_html_reports]   Files: 8 scanned, 8 parsed  |  LOTs: 3
+2026-08-19 09:32:42,195 - INFO - [inline_html_reports]   Coord rows : 108
+2026-08-19 09:32:42,201 - INFO - [inline_html_reports]     D6209200BA: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,205 - INFO - [inline_html_reports]     D6176490: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,214 - INFO - [inline_html_reports]     D6165210: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,219 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME417_PM5.html
+2026-08-19 09:32:42,222 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME417_PM5_completeness.log
+2026-08-19 09:32:42,226 - INFO - [inline_html_reports] [25/51] AME417_PM6
+2026-08-19 09:32:42,232 - INFO - [inline_html_reports]   Files: 12 scanned, 12 parsed  |  LOTs: 3
+2026-08-19 09:32:42,240 - INFO - [inline_html_reports]   Coord rows : 156
+2026-08-19 09:32:42,246 - INFO - [inline_html_reports]     D6209200BA: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,250 - INFO - [inline_html_reports]     D6165210: 3 defect(s)  [svg ok]
+2026-08-19 09:32:42,255 - INFO - [inline_html_reports]     D6176010: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,263 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME417_PM6.html
+2026-08-19 09:32:42,270 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME417_PM6_completeness.log
+2026-08-19 09:32:42,273 - INFO - [inline_html_reports] [26/51] AME419_PM3
+2026-08-19 09:32:42,283 - INFO - [inline_html_reports]   Files: 12 scanned, 12 parsed  |  LOTs: 2
+2026-08-19 09:32:42,287 - INFO - [inline_html_reports]   Coord rows : 210
+2026-08-19 09:32:42,298 - INFO - [inline_html_reports]     D610EPK0: 3 defect(s)  [svg ok]
+2026-08-19 09:32:42,303 - INFO - [inline_html_reports]     D6152910: 3 defect(s)  [svg ok]
+2026-08-19 09:32:42,311 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME419_PM3.html
+2026-08-19 09:32:42,317 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME419_PM3_completeness.log
+2026-08-19 09:32:42,320 - INFO - [inline_html_reports] [27/51] AME419_PM4
+2026-08-19 09:32:42,324 - INFO - [inline_html_reports]   Files: 6 scanned, 6 parsed  |  LOTs: 3
+2026-08-19 09:32:42,329 - INFO - [inline_html_reports]   Coord rows : 162
+2026-08-19 09:32:42,332 - INFO - [inline_html_reports]     D6193580: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,336 - INFO - [inline_html_reports]     D6193480: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,340 - INFO - [inline_html_reports]     D6141760: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,343 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME419_PM4.html
+2026-08-19 09:32:42,347 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME419_PM4_completeness.log
+2026-08-19 09:32:42,351 - INFO - [inline_html_reports] [28/51] AME419_PM5
+2026-08-19 09:32:42,355 - INFO - [inline_html_reports]   Files: 4 scanned, 4 parsed  |  LOTs: 2
+2026-08-19 09:32:42,359 - INFO - [inline_html_reports]   Coord rows : 75
+2026-08-19 09:32:42,362 - INFO - [inline_html_reports]     D6179840BA: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,370 - INFO - [inline_html_reports]     D6164680: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,377 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME419_PM5.html
+2026-08-19 09:32:42,389 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME419_PM5_completeness.log
+2026-08-19 09:32:42,392 - INFO - [inline_html_reports] [29/51] AME419_PM6
+2026-08-19 09:32:42,398 - INFO - [inline_html_reports]   Files: 92 scanned, 92 parsed  |  LOTs: 10
+2026-08-19 09:32:42,401 - INFO - [inline_html_reports]   Coord rows : 494
+2026-08-19 09:32:42,406 - INFO - [inline_html_reports]     D6164630: 12 defect(s)  [svg ok]
+2026-08-19 09:32:42,410 - INFO - [inline_html_reports]     D6182230: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,416 - INFO - [inline_html_reports]     D6176390: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,419 - INFO - [inline_html_reports]     D6164680: 4 defect(s)  [svg ok]
+2026-08-19 09:32:42,425 - INFO - [inline_html_reports]     D6215390: 4 defect(s)  [svg ok]
+2026-08-19 09:32:42,432 - INFO - [inline_html_reports]     D6165440: 10 defect(s)  [svg ok]
+2026-08-19 09:32:42,436 - INFO - [inline_html_reports]     D6099220: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,440 - INFO - [inline_html_reports]     D6136240: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,443 - INFO - [inline_html_reports]     D6124710: 8 defect(s)  [svg ok]
+2026-08-19 09:32:42,447 - INFO - [inline_html_reports]     D6119360: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,453 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME419_PM6.html
+2026-08-19 09:32:42,460 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME419_PM6_completeness.log
+2026-08-19 09:32:42,466 - INFO - [inline_html_reports] [30/51] AME421_PM1
+2026-08-19 09:32:42,472 - INFO - [inline_html_reports]   Files: 26 scanned, 26 parsed  |  LOTs: 8
+2026-08-19 09:32:42,479 - INFO - [inline_html_reports]   Coord rows : 297
+2026-08-19 09:32:42,486 - INFO - [inline_html_reports]     D6152910: 3 defect(s)  [svg ok]
+2026-08-19 09:32:42,491 - INFO - [inline_html_reports]     D6175840: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,496 - INFO - [inline_html_reports]     D6164580: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,501 - INFO - [inline_html_reports]     D6142070: 3 defect(s)  [svg ok]
+2026-08-19 09:32:42,520 - INFO - [inline_html_reports]     D6152740: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,524 - INFO - [inline_html_reports]     D6152920: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,536 - INFO - [inline_html_reports]     D6136350: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,540 - INFO - [inline_html_reports]     D6136210: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,544 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME421_PM1.html
+2026-08-19 09:32:42,548 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME421_PM1_completeness.log
+2026-08-19 09:32:42,552 - INFO - [inline_html_reports] [31/51] AME421_PM2
+2026-08-19 09:32:42,558 - INFO - [inline_html_reports]   Files: 26 scanned, 26 parsed  |  LOTs: 7
+2026-08-19 09:32:42,562 - INFO - [inline_html_reports]   Coord rows : 41
+2026-08-19 09:32:42,566 - INFO - [inline_html_reports]     D6164690: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,570 - INFO - [inline_html_reports]     D6182050: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,586 - INFO - [inline_html_reports]     D6152910: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,592 - INFO - [inline_html_reports]     D6142090: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,595 - INFO - [inline_html_reports]     D6142070: 4 defect(s)  [svg ok]
+2026-08-19 09:32:42,599 - INFO - [inline_html_reports]     D6136350: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,604 - INFO - [inline_html_reports]     D6136210: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,608 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME421_PM2.html
+2026-08-19 09:32:42,611 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME421_PM2_completeness.log
+2026-08-19 09:32:42,617 - INFO - [inline_html_reports] [32/51] AME421_PM3
+2026-08-19 09:32:42,622 - INFO - [inline_html_reports]   Files: 38 scanned, 38 parsed  |  LOTs: 6
+2026-08-19 09:32:42,630 - INFO - [inline_html_reports]   Coord rows : 122
+2026-08-19 09:32:42,634 - INFO - [inline_html_reports]     D6181900: 7 defect(s)  [svg ok]
+2026-08-19 09:32:42,640 - INFO - [inline_html_reports]     D6192890: 3 defect(s)  [svg ok]
+2026-08-19 09:32:42,652 - INFO - [inline_html_reports]     D602107B: 5 defect(s)  [svg ok]
+2026-08-19 09:32:42,657 - INFO - [inline_html_reports]     D6153090: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,661 - INFO - [inline_html_reports]     D6136240: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,667 - INFO - [inline_html_reports]     D6142680: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,674 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME421_PM3.html
+2026-08-19 09:32:42,680 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME421_PM3_completeness.log
+2026-08-19 09:32:42,684 - INFO - [inline_html_reports] [33/51] AME421_PM4
+2026-08-19 09:32:42,687 - INFO - [inline_html_reports]   Files: 96 scanned, 96 parsed  |  LOTs: 14
+2026-08-19 09:32:42,693 - INFO - [inline_html_reports]   Coord rows : 203
+2026-08-19 09:32:42,699 - INFO - [inline_html_reports]     D6181900: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,704 - INFO - [inline_html_reports]     D6171140: 4 defect(s)  [svg ok]
+2026-08-19 09:32:42,710 - INFO - [inline_html_reports]     D6176370: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,719 - INFO - [inline_html_reports]     D6181680: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,723 - INFO - [inline_html_reports]     D6192890: 4 defect(s)  [svg ok]
+2026-08-19 09:32:42,727 - INFO - [inline_html_reports]     D6176260: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,731 - INFO - [inline_html_reports]     D6099240: 3 defect(s)  [svg ok]
+2026-08-19 09:32:42,736 - INFO - [inline_html_reports]     D6176230: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,740 - INFO - [inline_html_reports]     D602107B: 4 defect(s)  [svg ok]
+2026-08-19 09:32:42,743 - INFO - [inline_html_reports]     D6153270: 12 defect(s)  [svg ok]
+2026-08-19 09:32:42,748 - INFO - [inline_html_reports]     D6142440: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,752 - INFO - [inline_html_reports]     D6142100: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,757 - INFO - [inline_html_reports]     D6153090: 8 defect(s)  [svg ok]
+2026-08-19 09:32:42,768 - INFO - [inline_html_reports]     D6142680: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,772 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME421_PM4.html
+2026-08-19 09:32:42,776 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME421_PM4_completeness.log
+2026-08-19 09:32:42,782 - INFO - [inline_html_reports] [34/51] AME421_PM5
+2026-08-19 09:32:42,785 - INFO - [inline_html_reports]   Files: 0 scanned, 0 parsed  |  LOTs: 0
+2026-08-19 09:32:42,791 - INFO - [inline_html_reports]   Coord rows : 84
+2026-08-19 09:32:42,795 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME421_PM5.html
+2026-08-19 09:32:42,799 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME421_PM5_completeness.log
+2026-08-19 09:32:42,805 - INFO - [inline_html_reports] [35/51] AME421_PM6
+2026-08-19 09:32:42,808 - INFO - [inline_html_reports]   Files: 74 scanned, 74 parsed  |  LOTs: 12
+2026-08-19 09:32:42,817 - INFO - [inline_html_reports]   Coord rows : 410
+2026-08-19 09:32:42,820 - INFO - [inline_html_reports]     D6192480: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,827 - INFO - [inline_html_reports]     D6192880: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,836 - INFO - [inline_html_reports]     D6192870: 4 defect(s)  [svg ok]
+2026-08-19 09:32:42,839 - INFO - [inline_html_reports]     D6152930: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,845 - INFO - [inline_html_reports]     D6176430: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,852 - INFO - [inline_html_reports]     D6159770: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,856 - INFO - [inline_html_reports]     D6165070W: 6 defect(s)  [svg ok]
+2026-08-19 09:32:42,871 - INFO - [inline_html_reports]     D6204110: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,875 - INFO - [inline_html_reports]     D6141770AF: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,881 - INFO - [inline_html_reports]     D6136420: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,886 - INFO - [inline_html_reports]     D6153560: 6 defect(s)  [svg ok]
+2026-08-19 09:32:42,890 - INFO - [inline_html_reports]     D6165010: 7 defect(s)  [svg ok]
+2026-08-19 09:32:42,897 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME421_PM6.html
+2026-08-19 09:32:42,901 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME421_PM6_completeness.log
+2026-08-19 09:32:42,904 - INFO - [inline_html_reports] [36/51] AME423_PM1
+2026-08-19 09:32:42,908 - INFO - [inline_html_reports]   Files: 32 scanned, 32 parsed  |  LOTs: 3
+2026-08-19 09:32:42,913 - INFO - [inline_html_reports]   Coord rows : 314
+2026-08-19 09:32:42,917 - INFO - [inline_html_reports]     D6153220: 1 defect(s)  [svg ok]
+2026-08-19 09:32:42,923 - INFO - [inline_html_reports]     D6142080: 11 defect(s)  [svg ok]
+2026-08-19 09:32:42,927 - INFO - [inline_html_reports]     D6152740: 4 defect(s)  [svg ok]
+2026-08-19 09:32:42,931 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME423_PM1.html
+2026-08-19 09:32:42,938 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME423_PM1_completeness.log
+2026-08-19 09:32:42,955 - INFO - [inline_html_reports] [37/51] AME423_PM2
+2026-08-19 09:32:42,964 - INFO - [inline_html_reports]   Files: 8 scanned, 8 parsed  |  LOTs: 2
+2026-08-19 09:32:42,972 - INFO - [inline_html_reports]   Coord rows : 173
+2026-08-19 09:32:42,978 - INFO - [inline_html_reports]     D6192720: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,984 - INFO - [inline_html_reports]     D6171220: 2 defect(s)  [svg ok]
+2026-08-19 09:32:42,988 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME423_PM2.html
+2026-08-19 09:32:42,991 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME423_PM2_completeness.log
+2026-08-19 09:32:42,999 - INFO - [inline_html_reports] [38/51] AME423_PM3
+2026-08-19 09:32:43,004 - INFO - [inline_html_reports]   Files: 18 scanned, 18 parsed  |  LOTs: 3
+2026-08-19 09:32:43,008 - INFO - [inline_html_reports]   Coord rows : 489
+2026-08-19 09:32:43,020 - INFO - [inline_html_reports]     D5311930J: 5 defect(s)  [svg ok]
+2026-08-19 09:32:43,023 - INFO - [inline_html_reports]     D6129490: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,029 - INFO - [inline_html_reports]     D6136160: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,032 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME423_PM3.html
+2026-08-19 09:32:43,042 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME423_PM3_completeness.log
+2026-08-19 09:32:43,048 - INFO - [inline_html_reports] [39/51] AME423_PM4
+2026-08-19 09:32:43,052 - INFO - [inline_html_reports]   Files: 28 scanned, 28 parsed  |  LOTs: 7
+2026-08-19 09:32:43,062 - INFO - [inline_html_reports]   Coord rows : 522
+2026-08-19 09:32:43,068 - INFO - [inline_html_reports]     D6165600: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,074 - INFO - [inline_html_reports]     D6182110: 3 defect(s)  [svg ok]
+2026-08-19 09:32:43,081 - INFO - [inline_html_reports]     D6165110: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,091 - INFO - [inline_html_reports]     D6165000: 4 defect(s)  [svg ok]
+2026-08-19 09:32:43,103 - INFO - [inline_html_reports]     D6175840: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,113 - INFO - [inline_html_reports]     D6154510: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,128 - INFO - [inline_html_reports]     D6136160: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,136 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME423_PM4.html
+2026-08-19 09:32:43,142 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME423_PM4_completeness.log
+2026-08-19 09:32:43,153 - INFO - [inline_html_reports] [40/51] AME423_PM5
+2026-08-19 09:32:43,159 - INFO - [inline_html_reports]   Files: 8 scanned, 8 parsed  |  LOTs: 3
+2026-08-19 09:32:43,164 - INFO - [inline_html_reports]   Coord rows : 48
+2026-08-19 09:32:43,172 - INFO - [inline_html_reports]     D6129490: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,177 - INFO - [inline_html_reports]     D6131530: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,186 - INFO - [inline_html_reports]     D6131420: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,191 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME423_PM5.html
+2026-08-19 09:32:43,202 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME423_PM5_completeness.log
+2026-08-19 09:32:43,209 - INFO - [inline_html_reports] [41/51] AME423_PM6
+2026-08-19 09:32:43,216 - INFO - [inline_html_reports]   Files: 4 scanned, 4 parsed  |  LOTs: 2
+2026-08-19 09:32:43,220 - INFO - [inline_html_reports]   Coord rows : 87
+2026-08-19 09:32:43,234 - INFO - [inline_html_reports]     D6175850: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,249 - INFO - [inline_html_reports]     D6131420: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,252 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME423_PM6.html
+2026-08-19 09:32:43,257 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME423_PM6_completeness.log
+2026-08-19 09:32:43,260 - INFO - [inline_html_reports] [42/51] AME425_PM1
+2026-08-19 09:32:43,264 - INFO - [inline_html_reports]   Files: 16 scanned, 16 parsed  |  LOTs: 3
+2026-08-19 09:32:43,269 - INFO - [inline_html_reports]   Coord rows : 104
+2026-08-19 09:32:43,274 - INFO - [inline_html_reports]     D6192720: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,279 - INFO - [inline_html_reports]     D6193110: 4 defect(s)  [svg ok]
+2026-08-19 09:32:43,283 - INFO - [inline_html_reports]     D6192710: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,288 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME425_PM1.html
+2026-08-19 09:32:43,292 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME425_PM1_completeness.log
+2026-08-19 09:32:43,298 - INFO - [inline_html_reports] [43/51] AME425_PM2
+2026-08-19 09:32:43,309 - INFO - [inline_html_reports]   Files: 16 scanned, 16 parsed  |  LOTs: 4
+2026-08-19 09:32:43,314 - INFO - [inline_html_reports]   Coord rows : 96
+2026-08-19 09:32:43,319 - INFO - [inline_html_reports]     D6193110: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,322 - INFO - [inline_html_reports]     D6192710: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,328 - INFO - [inline_html_reports]     D6182390: 3 defect(s)  [svg ok]
+2026-08-19 09:32:43,337 - INFO - [inline_html_reports]     D6165570: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,342 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME425_PM2.html
+2026-08-19 09:32:43,347 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME425_PM2_completeness.log
+2026-08-19 09:32:43,351 - INFO - [inline_html_reports] [44/51] AME425_PM4
+2026-08-19 09:32:43,356 - INFO - [inline_html_reports]   Files: 118 scanned, 118 parsed  |  LOTs: 9
+2026-08-19 09:32:43,359 - INFO - [inline_html_reports]   Coord rows : 182
+2026-08-19 09:32:43,364 - INFO - [inline_html_reports]     D6204210: 28 defect(s)  [svg ok]
+2026-08-19 09:32:43,368 - INFO - [inline_html_reports]     D6182330: 7 defect(s)  [svg ok]
+2026-08-19 09:32:43,371 - INFO - [inline_html_reports]     D6176300: 4 defect(s)  [svg ok]
+2026-08-19 09:32:43,376 - INFO - [inline_html_reports]     D6131400: 9 defect(s)  [svg ok]
+2026-08-19 09:32:43,384 - INFO - [inline_html_reports]     D6131450: 3 defect(s)  [svg ok]
+2026-08-19 09:32:43,396 - INFO - [inline_html_reports]     D6152770W: 4 defect(s)  [svg ok]
+2026-08-19 09:32:43,400 - INFO - [inline_html_reports]     D6153560Q: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,406 - INFO - [inline_html_reports]     D6154520V: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,414 - INFO - [inline_html_reports]     D6153270N: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,419 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME425_PM4.html
+2026-08-19 09:32:43,431 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME425_PM4_completeness.log
+2026-08-19 09:32:43,445 - INFO - [inline_html_reports] [45/51] AME425_PM5
+2026-08-19 09:32:43,454 - INFO - [inline_html_reports]   Files: 34 scanned, 34 parsed  |  LOTs: 8
+2026-08-19 09:32:43,459 - INFO - [inline_html_reports]   Coord rows : 50
+2026-08-19 09:32:43,464 - INFO - [inline_html_reports]     D6193580: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,469 - INFO - [inline_html_reports]     D6231600: 3 defect(s)  [svg ok]
+2026-08-19 09:32:43,474 - INFO - [inline_html_reports]     D6141750: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,479 - INFO - [inline_html_reports]     D6164680: 3 defect(s)  [svg ok]
+2026-08-19 09:32:43,484 - INFO - [inline_html_reports]     D6165070: 4 defect(s)  [svg ok]
+2026-08-19 09:32:43,489 - INFO - [inline_html_reports]     D6136180: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,496 - INFO - [inline_html_reports]     D6152950: 3 defect(s)  [svg ok]
+2026-08-19 09:32:43,500 - INFO - [inline_html_reports]     D545903A: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,505 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME425_PM5.html
+2026-08-19 09:32:43,510 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME425_PM5_completeness.log
+2026-08-19 09:32:43,514 - INFO - [inline_html_reports] [46/51] AME425_PM6
+2026-08-19 09:32:43,520 - INFO - [inline_html_reports]   Files: 38 scanned, 38 parsed  |  LOTs: 9
+2026-08-19 09:32:43,533 - INFO - [inline_html_reports]   Coord rows : 74
+2026-08-19 09:32:43,540 - INFO - [inline_html_reports]     D6141750: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,549 - INFO - [inline_html_reports]     D6181970: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,559 - INFO - [inline_html_reports]     D6182310: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,563 - INFO - [inline_html_reports]     D6181780: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,569 - INFO - [inline_html_reports]     D6165070: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,574 - INFO - [inline_html_reports]     D6136180: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,588 - INFO - [inline_html_reports]     D6136320: 3 defect(s)  [svg ok]
+2026-08-19 09:32:43,591 - INFO - [inline_html_reports]     D6152950: 4 defect(s)  [svg ok]
+2026-08-19 09:32:43,599 - INFO - [inline_html_reports]     D545903A: 4 defect(s)  [svg ok]
+2026-08-19 09:32:43,614 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME425_PM6.html
+2026-08-19 09:32:43,617 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME425_PM6_completeness.log
+2026-08-19 09:32:43,621 - INFO - [inline_html_reports] [47/51] AME427_PM2
+2026-08-19 09:32:43,627 - INFO - [inline_html_reports]   Files: 14 scanned, 14 parsed  |  LOTs: 2
+2026-08-19 09:32:43,631 - INFO - [inline_html_reports]   Coord rows : 99
+2026-08-19 09:32:43,637 - INFO - [inline_html_reports]     D6153380: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,647 - INFO - [inline_html_reports]     D6142080: 5 defect(s)  [svg ok]
+2026-08-19 09:32:43,652 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME427_PM2.html
+2026-08-19 09:32:43,658 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME427_PM2_completeness.log
+2026-08-19 09:32:43,663 - INFO - [inline_html_reports] [48/51] AME427_PM3
+2026-08-19 09:32:43,666 - INFO - [inline_html_reports]   Files: 120 scanned, 120 parsed  |  LOTs: 14
+2026-08-19 09:32:43,680 - INFO - [inline_html_reports]   Coord rows : 307
+2026-08-19 09:32:43,686 - INFO - [inline_html_reports]     D6171140Z: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,690 - INFO - [inline_html_reports]     D6193580P: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,695 - INFO - [inline_html_reports]     D6164630V: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,731 - INFO - [inline_html_reports]     D6219300: 19 defect(s)  [svg ok]
+2026-08-19 09:32:43,755 - INFO - [inline_html_reports]     D6131530X: 9 defect(s)  [svg ok]
+2026-08-19 09:32:43,804 - INFO - [inline_html_reports]     D6153320: 4 defect(s)  [svg ok]
+2026-08-19 09:32:43,822 - INFO - [inline_html_reports]     D6152720: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,837 - INFO - [inline_html_reports]     D6153270N: 5 defect(s)  [svg ok]
+2026-08-19 09:32:43,869 - INFO - [inline_html_reports]     D6142290: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,906 - INFO - [inline_html_reports]     D6136140: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,935 - INFO - [inline_html_reports]     D6142600: 2 defect(s)  [svg ok]
+2026-08-19 09:32:43,940 - INFO - [inline_html_reports]     D6142480: 3 defect(s)  [svg ok]
+2026-08-19 09:32:43,947 - INFO - [inline_html_reports]     D6124780: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,957 - INFO - [inline_html_reports]     D6152730: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,962 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME427_PM3.html
+2026-08-19 09:32:43,966 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME427_PM3_completeness.log
+2026-08-19 09:32:43,970 - INFO - [inline_html_reports] [49/51] AME427_PM4
+2026-08-19 09:32:43,973 - INFO - [inline_html_reports]   Files: 98 scanned, 98 parsed  |  LOTs: 3
+2026-08-19 09:32:43,977 - INFO - [inline_html_reports]   Coord rows : 232
+2026-08-19 09:32:43,983 - INFO - [inline_html_reports]     D6219300: 1 defect(s)  [svg ok]
+2026-08-19 09:32:43,987 - INFO - [inline_html_reports]     D6142480: 45 defect(s)  [svg ok]
+2026-08-19 09:32:43,989 - INFO - [inline_html_reports]     D6131420: 2 defect(s)  [svg ok]
+2026-08-19 09:32:44,002 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME427_PM4.html
+2026-08-19 09:32:44,012 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME427_PM4_completeness.log
+2026-08-19 09:32:44,020 - INFO - [inline_html_reports] [50/51] AME427_PM5
+2026-08-19 09:32:44,025 - INFO - [inline_html_reports]   Files: 140 scanned, 140 parsed  |  LOTs: 14
+2026-08-19 09:32:44,028 - INFO - [inline_html_reports]   Coord rows : 159
+2026-08-19 09:32:44,036 - INFO - [inline_html_reports]     D6165580: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,039 - INFO - [inline_html_reports]     D6182050: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,046 - INFO - [inline_html_reports]     D6153370: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,049 - INFO - [inline_html_reports]     D6176250: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,057 - INFO - [inline_html_reports]     D6165320: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,063 - INFO - [inline_html_reports]     D6142420: 2 defect(s)  [svg ok]
+2026-08-19 09:32:44,067 - INFO - [inline_html_reports]     D6165100: 42 defect(s)  [svg ok]
+2026-08-19 09:32:44,070 - INFO - [inline_html_reports]     D6142090: 4 defect(s)  [svg ok]
+2026-08-19 09:32:44,074 - INFO - [inline_html_reports]     D6153360: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,077 - INFO - [inline_html_reports]     D614248: 6 defect(s)  [svg no coords]
+2026-08-19 09:32:44,083 - INFO - [inline_html_reports]     D6142470: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,086 - INFO - [inline_html_reports]     D6113380: 3 defect(s)  [svg ok]
+2026-08-19 09:32:44,090 - INFO - [inline_html_reports]     D6142570: 3 defect(s)  [svg ok]
+2026-08-19 09:32:44,103 - INFO - [inline_html_reports]     D6125360: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,108 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME427_PM5.html
+2026-08-19 09:32:44,113 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME427_PM5_completeness.log
+2026-08-19 09:32:44,121 - INFO - [inline_html_reports] [51/51] AME427_PM6
+2026-08-19 09:32:44,125 - INFO - [inline_html_reports]   Files: 204 scanned, 204 parsed  |  LOTs: 15
+2026-08-19 09:32:44,129 - INFO - [inline_html_reports]   Coord rows : 266
+2026-08-19 09:32:44,133 - INFO - [inline_html_reports]     D6181680: 2 defect(s)  [svg ok]
+2026-08-19 09:32:44,136 - INFO - [inline_html_reports]     D6182050: 2 defect(s)  [svg ok]
+2026-08-19 09:32:44,145 - INFO - [inline_html_reports]     D6141770: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,149 - INFO - [inline_html_reports]     D6176250: 5 defect(s)  [svg ok]
+2026-08-19 09:32:44,156 - INFO - [inline_html_reports]     D6165100: 22 defect(s)  [svg ok]
+2026-08-19 09:32:44,168 - INFO - [inline_html_reports]     D6165040: 6 defect(s)  [svg ok]
+2026-08-19 09:32:44,175 - INFO - [inline_html_reports]     D6153400: 31 defect(s)  [svg ok]
+2026-08-19 09:32:44,180 - INFO - [inline_html_reports]     D614248: 2 defect(s)  [svg no coords]
+2026-08-19 09:32:44,184 - INFO - [inline_html_reports]     D6142470: 14 defect(s)  [svg ok]
+2026-08-19 09:32:44,188 - INFO - [inline_html_reports]     D6136490: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,195 - INFO - [inline_html_reports]     D6136070: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,198 - INFO - [inline_html_reports]     D6113380: 1 defect(s)  [svg ok]
+2026-08-19 09:32:44,202 - INFO - [inline_html_reports]     D6142570: 2 defect(s)  [svg ok]
+2026-08-19 09:32:44,206 - INFO - [inline_html_reports]     D5529840: 8 defect(s)  [svg ok]
+2026-08-19 09:32:44,214 - INFO - [inline_html_reports]     D6125360: 2 defect(s)  [svg ok]
+2026-08-19 09:32:44,217 - INFO - [inline_html_reports]   Written    : \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\AME427_PM6.html
+2026-08-19 09:32:44,228 - INFO - [inline_html_reports] Completeness log:           \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\logs\AME427_PM6_completeness.log
+2026-08-19 09:32:44,239 - INFO - [inline_html_reports] ----------------------------------------------------
+2026-08-19 09:32:44,247 - INFO - [inline_html_reports] Done  51 ok  |  0 skipped  |  0 error(s)  (25.7s)
+2026-08-19 09:32:44,252 - INFO - [inline_html_reports] Generating recent-lots report...
+2026-08-19 09:32:44,256 - INFO - [inline_html_reports]   Recent lots : 37 lot(s) from 22 chamber(s) in last 7d  ->  \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\Inline_Subentity_Reports\RECENT_LOTS_7D.html
+2026-08-19 09:32:44,260 - WARNING - [inline_html_reports] exited with code 1: Traceback (most recent call last):
+  File "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\INLINE_PRODUCTION_SUBENTITY_REPORTS.py", line 152, in <module>
+    main()
+  File "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\html\INLINE_PRODUCTION_SUBENTITY_REPORTS.py", line 142, in main
+    dashboard_report = _refresh_dashboard_defects_page()
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "\\orshfs.intel.com\ORAnaly
+2026-08-19 09:32:44,264 - ERROR - [inline_html_reports] failed
+Traceback (most recent call last):
+  File "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\8M5CL_8M6CL_UPDATE.py", line 88, in _run_step
+    result = func()
+             ^^^^^^
+  File "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\8M5CL_8M6CL_UPDATE.py", line 255, in _run_inline_html_reports
+    raise RuntimeError(f"INLINE_PRODUCTION_SUBENTITY_REPORTS.py failed (rc={result.returncode})")
+RuntimeError: INLINE_PRODUCTION_SUBENTITY_REPORTS.py failed (rc=1)
+2026-08-19 09:32:44,312 - WARNING - Non-fatal step failures: inline_html_reports
+2026-08-19 09:32:45,665 - INFO - Update-run artifact manifest saved to: \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\artifacts\update_run_artifacts.json
+2026-08-19 09:32:45,670 - INFO - [wafer_update] duration=0:00:14.487244 success=True rows=11800 error=None
+2026-08-19 09:32:45,673 - INFO - [wafer_60day_export] duration=0:00:00.992900 success=True rows=1046 error=None
+2026-08-19 09:32:45,683 - INFO - [defect_coordinates] duration=0:00:19.323955 success=True rows=10780 error=None
+2026-08-19 09:32:45,695 - INFO - [manifest_sync] duration=0:00:33.840360 success=True rows=None error=None
+2026-08-19 09:32:45,710 - INFO - [benchmark_extension] duration=0:00:17.174633 success=True rows=None error=None
+2026-08-19 09:32:45,725 - INFO - [long_reclass_audit] duration=0:00:05.855495 success=True rows=None error=None
+2026-08-19 09:32:45,743 - INFO - [weekly_zero_rate_aggregator] duration=0:00:00.008545 success=True rows=None error=None
+2026-08-19 09:32:45,755 - INFO - [inline_html_reports] duration=0:00:34.444467 success=False rows=None error=RuntimeError: INLINE_PRODUCTION_SUBENTITY_REPORTS.py failed (rc=1)

@@ -1,0 +1,129 @@
+
+[MERGE] 8M5CL: loading current raw source ...
+   [INFO] Dual-metric source detected (NCDD + EDI)
+   [INFO] Split: 99 NCDD rows, 99 EDI rows
+   [INFO] NCDD dedup: 99 -> 99 rows
+   [INFO] EDI dedup: 99 -> 99 rows
+   [INFO] Merged NCDD+EDI: 99 rows (outer join + consolidated columns)
+   [OK] 8M5CL merged rows: 99 (removed 99 duplicates)
+   [OK] Wrote merged source -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\merged_sources\8M5CL_NCDD_merged_dedup.csv
+
+[MERGE] 8M6CL: loading current raw source ...
+   [INFO] Dual-metric source detected (NCDD + EDI)
+   [INFO] Split: 89 NCDD rows, 89 EDI rows
+   [INFO] NCDD dedup: 89 -> 89 rows
+   [INFO] EDI dedup: 89 -> 89 rows
+   [INFO] Merged NCDD+EDI: 89 rows (outer join + consolidated columns)
+   [OK] 8M6CL merged rows: 89 (removed 89 duplicates)
+   [OK] Wrote merged source -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\merged_sources\8M6CL_NCDD_merged_dedup.csv
+Loading CONCAT CSV: \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\wafer\8M5CL_8M6CL_EXTENDED.csv
+OK: ncdd_csv -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\wafer\8M5CL_8M6CL_EXTENDED.csv
+  11800 rows loaded
+  Recent overlap filter: 176/11800 rows retained from 2026-08-09 02:48:46 forward
+
+Step 1: Querying INSP_WAFER_SUMMARY
+  39 unique LOT7 values, layers: ['8M6CL', '8M5CL']
+  [INSP_WAFER_SUMMARY] chunk 1: 30 lots...
+    -> 161 rows
+  [INSP_WAFER_SUMMARY] chunk 2: 9 lots...
+    -> 40 rows
+  Total INSP_WAFER_SUMMARY records: 201
+  Matched 176 wafer inspection records
+
+Step 2: Querying INSP_DEFECT for 176 unique wafer inspections
+  [INSP_DEFECT] chunk 1: 176 wafers...
+    -> 130 defect records
+
+Total adder defect records: 130
+  Accumulated coordinates output using seeds [DEFECT_COORDINATES_EXTENDED.csv=10770] + new=130 -> 10772 deduplicated
+
+Saved 10772 accumulated records -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\defects\DEFECT_COORDINATES_EXTENDED.csv
+Artifact manifest saved to: \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\artifacts\defect_coordinates_artifacts.json
+
+Sample output (first 5 rows):
+   YYMM       LOT     LOT7 ACTUAL_LOT      WAFER_ID  LAYER  WAFER_KEY      INSPECTION_TIME DEFECT_ID           CLASS         FINEBIN  WAFER_X_MM  WAFER_Y_MM IMAGE_COUNT   SUBENTITY      RECIPE   SUBENTITY_END_TIME         INSPECT_TIME INSPECT_TOOL  SUM_NCDD STATUS SRCIP CCMR2 ICCR2   CV   GF   TS PILOT_STATUS  BEEP_NCDD  SMP_NCDD  SIZE_X  SIZE_Y  SIZE_D     AREA MANUAL_OPTICAL_CLASS
+0  2501  D4348280  D434828   D4348280  KH3WT295WFG1  8M6CL    5294580  2025-01-23 14:02:36         7            BEEP            BEEP  -12.968424    2.153585           5  AME427_PM3  P_78_GABON  2025-01-23 12:21:41  2025-01-23 14:02:36       BPD450  0.007356    BSL   OFF   OFF   OFF  OFF  OFF  OFF          POR   0.007356  0.000000  1170.0  1080.0  1170.0  39778.0                 37.0
+1  2501  D4348280  D434828   D4348280  KH3WT295WFG1  8M6CL    5294580  2025-01-23 14:02:36        16            BEEP            BEEP   -6.575904    9.601780           5  AME427_PM3  P_78_GABON  2025-01-23 12:21:41  2025-01-23 14:02:36       BPD450  0.007356    BSL   OFF   OFF   OFF  OFF  OFF  OFF          POR   0.007356  0.000000  1170.0  1080.0  1170.0  66602.0                 37.0
+2  2501  D4348280  D434828   D4348280  KH3WT297WFH2  8M6CL    5294553  2025-01-23 14:02:36        21  SMALL_PARTICLE  SMALL_PARTICLE   68.473137   37.325076           5  AME427_PM4  P_78_GABON  2025-01-23 11:55:40  2025-01-23 14:02:36       BPD450  0.003678    BSL   OFF   OFF   OFF  OFF  OFF  OFF          POR   0.000000  0.003678   180.0   270.0   270.0   1347.0                  2.0
+3  2501  D4378060  D437806   D4378060  KH6AQ741WFE0  8M6CL    5407145  2025-01-30 17:12:47      1257  SMALL_PARTICLE         LOWCONF  101.787181   67.638891           5  AME427_PM4  P_78_GABON  2025-01-30 16:21:01  2025-01-30 17:12:47       BPD444  0.013174    BSL   OFF   OFF   OFF  OFF  OFF  OFF          POR   0.000000  0.013174   720.0   720.0   720.0   6903.0                  0.0
+4  2501  D4378060  D437806   D4378060  KH6AQ741WFE0  8M6CL    5407145  2025-01-30 17:12:47       448  SMALL_PARTICLE         LOWCONF   -0.757668   10.343289           5  AME427_PM4  P_78_GABON  2025-01-30 16:21:01  2025-01-30 17:12:47       BPD444  0.013174    BSL   OFF   OFF   OFF  OFF  OFF  OFF          POR   0.000000  0.013174   809.0   720.0   810.0  10133.0                  0.0
+  Image manifest pre-filter: 57/57 wafer group(s) fully covered — 0 group(s) still need DB image queries
+  All wafer groups fully covered in manifest — skipping image DB query.
+Cutoff (retention=60d): 2026-06-19 22:06:21
+Referenced prune candidates: 0
+Unreferenced files: 0
+Unreferenced old candidates: 0
+EXTEND FLEET BENCHMARK + ELWC FILE
+======================================================================
+Seed benchmark file: \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\benchmarks\20260816_8M5CL_8M6CL_202606_FLEET_BENCHMARK_ELWC_7DAY.csv
+OK: existing_benchmark -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\benchmarks\20260816_8M5CL_8M6CL_202606_FLEET_BENCHMARK_ELWC_7DAY.csv
+OK: defect_filepath -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\wafer\8M5CL_8M6CL_EXTENDED.csv
+OK: raw_m5_current -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\8M5CL_NCDD_EDI.csv
+OK: raw_m6_current -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\8M6CL_NCDD_EDI.csv
+
+[MERGE] 8M5CL: loading current raw source ...
+   [INFO] Dual-metric source detected (NCDD + EDI)
+   [INFO] Split: 99 NCDD rows, 99 EDI rows
+   [INFO] NCDD dedup: 99 -> 99 rows
+   [INFO] EDI dedup: 99 -> 99 rows
+   [INFO] Merged NCDD+EDI: 99 rows (outer join + consolidated columns)
+   [OK] 8M5CL merged rows: 99 (removed 99 duplicates)
+   [OK] Wrote merged source -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\merged_sources\8M5CL_NCDD_merged_dedup.csv
+
+[MERGE] 8M6CL: loading current raw source ...
+   [INFO] Dual-metric source detected (NCDD + EDI)
+   [INFO] Split: 89 NCDD rows, 89 EDI rows
+   [INFO] NCDD dedup: 89 -> 89 rows
+   [INFO] EDI dedup: 89 -> 89 rows
+   [INFO] Merged NCDD+EDI: 89 rows (outer join + consolidated columns)
+   [OK] 8M6CL merged rows: 89 (removed 89 duplicates)
+   [OK] Wrote merged source -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\merged_sources\8M6CL_NCDD_merged_dedup.csv
+
+[ELWC] Fetching live ELWC data (10 days, 53 chambers) ...
+   Retrieved 39,428 records
+   Saved -> \\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\ELWC\ELWC_WORKING_10DAY.csv
+
+[FILE] Loading existing benchmark file ...
+   [WARN] 1 embedded stub period(s) found (cannot auto-fix -- need historical defect data to regenerate):
+          2026-02-04 -> 2026-02-09  (6 days)
+   Rows in existing file : 305
+   Existing date range   : 2025-01-01 -> 2026-08-16
+   [OK] Cutoff period end          : 2026-08-16
+   [OK] New data starts on/after  : 2026-08-17
+
+[PREP] Preparing defect data (joining DEVICE + deriving columns) ...
+   Loaded 11,800 rows from joined file
+   Date range: 2025-01-01 -> 2026-08-19
+   8M5CL raw file: 99 rows, 4 unique DEVICE values
+   8M6CL raw file: 89 rows, 4 unique DEVICE values
+   DEVICE joined: 11,800/11,800 rows matched (100.0%)
+   [OK] Derived: ZERO_BEEP, ZERO_SMP, N_SCAN, S_SCAN
+   Records after cutoff (2026-08-17): 57
+   New defect window     : 2026-08-17 -> 2026-08-19
+
+[AGG] Running 7-day aggregation on new data slice ...
+CREATING FIXED 7-DAY PERIOD AGGREGATION WITH FLEET BENCHMARKING + ELWC
+================================================================================
+Data range: 2026-08-17 to 2026-08-20
+Created 1 periods of 7 days each
+Loading ELWC data for fleet processing metrics...
+   Target date range: 2026-08-17 to 2026-08-20
+Loaded 9,918 ELWC records for analysis period
+   Memory usage: 7.3 MB
+Calculating fleet baselines with ELWC processing metrics...
+Processing 6 DEVICE-LAYER combinations...
+  PNCB-8M6CL: 19 wafers
+  PNCB-8M5CL: 10 wafers
+  PR8B-8M5CL: 18 wafers
+  PXMG-8M5CL: 4 wafers
+  PXMG-8M6CL: 4 wafers
+  PR8B-8M6CL: 2 wafers
+Created 3 period aggregations from 57 input wafers
+Compression ratio: 19.0x
+   [OK] New aggregated rows : 3
+   New period range      : 2026-08-17 -> 2026-08-19
+
+[OK] Dropped 3 trailing/partial stub row(s) from new data.
+
+[WARN] All new aggregated rows were partial or overlapping after safeguards.
+   No rows were appended. Wait for a full period and rerun.

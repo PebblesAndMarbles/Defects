@@ -34,7 +34,8 @@ _spec = importlib.util.spec_from_file_location(
 )
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
-run_for_chamber = _mod.run_for_chamber
+run_for_chamber       = _mod.run_for_chamber
+run_recent_lots_report = _mod.run_recent_lots_report
 
 
 # ─── Paths ───────────────────────────────────────────────────────────────────
@@ -102,7 +103,7 @@ def main() -> None:
     print(f"Output dir   : {OUT_DIR}")
 
     if args.dry_run:
-        print("\nDry run \u2014 chambers that would be processed:")
+        print("\nDry run -- chambers that would be processed:")
         for c in chambers:
             img_dir = os.path.join(_WORKSPACE, "images", "defects", c)
             status = "ok" if os.path.isdir(img_dir) else "NO IMAGE DIR"
@@ -127,12 +128,17 @@ def main() -> None:
             errors.append((chamber, str(exc)))
 
     elapsed = (datetime.now() - start).total_seconds()
-    print(f"\n{'─' * 52}")
+    print(f"\n{'-' * 52}")
     print(
         f"Done  {n_ok} ok  |  {n_skip} skipped  |  "
         f"{len(errors)} error(s)  ({elapsed:.1f}s)"
     )
-
+    # ── Recent lots cross-chamber report (post-step) ──────────────────────────
+    print("\nGenerating recent-lots report...")
+    try:
+        run_recent_lots_report(OUT_DIR, fleet=list(FLEET), lookback_days=7)
+    except Exception as exc:
+        print(f"  Recent lots ERROR: {exc}")
     dashboard_report = _refresh_dashboard_defects_page()
     print(f"Dashboard   : refreshed {dashboard_report}")
 

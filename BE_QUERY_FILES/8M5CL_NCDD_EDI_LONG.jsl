@@ -1,0 +1,58 @@
+//!
+NamesDefaultToHere(1);
+script = gajt3d:openwijtscript("\[
+<WijtInput>
+  <Task>
+    <TaskName>WIJT</TaskName>
+    <Description>8M5CL_NCDD_EDI_LONG</Description>
+    <ExtractXML>1</ExtractXML>
+    <GroupColumnsByOperation>1</GroupColumnsByOperation>
+    <LaunchGraphIT>0</LaunchGraphIT>
+    <LotList></LotList>
+    <PostJSL><![CDATA[dt=Current Data Table() ;
+path="\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BE_QUERY_FILES\8M5CL_NCDD_EDI_LONG.csv";
+dt << Save As(path, "CSV");]]></PostJSL>
+    <Prefetches>
+      <Prefetch>
+        <TaskName>DefectLotPrefetch</TaskName>
+        <Daterange>180</Daterange>
+        <Layer>M5CL</Layer>
+        <Product></Product>
+        <Recipe>8M5CL</Recipe>
+        <SPCLots>0</SPCLots>
+      </Prefetch>
+    </Prefetches>
+    <Queries>
+      <Query>
+        <TaskName>DefectParameterQuery</TaskName>
+        <DropUnscanned>1</DropUnscanned>
+        <Layer></Layer>
+        <LayerColumn>1</LayerColumn>
+        <LowestByActualLot>1</LowestByActualLot>
+        <LowestNWafers>ALL</LowestNWafers>
+        <Parameter>CLASS_NCDD</Parameter>
+        <Recipe>8M5CL</Recipe>
+        <RecipeLabel>1</RecipeLabel>
+        <ScanParameter>0</ScanParameter>
+      </Query>
+      <Query>
+        <TaskName>DefectParameterQuery</TaskName>
+        <DropUnscanned>1</DropUnscanned>
+        <Layer></Layer>
+        <LayerColumn>1</LayerColumn>
+        <LowestByActualLot>1</LowestByActualLot>
+        <LowestNWafers>ALL</LowestNWafers>
+        <Parameter>CLASS_EDI</Parameter>
+        <Recipe>8M5CL</Recipe>
+        <RecipeLabel>1</RecipeLabel>
+        <ScanParameter>0</ScanParameter>
+      </Query>
+    </Queries>
+    <RunPostJSL>1</RunPostJSL>
+    <Site>D1D</Site>
+    <Technology>1278</Technology>
+    <ToolStyle>LOT</ToolStyle>
+    <WriteJSL>FILE</WriteJSL>
+  </Task>
+</WijtInput>
+]\");

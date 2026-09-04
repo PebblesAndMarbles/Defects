@@ -1,26 +1,10 @@
-3866280127 | Rows in active table: 2798
-3866280127 | BY column configured: YYMM | present=1
-3866280127 | Distinct BY levels: 17
-3866280127 | BY level sample (up to 20): {"2503", "2504", "2505", "2506", "2507", "2508", "2509", "2510", "2511", "2512", "2601", "2602", "2603", "2604", "2605", "2606", "2607"}
-3866280127 | BY column reference: Column("YYMM")
-3866280127 | Bivariate object created: {Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[], Bivariate[]}
-3866280127 | biv << Report returned LIST with count=17
-3866280127 | biv XPath OutlineBox count=17
-3866280127 | Panel 1 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2503 -> 2503
-3866280127 | Panel 2 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2504 -> 2504
-3866280127 | Panel 3 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2505 -> 2505
-3866280127 | Panel 4 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2506 -> 2506
-3866280127 | Panel 5 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2507 -> 2507
-3866280127 | Panel 6 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2508 -> 2508
-3866280127 | Panel 7 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2509 -> 2509
-3866280127 | Panel 8 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2510 -> 2510
-3866280127 | Panel 9 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2511 -> 2511
-3866280127 | Panel 10 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2512 -> 2512
-3866280127 | Panel 11 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2601 -> 2601
-3866280127 | Panel 12 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2602 -> 2602
-3866280127 | Panel 13 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2603 -> 2603
-3866280127 | Panel 14 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2604 -> 2604
-3866280127 | Panel 15 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2605 -> 2605
-3866280127 | Panel 16 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2606 -> 2606
-3866280127 | Panel 17 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM YYMM=2607 -> 2607
-3866280127 | Processed report objects total: 17
+3871028698 | Rows in active table: 534
+3871028698 | BY column configured: STEP_LAYER_ID | present=9
+3871028698 | Distinct BY levels: 1
+3871028698 | BY level sample (up to 20): {"6OX450GTO_M025_PST"}
+3871028698 | BY column reference: Column("STEP_LAYER_ID")
+3871028698 | Bivariate object created: Bivariate[]
+3871028698 | biv << Report returned SINGLE object with title=Bivariate Fit of WAFER_Y_MM By WAFER_X_MM STEP_LAYER_ID=6OX450GTO_M025_PST
+3871028698 | biv XPath OutlineBox count=1
+3871028698 | Panel 1 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM STEP_LAYER_ID=6OX450GTO_M025_PST -> 6OX450GTO_M025_PST
+3871028698 | Processed report objects total: 1

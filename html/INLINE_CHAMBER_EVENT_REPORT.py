@@ -23,7 +23,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from html import escape
 from pathlib import Path
 from collections import defaultdict
@@ -820,6 +820,260 @@ def run_for_chamber(
     log_path = os.path.join(logs_dir, f"{chamber}_completeness.log")
     write_completeness_log(log_path, chamber, coords_df, lots, inv_stats)
     return "ok"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Recent lots cross-chamber report
+# ─────────────────────────────────────────────────────────────────────────────
+
+_RECENT_LOTS_BADGE_CSS = """\
+  /* ── chamber badge (recent-lots report only) ── */
+  .chamber-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #607D8B;
+    padding: 8px 12px 1px;
+  }
+"""
+
+
+def render_recent_lots_html(
+    lot_blocks: list[str],
+    n_lots: int,
+    n_chambers: int,
+    lookback_days: int,
+) -> str:
+    meta = (
+        f"{n_lots} lot{'s' if n_lots != 1 else ''}"
+        f" \u00b7 {n_chambers} chamber{'s' if n_chambers != 1 else ''}"
+        f" \u00b7 last {lookback_days} days"
+    )
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Recent Inline Defects \u2014 Last {lookback_days}D</title>
+<style>
+{PAGE_CSS}
+{_RECENT_LOTS_BADGE_CSS}
+</style>
+</head>
+<body>
+<div class="header-bar">
+  <h1>Recent Inline Defects &nbsp;\u00b7&nbsp; Last {lookback_days}D</h1>
+  <p class="meta">{escape(meta)}</p>
+</div>
+<div class="page-body">
+{''.join(lot_blocks)}
+</div>
+</body>
+</html>"""
+
+
+def run_recent_lots_report(
+    out_dir: str,
+    fleet: list[str],           # retained for API compatibility; not used
+    lookback_days: int = 7,
+) -> None:
+    """
+    Manifest-driven recent-lots cross-chamber report.
+
+    The pipeline populates INSPECTION_TIME reliably in the manifest but leaves
+    SUBENTITY, LOT7, and coordinate columns null for real image rows (those are
+    populated only for UNKNOWN-folder placeholder rows).  The fix:
+
+      1. Filter manifest by INSPECTION_TIME >= cutoff.
+      2. Infer SUBENTITY from the image file's parent directory and LOT7 from the
+         filename third field.  Drop UNKNOWN-folder placeholder rows.
+      3. Build image-slot rows from the manifest (class parsed from filename).
+      4. Fetch wafermap coordinates from DEFECT_COORDINATES_EXTENDED.csv, using
+         LOT7 + SUBENTITY as the join key.
+      5. Render lot panels exactly as the per-chamber reports do.
+
+    Output: <out_dir>/RECENT_LOTS_{lookback_days}D.html  (stable, overwritten).
+    """
+    workspace    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    manifest_csv = os.path.join(workspace, "outputs", "defects",
+                                "DEFECT_COORDINATES_EXTENDED_IMAGES.csv")
+    coords_csv   = os.path.join(workspace, "outputs", "defects",
+                                "DEFECT_COORDINATES_EXTENDED.csv")
+    cutoff_ts = datetime.now() - timedelta(days=lookback_days)
+
+    # ── Load and filter manifest ──────────────────────────────────────────────
+    try:
+        mdf = pd.read_csv(manifest_csv)
+    except Exception as exc:
+        print(f"  Recent lots : cannot read manifest -- {exc}")
+        return
+
+    mdf["INSPECTION_TIME"] = pd.to_datetime(mdf["INSPECTION_TIME"], errors="coerce")
+    if "INVENTORY_ONLY" in mdf.columns:
+        mdf = mdf[mdf["INVENTORY_ONLY"].fillna(0) != 1]
+    mdf = mdf[mdf["INSPECTION_TIME"] >= cutoff_ts].copy()
+
+    if mdf.empty:
+        print(f"  Recent lots : no rows in manifest for last {lookback_days}d -- skipped.")
+        return
+
+    if "IMAGE_ID" in mdf.columns:
+        mdf["IMAGE_ID"] = mdf["IMAGE_ID"].map(normalize_key)
+
+    # ── Enrich: infer SUBENTITY and LOT7 from filepath ───────────────────────
+    # These columns are null in new manifest rows; the path encodes them.
+    _lot7_pat = re.compile(r"^\d{6}_\d{4}_([^_]+)_")
+
+    def _infer_subentity(p: str) -> str:
+        return os.path.basename(os.path.dirname(str(p)))
+
+    def _infer_lot7(p: str) -> str:
+        m = _lot7_pat.match(os.path.basename(str(p)))
+        return m.group(1) if m else ""
+
+    mdf["_sub"]  = mdf["LOCAL_IMAGE_FILE"].map(_infer_subentity)
+    mdf["_lot7"] = mdf["LOCAL_IMAGE_FILE"].map(_infer_lot7)
+
+    # Prefer inferred values; fall back to manifest columns if inferred is blank
+    for col, inferred_col in [("SUBENTITY", "_sub"), ("LOT7", "_lot7")]:
+        if col in mdf.columns:
+            manifest_vals = mdf[col].astype(str).str.strip()
+            mdf[col] = mdf[inferred_col].where(
+                mdf[inferred_col].str.len() > 0,
+                manifest_vals,
+            )
+        else:
+            mdf[col] = mdf[inferred_col]
+
+    # Drop placeholder rows (UNKNOWN folder or missing subentity/lot)
+    mdf = mdf[
+        mdf["SUBENTITY"].str.upper().ne("UNKNOWN") &
+        mdf["SUBENTITY"].str.upper().ne("NAN") &
+        mdf["SUBENTITY"].str.len().gt(0) &
+        mdf["LOT7"].str.len().gt(0)
+    ].copy()
+
+    if mdf.empty:
+        print(f"  Recent lots : no real images found in last {lookback_days}d -- skipped.")
+        return
+
+    # ── Load coordinates CSV (for wafermap and ACTUAL_LOT) ────────────────────
+    try:
+        needed_cols = {"LOT7", "ACTUAL_LOT", "SUBENTITY", "DEFECT_ID", "CLASS",
+                       "WAFER_X_MM", "WAFER_Y_MM", "WAFER_KEY", "INSPECTION_TIME"}
+        avail  = set(pd.read_csv(coords_csv, nrows=0).columns)
+        usecols = list(needed_cols & avail)
+        coords_df = pd.read_csv(coords_csv, usecols=usecols)
+        for c in ("WAFER_X_MM", "WAFER_Y_MM"):
+            if c in coords_df.columns:
+                coords_df[c] = pd.to_numeric(coords_df[c], errors="coerce")
+        if "DEFECT_ID" in coords_df.columns:
+            coords_df["DEFECT_ID"] = coords_df["DEFECT_ID"].map(normalize_key)
+    except Exception:
+        coords_df = pd.DataFrame()
+
+    # ── Group by (SUBENTITY, LOT7) sorted newest-first ────────────────────────
+    groups = (
+        mdf.groupby(["SUBENTITY", "LOT7"], sort=False)
+        .agg(latest=("INSPECTION_TIME", "max"))
+        .reset_index()
+        .sort_values("latest", ascending=False)
+    )
+
+    # ── Build lot panels ──────────────────────────────────────────────────────
+    chambers_seen: set[str] = set()
+    lot_blocks:    list[str] = []
+
+    for _, grp_row in groups.iterrows():
+        chamber = str(grp_row["SUBENTITY"])
+        lot7    = str(grp_row["LOT7"])
+        sub_mdf = mdf[(mdf["SUBENTITY"] == chamber) & (mdf["LOT7"] == lot7)]
+
+        # Build inventory rows from manifest (image paths only)
+        rows: list[dict] = []
+        for (wafer_key, defect_id), def_grp in sub_mdf.groupby(
+            ["WAFER_KEY", "DEFECT_ID"] if "WAFER_KEY" in sub_mdf.columns else ["DEFECT_ID"],
+            sort=False,
+        ):
+            wafer_key_str = normalize_key(wafer_key) if isinstance(wafer_key, (int, float, str)) else str(wafer_key)
+            defect_id_str = normalize_key(defect_id)
+            layer = ""
+            if "LAYER" in def_grp.columns:
+                layer = str(def_grp["LAYER"].iloc[0]).strip()
+                layer = "" if layer == "nan" else layer
+            event = ""
+            if "LOCAL_IMAGE_FILE" in def_grp.columns:
+                fname = os.path.basename(str(def_grp["LOCAL_IMAGE_FILE"].iloc[0]))
+                em = re.match(r"(\d{6}_\d{4})", fname)
+                if em:
+                    event = em.group(1)
+
+            row: dict = {
+                "wafer_seq": wafer_key_str,
+                "defect_id": defect_id_str,
+                "layer":     layer,
+                "event":     event,
+                **{sk: None for sk in SLOT_KEYS},
+            }
+            for _, img in def_grp.iterrows():
+                fname    = os.path.basename(str(img.get("LOCAL_IMAGE_FILE", "")))
+                fm       = re.match(r"\d{6}_\d{4}_[^_]+_\d+_([^_]+)_", fname)
+                file_cls = fm.group(1).upper() if fm else ""
+                slot     = f"{file_cls}_{img.get('IMAGE_ID', '')}"
+                if slot not in SLOT_KEYS:
+                    continue
+                path = str(img.get("LOCAL_IMAGE_FILE", ""))
+                if path and path != "nan" and row[slot] is None:
+                    row[slot] = {"uri": path_uri(path), "path": path}
+            rows.append(row)
+
+        # Skip lots with no renderable image entries
+        if not any(any(r[sk] is not None for sk in SLOT_KEYS) for r in rows):
+            continue
+
+        rows.sort(key=lambda r: (
+            int(r["wafer_seq"]) if r["wafer_seq"].isdigit() else float("inf"),
+            defect_sort_key(r["defect_id"]),
+        ))
+
+        # Resolve ACTUAL_LOT and coordinates from coords CSV
+        actual_lot = None
+        sub_coords = pd.DataFrame()
+        if not coords_df.empty and "SUBENTITY" in coords_df.columns:
+            sub_coords = coords_df[
+                (coords_df["SUBENTITY"].astype(str).str.strip() == chamber) &
+                (coords_df["LOT7"].astype(str).str.strip() == lot7)
+            ].dropna(subset=["WAFER_X_MM", "WAFER_Y_MM"])
+            if not sub_coords.empty and "ACTUAL_LOT" in sub_coords.columns:
+                vals = [v for v in sub_coords["ACTUAL_LOT"].dropna().unique()
+                        if str(v).strip() and str(v).strip() != "nan"]
+                if vals:
+                    actual_lot = str(vals[0]).strip()
+
+        chambers_seen.add(chamber)
+        svg_map = build_svg_wafermap(lot7, rows, sub_coords, chamber, actual_lot=actual_lot)
+        lot_blocks.append(f"<div class='chamber-badge'>{escape(chamber)}</div>")
+        lot_blocks.append(_lot_section(lot7, rows, svg_map, 0, actual_lot=actual_lot))
+
+    if not lot_blocks:
+        print(f"  Recent lots : 0 lots with renderable images in last {lookback_days}d -- skipped.")
+        return
+
+    # ── Render and write ──────────────────────────────────────────────────────
+    html_out = render_recent_lots_html(
+        lot_blocks,
+        n_lots=len(groups),
+        n_chambers=len(chambers_seen),
+        lookback_days=lookback_days,
+    )
+    out_name = f"RECENT_LOTS_{lookback_days}D.html"
+    out_path = os.path.join(out_dir, out_name)
+    with open(out_path, "w", encoding="utf-8") as fh:
+        fh.write(html_out)
+    print(
+        f"  Recent lots : {len(groups)} lot(s) from {len(chambers_seen)} chamber(s)"
+        f" in last {lookback_days}d  ->  {out_path}"
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

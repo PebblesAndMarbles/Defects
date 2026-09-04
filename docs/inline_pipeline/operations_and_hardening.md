@@ -21,7 +21,10 @@ Artifacts:
 
 - JSL freshness gate: 7 days
 - Coordinate overlap: 10 days
+- Coordinate backfill: 210 days, weekly on Sunday, images disabled, explicit `DEFECT_COORDINATES_QUERY.py --backfill`
 - Image retention: 60 days
+
+The orchestrator now runs the normal coordinates export first, then the Sunday backfill pass, and only then performs manifest reconciliation so any class drift that arrives after the initial CSV write can still be overwritten before downstream image path repair.
 
 ## Production Readiness Focus
 
