@@ -54,6 +54,59 @@ def _normalize_join_value(value: object) -> str:
     return text
 
 
+def _inspection_time_norm(value: object) -> str:
+    insp = pd.to_datetime(value, errors="coerce")
+    return insp.strftime("%Y%m%d_%H%M%S") if pd.notna(insp) else "UNKNOWN"
+
+
+def _join_key(wafer_key: object, inspection_time: object, defect_id: object) -> str:
+    return (
+        f"{_normalize_join_value(wafer_key)}_"
+        f"{_inspection_time_norm(inspection_time)}_"
+        f"{_normalize_join_value(defect_id)}"
+    )
+
+
+def _expected_local_image_path(cache_root: Path, row: pd.Series, image_id: int) -> Path:
+    image_dir = cache_root / "images"
+    date_token = _normalize_join_value(pd.to_datetime(row.get("INSPECTION_TIME"), errors="coerce").strftime("%Y-%m-%d") if pd.notna(pd.to_datetime(row.get("INSPECTION_TIME"), errors="coerce")) else "")
+    lot_token = _normalize_join_value(row.get("LOT"))
+    wafer_token = _normalize_join_value(row.get("WAFER_KEY"))
+    defect_token = _normalize_join_value(row.get("DEFECT_ID"))
+    return image_dir / f"{date_token}_{lot_token}_{wafer_token}_{defect_token}_{image_id}.jpg"
+
+
+def _resolve_local_image_path(cache_root: Path, row: pd.Series, image_id: int, manifest_path: object) -> str | None:
+    manifest_text = str(manifest_path or "").strip()
+    if manifest_text and os.path.isfile(manifest_text):
+        return manifest_text
+
+    expected_path = _expected_local_image_path(cache_root, row, image_id)
+    if expected_path.is_file():
+        return str(expected_path)
+
+    return manifest_text or None
+
+
+def _log_missing_manifest_rows(missing_rows: pd.DataFrame, limit: int = 12) -> None:
+    if missing_rows.empty:
+        return
+
+    print(
+        "  Missing manifest join rows (showing up to "
+        f"{min(limit, len(missing_rows))} of {len(missing_rows)}):"
+    )
+    for _, row in missing_rows.head(limit).iterrows():
+        join_key = _join_key(row.get("WAFER_KEY"), row.get("INSPECTION_TIME"), row.get("DEFECT_ID"))
+        print(
+            "    pair_key="
+            f"{row.get('pair_key', '')} join_key={join_key} "
+            f"wafer_key={row.get('WAFER_KEY', '')} "
+            f"inspection_time={row.get('INSPECTION_TIME', '')} "
+            f"defect_id={row.get('DEFECT_ID', '')}"
+        )
+
+
 def _load_candidate_population(coords_csv: Path) -> pd.DataFrame:
     df = pd.read_csv(coords_csv, low_memory=False)
     df = df[df["CLASS"] == CLASS_OF_INTEREST].copy()
@@ -93,35 +146,40 @@ def _attach_local_image_paths(candidates: pd.DataFrame, images_csv: Path) -> pd.
     img = img[img["local_path"].fillna("").astype(str).str.strip() != ""]
     img = img[img["local_path"].apply(lambda p: os.path.isfile(str(p)))]
 
-    img["inspection_time_dt"] = pd.to_datetime(img["inspection_time"], errors="coerce")
-    img = img.dropna(subset=["inspection_time_dt"])
-    img["inspection_time_norm"] = img["inspection_time_dt"].dt.strftime("%Y%m%d_%H%M%S")
+    img["join_key"] = img.apply(
+        lambda row: _join_key(row["wafer_key"], row["inspection_time"], row["defect_id"]),
+        axis=1,
+    )
 
-    img["join_wafer_key"] = img["wafer_key"].astype(str)
-    img["join_defect_id"] = img["defect_id"].astype(str)
+    bright_lookup = (
+        img[img["image_id"] == 2]
+        .drop_duplicates(subset=["join_key"], keep="last")
+        .set_index("join_key")["local_path"]
+    )
+    dark_lookup = (
+        img[img["image_id"] == 3]
+        .drop_duplicates(subset=["join_key"], keep="last")
+        .set_index("join_key")["local_path"]
+    )
 
-    def _join_key_frame(frame: pd.DataFrame) -> pd.DataFrame:
-        cols = ["join_wafer_key", "inspection_time_norm", "join_defect_id", "local_path"]
-        return frame[cols].copy()
+    cache_root = images_csv.parent
 
-    bright = img[img["image_id"] == 2].copy()
-    bright = _join_key_frame(bright)
-    bright = bright.drop_duplicates(subset=["join_wafer_key", "inspection_time_norm", "join_defect_id"], keep="last")
-    bright = bright.rename(columns={"local_path": "bright_image_path"})
+    out["join_key"] = out.apply(
+        lambda row: _join_key(row["WAFER_KEY"], row["INSPECTION_TIME"], row["DEFECT_ID"]),
+        axis=1,
+    )
+    out["bright_image_path"] = out["join_key"].map(bright_lookup)
+    out["dark_image_path"] = out["join_key"].map(dark_lookup)
 
-    dark = img[img["image_id"] == 3].copy()
-    dark = _join_key_frame(dark)
-    dark = dark.drop_duplicates(subset=["join_wafer_key", "inspection_time_norm", "join_defect_id"], keep="last")
-    dark = dark.rename(columns={"local_path": "dark_image_path"})
-
-    out["join_wafer_key"] = out["WAFER_KEY"].map(_normalize_join_value)
-    out["join_defect_id"] = out["DEFECT_ID"].map(_normalize_join_value)
-    out["inspection_time_dt"] = pd.to_datetime(out["INSPECTION_TIME"], errors="coerce")
-    out["inspection_time_norm"] = out["inspection_time_dt"].dt.strftime("%Y%m%d_%H%M%S")
-
-    out = out.merge(bright, on=["join_wafer_key", "inspection_time_norm", "join_defect_id"], how="left")
-    out = out.merge(dark, on=["join_wafer_key", "inspection_time_norm", "join_defect_id"], how="left")
-    out = out.drop(columns=["join_wafer_key", "join_defect_id", "inspection_time_dt", "inspection_time_norm"])
+    out["bright_image_path"] = out.apply(
+        lambda row: _resolve_local_image_path(cache_root, row, 2, row.get("bright_image_path")),
+        axis=1,
+    )
+    out["dark_image_path"] = out.apply(
+        lambda row: _resolve_local_image_path(cache_root, row, 3, row.get("dark_image_path")),
+        axis=1,
+    )
+    out = out.drop(columns=["join_key"])
 
     if "bright_image_path" not in out.columns:
         out["bright_image_path"] = None
@@ -252,6 +310,7 @@ def build_tranche(
     missing_mask = selected["bright_image_path"].isna() | selected["dark_image_path"].isna()
     if missing_mask.any():
         missing_rows = selected[missing_mask].copy()
+        _log_missing_manifest_rows(missing_rows)
         if allow_redownload:
             print(f"Attempting on-demand redownload for {len(missing_rows)} case(s)...")
             print(f"  Raw image cache: {tranche_cache_dir}")

@@ -63,6 +63,16 @@ def _manifest_local_image_columns(row: dict[str, str]) -> tuple[str, str]:
     )
 
 
+def _case_insensitive_get(row: dict[str, str], *keys: str) -> str:
+    lowered = {str(key).lower(): value for key, value in row.items()}
+    for key in keys:
+        value = lowered.get(str(key).lower(), "")
+        text = str(value or "").strip()
+        if text:
+            return text
+    return ""
+
+
 def _img_tag_for_local_cache(image_path_str: str, report_dir: Path) -> str:
     if not image_path_str:
         return ""
@@ -84,7 +94,132 @@ def _attributes_table(parsed: dict[str, Any]) -> str:
         for k, v in parsed.items()
         if k != "description"
     )
-    return f'<table style="width:100%;">{rows}</table>'
+    return (
+        '<div style="overflow-x:auto;">'
+        '<table style="width:max-content; table-layout:auto; white-space:nowrap;">'
+        f'{"".join(rows)}'
+        '</table>'
+        '</div>'
+    )
+
+
+def _structured_attributes_table(structured: dict[str, Any]) -> str:
+    left_keys = [
+        "coarse_shape",
+        "shape_elongated",
+        "shape_rounded_corners",
+        "shape_jagged",
+        "shape_concave",
+        "shape_flake",
+        "coarse_texture",
+        "texture_interior_layer",
+        "texture_interior_line",
+        "texture_interior_fracture",
+        "texture_scraggly",
+        "defect_count",
+        "size_percent_of_image",
+        "location_relative",
+        "focus_quality",
+        "confidence",
+        "review_required",
+    ]
+    right_keys = [
+        "query_site",
+        "inspection_time",
+        "subentity",
+        "lot",
+        "layer",
+        "wafer_id",
+        "wafer_key",
+        "defect_id",
+        "finebin",
+        "size_x",
+        "size_y",
+        "size_d",
+        "area",
+    ]
+
+    def _paired_rows(keys: list[str]) -> list[tuple[str, str]]:
+        return [(key, html.escape(str(structured.get(key, "")))) for key in keys]
+
+    left_pairs = _paired_rows(left_keys)
+    right_pairs = _paired_rows(right_keys)
+    row_count = max(len(left_pairs), len(right_pairs))
+    rows: list[str] = []
+    for index in range(row_count):
+        left_key, left_value = left_pairs[index] if index < len(left_pairs) else ("", "")
+        right_key, right_value = right_pairs[index] if index < len(right_pairs) else ("", "")
+        rows.append(
+            "<tr>"
+            f"<td><b>{html.escape(left_key)}</b></td><td>{left_value}</td>"
+            f"<td><b>{html.escape(right_key)}</b></td><td>{right_value}</td>"
+            "</tr>"
+        )
+    return (
+        '<div style="overflow-x:auto;">'
+        '<table style="width:max-content; table-layout:auto; white-space:nowrap;">'
+        f'{"".join(rows)}'
+        '</table>'
+        '</div>'
+    )
+
+
+def _merged_structured_attributes(case: dict[str, Any], manifest_row: dict[str, str]) -> dict[str, Any]:
+    parsed = ((case.get("model_call") or {}).get("parsed")) or {}
+    merged: dict[str, Any] = {}
+
+    for key in (
+        "wafer_key",
+        "inspection_time",
+        "defect_id",
+        "wafer_id",
+        "size_x",
+        "size_y",
+        "size_d",
+        "area",
+        "finebin",
+        "inspect_time",
+        "subentity",
+        "lot",
+        "lot7",
+        "layer",
+        "query_site",
+        "coarse_shape",
+        "shape_elongated",
+        "shape_rounded_corners",
+        "shape_jagged",
+        "shape_concave",
+        "shape_flake",
+        "coarse_texture",
+        "texture_interior_layer",
+        "texture_interior_line",
+        "texture_interior_fracture",
+        "texture_scraggly",
+        "defect_count",
+        "size_percent_of_image",
+        "location_relative",
+        "focus_quality",
+        "confidence",
+        "review_required",
+        "description",
+    ):
+        value = _case_insensitive_get(manifest_row, key)
+        if not value and key in parsed:
+            value = "" if parsed.get(key) is None else str(parsed.get(key))
+        merged[key] = value
+
+    for key, value in parsed.items():
+        if key not in merged:
+            merged[key] = "" if value is None else value
+    return merged
+
+
+def _case_description(case: dict[str, Any], structured: dict[str, Any]) -> str:
+    parsed = ((case.get("model_call") or {}).get("parsed")) or {}
+    description = _case_insensitive_get(structured, "description")
+    if not description:
+        description = "" if parsed.get("description") is None else str(parsed.get("description", ""))
+    return description
 
 
 def _feedback_row(case_id: str, dom_id: str) -> str:
@@ -149,6 +284,7 @@ def build_report(
     raw_download_ok = 0
     parsed_ok = 0
     case_dom_pairs: list[tuple[str, str]] = []
+    total = len(cases)
 
     body_rows: list[str] = []
     for case in sorted(cases, key=lambda c: str(c.get("case_id") or "")):
@@ -161,7 +297,9 @@ def build_report(
         images_html = "".join(_img_tag_for_local_cache(path, report_dir) for path in (bright_image, dark_image) if path)
 
         parsed = ((case.get("model_call") or {}).get("parsed")) or {}
-        description = html.escape(str(parsed.get("description", "")))
+        structured = _merged_structured_attributes(case, manifest_row)
+        description = html.escape(_case_description(case, structured))
+        description_title = f"{html.escape(case_id)} description: {description}" if description else html.escape(case_id)
         if str(parsed.get("review_required")).strip().lower() in {"true", "1", "yes"}:
             review_true += 1
         if case.get("status") == "ok":
@@ -171,28 +309,21 @@ def build_report(
 
         body_rows.append(
             f'<tr id="case-{dom_id}" data-case-id="{html.escape(case_id)}">'
-            f"<td>{html.escape(case_id)}</td>"
-            f"<td><div><b>chamber:</b> {html.escape(str(case.get('subentity', '')))}</div>"
-            f"<div><b>finebin:</b> {html.escape(str(case.get('finebin', '')))}</div>"
-            f"<div><b>size_d:</b> {html.escape(str(case.get('size_d', '')))}</div>"
-            f"<div><b>area:</b> {html.escape(str(case.get('area', '')))}</div></td>"
-            f"<td>{description or '<i>no description (status=' + html.escape(str(case.get('status', ''))) + ')</i>'}</td>"
-            "</tr>"
+            '<td>'
+            '<table style="width:100%; border-collapse:collapse;">'
+            f'<thead><tr><th style="font-weight:400;text-align:left;">{description_title}</th></tr></thead>'
+            '</table>'
+            '</td>'
+            '</tr>'
             f'<tr class="model-calls-row" id="calls-{dom_id}">'
-            '<td colspan="3"><div class="case-detail-split">'
-            f'<div class="images-panel">{images_html}'
-            '<div style="margin-top:6px;color:#6b7280;font-size:11px;">'
-            "Burned reference copy shown -- the model was sent the raw (non-burned) source image.</div></div>"
-            f'<div class="calls-panel"><b>Structured Attributes</b>{_attributes_table(parsed)}'
-            f"<details><summary>raw model_call JSON</summary><pre>{_fmt_json(case.get('model_call'))}</pre></details>"
-            "</div>"
-            "</div></td>"
-            "</tr>"
+            '<td><div class="case-detail-split">'
+            f'<div class="images-panel">{images_html}</div>'
+            f'<div class="calls-panel">{_structured_attributes_table(structured)}</div>'
+            '</div></td>'
+            '</tr>'
         )
         if with_feedback_portal:
             body_rows.append(_feedback_row(case_id, dom_id))
-
-    total = len(cases)
     summary = {
         "total_cases": total,
         "status_ok_rate": (raw_download_ok / total) if total else 0.0,
@@ -200,11 +331,12 @@ def build_report(
         "review_required_rate": (review_true / total) if total else 0.0,
     }
 
+    feedback_css = ""
     feedback_banner = ""
     feedback_script = ""
-    feedback_css = ""
     master_submit_banner = ""
     master_submit_script = ""
+
     if with_feedback_portal:
         feedback_css = _FEEDBACK_PORTAL_CSS
         feedback_banner, feedback_script = _feedback_portal_assets(run_id=report_dir.name, api_base=feedback_api_base)
@@ -234,21 +366,14 @@ def build_report(
 </head>
 <body>
   <h1>Generic Description Pilot Review (SMALL_PARTICLE)</h1>
-  <div class=\"box\"><pre>{html.escape(json.dumps(summary, indent=2))}</pre></div>
-  {master_submit_banner}
-  {feedback_banner}
-  <table>
-    <thead>
-      <tr>
-        <th>Case</th>
-        <th>Metadata</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      {''.join(body_rows)}
-    </tbody>
-  </table>
+    <div class="box"><pre>{html.escape(json.dumps(summary, indent=2))}</pre></div>
+    {master_submit_banner}
+    {feedback_banner}
+    <table>
+        <tbody>
+            {''.join(body_rows)}
+        </tbody>
+    </table>
   {feedback_script}
   {master_submit_script}
 </body>
