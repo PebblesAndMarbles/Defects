@@ -1,0 +1,65 @@
+Commands to keep the VLM chunked-submission workflow moving
+Interpreter: c:/users/tbatson/My Programs/SQLPathFinder3/Python3/python.exe
+
+1. Submit the next ~400-defect chunk (registry-aware, auto-excludes everything already processed):
+
+& "c:/users/tbatson/My Programs/SQLPathFinder3/Python3/python.exe" "images\Alloy_Class\tools\run_generic_description_chunked.py" --preflight-check
+
+(drop --preflight-check once you trust it — it just fails fast if the first selected case overlaps the registry)
+
+2. Consolidate registry + enrich (run after every new chunk; cheap, no API spend, reads only what's already on disk):
+
+& "c:/users/tbatson/My Programs/SQLPathFinder3/Python3/python.exe" "images\Alloy_Class\tools\consolidate_generic_description_registry.py" --output-root "C:\RAW_IMAGES\generic_description_registry\generic_description_consolidated_v9_test5"
+
+(bump the _testN suffix each time, or tell me to pick a permanent non-"test" name now that this is the real ongoing pipeline)
+
+############################################################################################
+Commands to keep growing RAW_IMAGES/images
+1. Refresh production coordinates (pulls latest defects from UDB, ~10-day lookback by default):
+
+python "BE_QUERY_FILES\DEFECT_COORDINATES_QUERY.py"
+
+2. Pull new images into the local raw cache (safe to re-run — it dedupes against manifest.csv before applying --pilot-size, so a generous size just catches whatever's new):
+
+& "c:/users/tbatson/My Programs/SQLPathFinder3/Python3/python.exe" "images\Alloy_Class\tools\build_small_particle_raw_cache.py" --pilot-size 2000
+
+############################################################################################
+Commands for BEEP evidence adjudication
+1. Build the next labeling tranche (~100 unlabeled cases, newest-first, auto-excludes already-labeled/tranched):
+
+& "c:/users/tbatson/My Programs/SQLPathFinder3/Python3/python.exe" "images\Alloy_Class\tools\build_beep_labeling_tranche.py" --tranche-size 200
+
+2. Build the HTML report for that tranche (path/tranche-id from step 1's printed output):
+
+& "c:/users/tbatson/My Programs/SQLPathFinder3/Python3/python.exe" "images\Alloy_Class\reporting\build_beep_labeling_report.py" --input-csv "images\Alloy_Class\outputs\beep_evidence\tranche_0017_cases.csv" --output-html "images\Alloy_Class\outputs\beep_evidence\tranche_0017_report.html"
+
+3. Start the labeling backend (port 8001 — do NOT confuse with the probe feedback portal on port 8000):
+
+images\Alloy_Class\reporting\beep_labeling_portal\run_portal.ps1
+
+Then open the tranche HTML in a browser, label, and "Submit All" — it appends to beep_evidence_ground_truth.csv, which the consolidate/enrich step above already reads automatically for truth_label/truth_is_beep.
+
+Want me to run the production coordinates refresh + raw-cache pull now, or rebuild the 4 filtered-report script first?
+
+#######################
+COORDINATE ENRICHMENT
+& "c:\users\tbatson\My Programs\SQLPathFinder3\Python3\python.exe" "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\images\Alloy_Class\tools\enrich_production_with_vlm_attributes.py" --production-csv "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\outputs\defects\DEFECT_COORDINATES_EXTENDED.csv" --vlm-manifest-csv "C:\RAW_IMAGES\generic_description_registry\generic_description_consolidated_v9_test5\generic_description_v9_consolidated_manifest.csv" --vlm-jsonl "C:\RAW_IMAGES\generic_description_registry\generic_description_consolidated_v9_test5\generic_description_v9_consolidated.jsonl" --output-dir "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\images\Alloy_Class\outputs\production_vlm_enrichment"
+
+#######################
+EXPAND WDS DATASET
+
+& "c:\users\tbatson\My Programs\SQLPathFinder3\Python3\python.exe" "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\WDS\APEX_ENTITY\11_build_accumulating_production_csv.py" --env rf3prod --tranche-rows 400
+
+EXPAND BOST DATASET
+& "c:\users\tbatson\My Programs\SQLPathFinder3\Python3\python.exe" "\\orshfs.intel.com\ORAnalysis$\1276_MAODATA\Config\etch\AME\tbatson\Defects\BE\BOST\11_build_accumulating_bost_csv.py" --tranche-rows 1000
+
+Perfect.  I have a couple of new developmental datasets too, now that I want to connect to the defect-level enrichment you just identified.  Ok to forgo inplace write of production , for now.  Basically I have entity and BOST data via
+
+agents_history\sessions\2026-09-14_003_wds-apex-entity-incremental-accumulator-checkpoint.md
+agents_history\sessions\2026-09-14_004_bost-accumulating-csv-lot7-initialization-checkpoint.md
+
+the accumulating csv's can be readily merged (by inner join) into 
+\outputs\wafer\8M5CL_8M6CL_EXTENDED.csv
+
+(they can also be merged into coordinates, but )
+
