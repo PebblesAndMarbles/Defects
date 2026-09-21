@@ -38,6 +38,7 @@ debug_logs/
 OLD/
 rollups/
 html/SS_Subentity_Reports/
+html/SS_Subentity_Reports_7day/
 html/Inline_Subentity_Reports/
 html/adhoc_chamber_events/
 html/adhoc_elements/
@@ -50,3 +51,15 @@ __pycache__/
 *.pyc
 .vscode/
 ~$*
+
+# Vendored internal repos (Intel Confidential; never push to personal/public remotes)
+dev/wds-clients/
+dev/idealapex/
+WDS/wds_ca_bundle.pem
+
+# WDS schema probes contain real recipe names / chamber sensor params (proprietary process IP)
+# (no extension filter -- these probes have been dumped as .txt and .json; never assume just one)
+WDS/wds_columns_probe_*
+WDS/wds_etch_fdc_schema.md
+WDS/FULL_FLOW_ALIASES_SCHEMA.md
+WDS/venv_decoder_client/
