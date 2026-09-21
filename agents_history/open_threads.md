@@ -1,7 +1,7 @@
 # Open Threads
 
 **Workspace:** BE Defects Workspace
-**Last Updated:** 2026-09-04 (session log for 2026-09-04_001)
+**Last Updated:** 2026-09-12 (session log for 2026-09-12_001)
 
 ---
 
@@ -14,6 +14,122 @@
 ---
 
 ## Open
+
+### THREAD-034 🟡 — Two parallel BOST/APEX_ENTITY sessions found un-logged in agents_history
+- **Opened:** 2026-09-10
+- **Session:** 2026-09-10_001
+- **Priority:** 🟡 Important
+- **File(s):** `BOST\alias_operation_registry.csv`, `BOST\definition_registry_process_defn.csv`, `BOST\definition_registry_treatment_rules.csv`, `BOST\step4_treatment_rules_pilot.py`, `BOST\registry\diag_track_a_vs_track_b.py`, `BOST\docs\`, `BOST\archive\`, `WDS\APEX_ENTITY\`
+- **Summary:** End-of-session directory listings surfaced two substantial bodies of work in this workspace that were never logged in `agents_history`: (1) a "BOST Enrichment Registry -- Dual-Track Implementation" session (Track A process-definition registry + Track B treatment rules, plus an archive reorganization that moved this session's diagnostic scripts into `BOST\archive\old_diag_scripts\`), and (2) a separate "APEX_ENTITY Enrichment" session under `WDS\APEX_ENTITY\` (numbered scripts 01-10, handoff doc, README). Neither has a session log, index row, or file_map entries.
+- **Details:**
+  - Confirmed via session-store search (session IDs `a89ff76a-...` for the BOST dual-track work and `a31810c8-...` for APEX_ENTITY) that these are real, separate conversations, not fabricated.
+  - Do not claim credit for this work in future BOST-related logs; it needs its own retroactive session log(s).
+- **Status:** Partially resolved 2026-09-14_003 — the WDS/APEX_ENTITY half is now captured in a formal checkpoint log; the BOST dual-track half still needs its own retroactive log.
+- **Re-entry prompt:**
+  > "Two un-logged parallel sessions exist in this workspace: a BOST 'Dual-Track Implementation' (Track A process-defn registry + Track B treatment rules, under `BOST\` including `alias_operation_registry.csv`, `definition_registry_process_defn.csv`, `definition_registry_treatment_rules.csv`, `step4_treatment_rules_pilot.py`, `BOST\archive\`, `BOST\docs\`) and a separate 'APEX_ENTITY Enrichment' session under `WDS\APEX_ENTITY\`. Write retroactive session logs for both, following the retroactive logging workflow in `AGENT_RULES.md`."
+
+### ~~THREAD-034~~ ✅ RESOLVED — Two parallel BOST/APEX_ENTITY sessions found un-logged in agents_history
+- **Resolved:** 2026-09-14_003 (WDS/APEX_ENTITY half)
+- **Session:** 2026-09-10_001 and 2026-09-14_003
+- **Summary:** The WDS/APEX_ENTITY unlogged-session gap has been captured in a formal checkpoint log. The remaining BOST dual-track half still needs its own retroactive session log.
+- **Details:**
+  - The APEX_ENTITY enrichment history now has a checkpoint entry at `2026-09-14_003`.
+  - Keep THREAD-034 open only for the BOST dual-track half until that log is written.
+
+### THREAD-035 🟢 — User's planned separate enrichment work across the same 10 full-flow aliases
+- **Opened:** 2026-09-10
+- **Session:** 2026-09-10_001
+- **Priority:** 🟢 Nice to Have
+- **File(s):** `BOST\step3_wide_table_build.py`, `BOST\BOST_ENRICHMENT_REGISTRY_PLAN.md`
+- **Summary:** The user stated they will separately enrich other items across the same 10 full-flow aliases (e.g. tool/chamber columns from a separate query), but this was not started in this conversation.
+- **Details:**
+  - No scope or design has been captured yet for this follow-on enrichment.
+- **Re-entry prompt:**
+  > "The user planned to separately enrich additional items (e.g. tool/chamber columns) across the same 10 full-flow BOST aliases used in `BOST\step3_wide_table_build.py`. Ask for the specific scope before starting."
+
+### THREAD-036 ⚫ — decoder_client cannot recover Treatment Rule data; ask Dave/Kahtan directly
+- **Opened:** 2026-09-12
+- **Session:** 2026-09-12_001
+- **Priority:** ⚫ Deferred
+- **File(s):** `BOST2\DECODER_CLIENT_STATUS.md`, `BOST2\pilot_decoder_client_coverage.py`, `dev\wds-decoder-cache\loader\ingest.py`, `WDS\decoder_client_comms\DG_email.txt`, `WDS\decoder_client_comms\DG_Teams.txt`
+- **Summary:** Triple-confirmed (source code, Dave Gaibler's own comparison harness, live pilot query) that `decoder_client`'s WDS cache only ever ingests `B_WAFER_PROCESS_DEFN` (old system) and contains zero data for Treatment-Rule-migrated definitions. Not a viable path to close the BOST coverage gap as of the `main` branch commit `faa8a41` (2026-09-08). Parked, not abandoned, per Dave's email ("we are just finalizing that utility").
+- **Details:**
+  - Live pilot against 5 known-problem wafers: `GQ1KC483JKB3` returned 0/2621 populated columns; `EQUIP:AMECT_LINERS`, `EQUIP:AMECT_LIDS`, `EQUIP:HRVA_LEOCB_1278`, `PROCESS:80P_ROADRUNNER` etc. do not appear as columns at all.
+  - Isolated venv (`WDS\venv_decoder_client\`) and vendored clone (`dev\wds-decoder-cache\`) are left in place for a future re-test at low cost.
+- **Re-entry prompt:**
+  > "Ask Dave Gaibler or Kahtan Al Jewary directly whether decoder_client's `loader` has been (or will be) extended to ingest `B_WAFER_TREATMENT_DATA_V`/`B_WAFER_TREATMENT_RULES`. If yes, re-run `BOST2\pilot_decoder_client_coverage.py` (venv already set up at `WDS\venv_decoder_client\`) against the same known-problem wafers to re-validate. See `BOST2\DECODER_CLIENT_STATUS.md` for full context."
+
+### ~~THREAD-037~~ ✅ RESOLVED — BOST dry-run coverage gap (LOT-vs-WAFER_ID join key)
+- **Opened:** 2026-09-12
+- **Resolved:** 2026-09-12
+- **Session:** 2026-09-12_001 through 2026-09-12_002 (query-level unit tests + two fix rounds)
+- **Summary:** The actual root cause turned out to be different from the originally-suspected
+  `_extract_def_name_from_track_b()`/`_normalize_layer_agnostic_definition()` collision bug (that
+  code path was already neutralized in an earlier refactor). Query-level diagnostics proved the
+  real issue was the pipeline joining Track A/Track B BOST data back to the input on `LOT` text,
+  while a wafer's LOT designation can legitimately change between operations/systems (tool-error
+  rework, process-development splits/merges) even though the physical wafer never changes. Two
+  fix attempts (LOT7-alias fix, then a `[:8]` fixed-width normalization) each closed part of the
+  gap but left a residual mismatch, until the join was switched to `WAFER_ID + LAYER` only (LOT
+  kept for output/display, dropped from the merge key). Final full-pipeline run confirmed
+  `1142/1142 matched, 0 unmatched, match_rate=1.0`, independently reproduced by a standalone
+  diagnostic extractor script.
+- **Details:**
+  - Full write-up and diagnostic scripts: `BOST\docs\HANDOFF_120_GAP_LOT7_JOIN_FIX.md`,
+    `BOST\registry\diag_extract_unmatched_120_keys.py`,
+    `BOST\registry\diag_unmatched_gap_query_probe.py`,
+    `BOST\registry\diag_round2_gap_classification.py`.
+  - Domain takeaway worth reusing elsewhere: any BE/BOST script that joins wafer-level data across
+    operations/systems by LOT text should be treated as suspect for this same class of bug —
+    WAFER_ID (physical wafer serial) is the stable join key, not LOT in any form.
+
+### THREAD-028 🟡 — Decide whether the canonical v9 generic-description probe should become the default production prompt/config everywhere it is invoked
+- **Opened:** 2026-09-06
+- **Session:** 2026-09-06_001
+- **Priority:** 🟡 Important
+- **File(s):** `images\Alloy_Class\config\generic_description_prompt_v9.json`, `images\Alloy_Class\reporting\build_generic_description_html_report.py`, `images\Alloy_Class\tools\probe_generic_description.py`, `images\Alloy_Class\tools\build_small_particle_raw_cache.py`, `outputs\defects\DEFECT_COORDINATES_EXTENDED.csv`, `BE_QUERY_FILES\DEFECT_COORDINATES_RECLASS_LOG.csv`
+- **Summary:** The generic-description probe is now anchored on the v9 prompt config, the production coordinate enrichment plus reclass fallback path is in place, and the HTML report layout has been adjusted to show the case-id plus description in the title cell with the outer Case Review wrapper removed. A 30-case validation run completed successfully, but the remaining decision is whether to make this the default probe/report path everywhere it is invoked.
+- **Details:**
+  - The layout change appears ready, but promotion should be deliberate rather than implicit.
+  - If the prompt/config is promoted, downstream call sites and any documentation that still imply the older probe state may need a follow-up sweep.
+- **Re-entry prompt:**
+  > "Review the generic-description probe and HTML report flow after the successful 30-case validation. Decide whether the v9 prompt config should become the default everywhere the probe is invoked, and if so, update any call sites or docs that still point at the older probe state."
+
+### THREAD-029 🟡 — Decide whether to continue with chunked/incremental VLM submission or move to Step 3's filterable HTML feedback portal
+- **Opened:** 2026-09-07
+- **Session:** 2026-09-07_001
+- **Priority:** 🟡 Important
+- **File(s):** `images\Alloy_Class\docs\HANDOFF_PROBE_CONSOLIDATION_AND_ENRICHMENT.md`, `images\Alloy_Class\tools\enrich_production_with_vlm_attributes.py`
+- **Summary:** Step 2 enrichment now has a populated `truth_alignment_state` column, the handoff note has been cleaned up, and the next logical branch is intentionally left open: either design chunked/incremental VLM submission or move on to Step 3's filterable HTML feedback portal.
+- **Details:**
+  - The checkpoint records both the enrichment semantics and the handoff cleanup.
+  - The next step should be chosen deliberately rather than implied by the handoff.
+- **Re-entry prompt:**
+  > "Review the current Step 2 truth-alignment enrichment state and the cleaned handoff note, then decide whether to continue with chunked/incremental VLM submission or move to Step 3's filterable HTML feedback portal."
+
+### THREAD-030 🟡 — Align documentation and handoff text to the registry-preserving generic-description artifact
+- **Opened:** 2026-09-09
+- **Session:** 2026-09-09_001
+- **Priority:** 🟡 Important
+- **File(s):** `images\Alloy_Class\tools\consolidate_generic_description_registry.py`, `images\Alloy_Class\docs\HANDOFF_PROBE_CONSOLIDATION_AND_ENRICHMENT.md`
+- **Summary:** The registry-preserving rewrite of the generic-description consolidation script is the validated canonical artifact, the processed registry row count is 806, and the earlier 10,895-row production-expansion result was rejected as the wrong target. The remaining handoff task is to make sure documentation points at the registry-preserving artifact rather than the failed left-join variant.
+- **Details:**
+  - Keep the 806-row processed-registry result as the checkpoint reference state.
+  - Preserve the enriched-column set in the handoff so future agents do not regress to the wrong output shape.
+- **Re-entry prompt:**
+  > "Update the Alloy generic-description handoff so it points at the registry-preserving consolidation artifact in `images\\Alloy_Class\\tools\\consolidate_generic_description_registry.py`, not the rejected 10,895-row production-expansion variant. Keep the validated 806-row processed registry and the enriched CSV column set as the canonical state."
+
+### THREAD-031 🟢 — Decide whether the 4 filtered VLM report subsets should become a recurring/persistent Step 3 artifact
+- **Opened:** 2026-09-09
+- **Session:** 2026-09-09_004
+- **Priority:** 🟢 Nice to Have
+- **File(s):** `images\Alloy_Class\tools\consolidate_generic_description_registry.py`, `.github\prompts\planStep3VlmHtmlReports.prompt.md`
+- **Summary:** `consolidate_generic_description_registry.py` already produces 4 filtered CSV+HTML subset reports (circle, `defect_count_gt1`, `truth_alignment_state=mismatched`, `current_reclass != SMALL_PARTICLE`) as one-off test-run artifacts under `C:\RAW_IMAGES\generic_description_registry\generic_description_consolidated_v9_test3\generic_description_v9_enriched\`. These overlap conceptually with the separately-planned Step 3 filterable HTML feedback portal. Decide whether to fold this ad-hoc filtering into that planned portal, or keep it as a lightweight recurring script output.
+- **Details:**
+  - Verified these 4 report files genuinely exist and are non-hollow (confirmed 2026-09-09_004).
+  - Step 3's portal plan (`planStep3VlmHtmlReports.prompt.md`) already covers filtering/cohort views more generally; this thread is about not duplicating that work.
+- **Re-entry prompt:**
+  > "Review the 4 filtered subset reports already produced by `consolidate_generic_description_registry.py` and decide whether to fold this filtering approach into the planned Step 3 portal (`planStep3VlmHtmlReports.prompt.md`) or keep it as a separate recurring script."
 
 ### THREAD-001 🟡 — `build_benchmark_candidates.py` not yet built
 - **Opened:** 2026-08-08
@@ -413,3 +529,5 @@
 | THREAD-003 | Benchmark schema contract drift | 2026-08-10 | 2026-08-10_001 | Template updated to 44 cols; schema doc sections 5C/5E/6/10B/10C/11 updated; tool scope doc annotated |
 | THREAD-004 | Adjudication shorthand normalization | 2026-08-10 | 2026-08-10_001 | 1595 cells expanded across 11 columns via normalize_benchmark_adjudication.py; 0 unrecognized values; backup preserved |
 | THREAD-005 | Texture reference snip: multi-image Stage B pipeline support | 2026-08-11 | 2026-08-11_001 | Backend accepts `images: [b64, b64]`; pilot succeeded |
+| THREAD-032 | BOST Aug 28 coverage cutoff | 2026-09-10 | 2026-09-10_002 | Source data gap confirmed as legitimate; 146 empty wafers have zero BOST definitions in source system; not a pipeline defect |
+| THREAD-033 | BOST registry design items | 2026-09-10 | 2026-09-10_002 | BOST dual-track schema validated and aligned; definition name format conversion implemented; definition_type column infrastructure ready for future use |

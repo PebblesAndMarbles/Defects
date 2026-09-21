@@ -1,7 +1,7 @@
 # File Modification Map
 
 **Workspace:** BE Defects Workspace
-**Last Updated:** 2026-09-04 (session log for 2026-09-04_001)
+**Last Updated:** 2026-09-21 (session log for 2026-09-11_003 / 2026-09-11_004 backlog registration)
 
 ---
 
@@ -145,11 +145,89 @@
 | `.gitignore` | 2026-09-04_002 | 2026-09-04_002 | Active | Ignore rules referenced for generated `images\Alloy_Class\outputs\`, `rollups\`, and `html\adhoc_*` report directories |
 | `html\adhoc_chamber_events\` | 2026-09-04_002 | 2026-09-04_002 | Active | Generated adhoc chamber HTML report directory referenced in the hygiene checkpoint |
 | `html\adhoc_elements\` | 2026-09-04_002 | 2026-09-04_002 | Active | Generated adhoc element HTML report directory referenced in the hygiene checkpoint |
-| `agents_history\sessions\2026-09-04_002_repo-hygiene-ignore-and-untrack-checkpoint.md` | 2026-09-04_002 | 2026-09-04_002 | Active | Formal checkpoint log for the repo-hygiene ignore/untrack maintenance pass |
+| `agents_history\sessions\2026-09-04_002_repo-hygiene-ignore-and-untrack-checkpoint.md` | 2026-09-04_002 | 2026-09-04_002 | Active | Formal checkpoint log for the commit-and-push pass that split the logging, portal, BE/surf-scan, and Alloy_Class batches |
 | `agents_history\index.md` | 2026-09-04_002 | 2026-08-08_001, 2026-08-10_001, 2026-08-26_003, 2026-08-27_001, 2026-08-31_001, 2026-09-04_001, 2026-09-04_002 | Active | Added session row 2026-09-04_002 |
-| `agents_history\file_map.md` | 2026-09-04_002 | 2026-08-08_001, 2026-08-27_001, 2026-08-31_001, 2026-09-04_001, 2026-09-04_002 | Active | Added rows for this session's logging files and hygiene targets |
+| `agents_history\file_map.md` | 2026-09-04_002 | 2026-08-08_001, 2026-08-27_001, 2026-08-31_001, 2026-09-04_001, 2026-09-04_002 | Active | Added rows for this session's logging files and push traceability |
+| `images\Alloy_Class\tools\build_beep_labeling_tranche.py` | 2026-09-04_003 | 2026-09-04_003 | Active | Normalized manifest join key and image-id-specific lookups added; missing manifest rows logged before fallback redownload |
+| `images\Alloy_Class\outputs\beep_evidence\tranche_0014_cases.csv` | 2026-09-04_003 | 2026-09-04_003 | Active | Regenerated after the tranche-builder manifest-match fix |
+| `agents_history\sessions\2026-09-04_003_tranche-builder-manifest-matching-checkpoint.md` | 2026-09-04_003 | 2026-09-04_003 | Active | Formal checkpoint log for the tranche-builder manifest-matching fix |
+| `agents_history\sessions\2026-09-06_001_generic-description-probe-html-report-checkpoint.md` | 2026-09-06_001 | 2026-09-06_001 | Active | Formal checkpoint log for the generic-description probe and HTML report state |
+| `images\Alloy_Class\config\generic_description_prompt_v9.json` | 2026-09-06_001 | 2026-09-06_001 | Active | Canonical prompt config for the generic-description probe |
+| `images\Alloy_Class\reporting\build_generic_description_html_report.py` | 2026-09-06_001 | 2026-09-06_001 | Active | Probe HTML report builder; layout now uses case-id + description title cell and content-sized attributes table |
+| `images\Alloy_Class\tools\probe_generic_description.py` | 2026-09-06_001 | 2026-09-06_001 | Active | Generic-description probe entrypoint with production coordinate enrichment and reclass fallback |
+| `images\Alloy_Class\tools\build_small_particle_raw_cache.py` | 2026-09-06_001 | 2026-09-06_001 | Active | Local-cache manifest source used by the probe validation run |
+| `outputs\defects\DEFECT_COORDINATES_EXTENDED.csv` | 2026-09-06_001 | 2026-09-06_001 | Active | Production coordinate enrichment source verified during the probe work |
+| `BE_QUERY_FILES\DEFECT_COORDINATES_RECLASS_LOG.csv` | 2026-09-06_001 | 2026-09-06_001 | Active | Reclass fallback source for rows removed from production coordinates |
+| `agents_history\sessions\2026-09-07_001_alloy-step2-truth-state-enrichment-and-handoff-cleanup.md` | 2026-09-07_001 | 2026-09-07_001 | Active | Formal checkpoint log for the Step 2 truth-state enrichment and handoff cleanup session |
+| `images\Alloy_Class\tools\enrich_production_with_vlm_attributes.py` | 2026-09-07_001 | 2026-09-07_001 | Active | Added `truth_alignment_state` and supporting truth-bucket precedence logic |
+| `images\Alloy_Class\docs\HANDOFF_PROBE_CONSOLIDATION_AND_ENRICHMENT.md` | 2026-09-07_001 | 2026-09-07_001 | Active | Removed duplicate re-entry prompt and replaced it with one concise next-step note |
+| `agents_history\sessions\2026-09-09_001_alloy-generic-description-registry-consolidation-checkpoint.md` | 2026-09-09_001 | 2026-09-09_001 | Active | Formal checkpoint log for the registry-preserving generic-description consolidation state |
+| `images\Alloy_Class\tools\consolidate_generic_description_registry.py` | 2026-09-09_001 | 2026-09-09_001 | Active | Registry-preserving consolidation artifact; 806-row processed registry validated |
+| `images\Alloy_Class\docs\HANDOFF_PROBE_CONSOLIDATION_AND_ENRICHMENT.md` | 2026-09-09_001 | 2026-09-09_001 | Active | Handoff alignment target; should point at the registry-preserving artifact instead of the rejected expansion variant |
+| `agents_history\sessions\2026-09-09_003_alloy-generic-description-chunked-submission-follow-through-checkpoint.md` | 2026-09-09_003 | 2026-09-09_003 | Active | Formal checkpoint log for the chunked submission hardening, registry consolidation, enrichment, and filtered HTML reporting follow-through state. |
+| `images\Alloy_Class\tools\consolidate_generic_description_registry.py` | 2026-09-09_003 | 2026-09-09_001, 2026-09-09_003 | Active | Referenced as the consolidated registry artifact carried forward into chunked submission follow-through. |
+| `images\Alloy_Class\tools\enrich_production_with_vlm_attributes.py` | 2026-09-09_003 | 2026-09-07_001, 2026-09-09_003 | Active | Referenced for the truth-alignment enrichment follow-through state and downstream filtered reporting. |
+| `images\Alloy_Class\reporting\build_generic_description_html_report.py` | 2026-09-09_003 | 2026-09-06_001, 2026-09-09_003 | Active | Referenced for the HTML reporting follow-through on filtered subsets. |
+| `agents_history\sessions\2026-09-09_002_generic-description-registry-bootstrap-and-tranche-fix.md` | 2026-09-09_002 | 2026-09-09_002 | Active | Formal checkpoint log for the registry-workspace bootstrap and tranche-fix session |
+| `images\Alloy_Class\tools\run_generic_description_chunked.py` | 2026-09-09_002 | 2026-09-09_002, 2026-09-09_004 | Active | Chunked orchestrator; preflight check fixed in 2026-09-09_004 to reuse the real exclusion-aware selection logic instead of a drifted reimplementation |
+| `agents_history\sessions\2026-09-09_004_generic-description-chunked-submission-bug-fixes-and-verification-checkpoint.md` | 2026-09-09_004 | 2026-09-09_004 | Active | Formal checkpoint log for the join-key precision fix, manifest-CSV crash fix, registry dedup-on-write fix, chunk recovery, registry cleanup, and verification of the 2026-09-09_001/002/003 logs |
+| `artifacts\surf_scan_event_wafer_backfill_summary.json` | 2026-09-09_004 | 2026-09-09_004 | Active | Referenced in the checkpoint as the on-disk summary artifact for the surf-scan event-wafer backfill / time-window-fix state |
+| `images\Alloy_Class\tools\probe_generic_description.py` | 2026-09-09_004 | 2026-09-06_001, 2026-09-09_004 | Active | Fixed join-key precision mismatch (case_id vs truncated inspection_time column), manifest-CSV union-fieldnames write, and registry dedup-on-write |
+| `images\Alloy_Class\docs\HANDOFF_PROBE_CONSOLIDATION_AND_ENRICHMENT.md` | 2026-09-09_004 | 2026-09-07_001, 2026-09-09_001, 2026-09-09_004 | Active | Added full 2026-09-08 status update section covering all bugs found/fixed and current registry data status |
+| `C:\RAW_IMAGES\generic_description_registry\generic_description_processed_registry.csv` | 2026-09-09_004 | 2026-09-09_004 | Active | Deduped 1199 -> 806 rows; backup preserved as `generic_description_processed_registry_backup_before_dedupe.csv` |
+| `agents_history\index.md` | 2026-09-04_003 | 2026-08-08_001, 2026-08-10_001, 2026-08-26_003, 2026-08-27_001, 2026-08-31_001, 2026-09-04_001, 2026-09-04_002, 2026-09-04_003 | Active | Added session row 2026-09-04_003 |
 | `SURF_SCAN_PIPELINE_DESIGN.md` | 2026-08-31_001 (referenced) | 2026-08-08_005, 2026-08-08_006, 2026-08-31_001 | Active | Architectural reference for the OX pilot design; not modified this session |
 | `BE_QUERY_FILES\surf_scan_coordinates.py` | 2026-08-31_001 (referenced) | 2026-08-31_001 | Active | Source of ported pilot-status logic and the `_fetch_edx_data()` pattern match; not modified this session |
+
+---
+
+## 2026-09-10_001 — BOST Enrichment Registry Pilot (Steps 1-3) and Aug 28 Coverage Escalation
+
+| File (relative path) | Last Session | All Sessions | Status | Notes |
+|----------------------|-------------|--------------|--------|-------|
+| `BOST\step1_recent_wafer_registry_pilot.py` | 2026-09-10_001 | 2026-09-10_001 | Active | Step 1: 10 most-recent wafers (5/layer), reused `FULL_FLOW_ALIASES` from `adhoc_bost_gate_rollout.py` |
+| `BOST\step2_14day_lookback_pilot.py` | 2026-09-10_001 | 2026-09-10_001 | Active | Step 2: 14-day lookback, 285 wafer/layer keys, 49 alias/definition combos, 25 distinct `DEFINITION_NAME`s |
+| `BOST\step3_wide_table_build.py` | 2026-09-10_001 | 2026-09-10_001 | Active | Step 3: final wide table, `(STEP, DEFINITION_NAME)` keying, `{STEP}_{SANITIZED_DEFINITION_CORE}` columns, 0 collisions after BUG-002 fix |
+| `BOST\registry\diag_dave_decoder_comparison.py` | 2026-09-10_001 | 2026-09-10_001 | Active | Compares Dave Gaibler's `decoder_sql` filters against real BOST metadata; still at this path |
+| `BOST\archive\old_diag_scripts\diag_step1_hm_etch_check.py` | 2026-09-10_001 | 2026-09-10_001 | Active | Created this session, archived by a later parallel session; confirmed no data loss |
+| `BOST\archive\old_diag_scripts\diag_definition_date_ranges.py` | 2026-09-10_001 | 2026-09-10_001 | Active | Found the Aug 28 13:32:41 uniform cutoff; created this session, archived by a later parallel session |
+| `BOST\archive\old_diag_scripts\diag_definition_last_update.py` | 2026-09-10_001 | 2026-09-10_001 | Active | Known dead end (BUG-001, ORA-00904); created this session, archived by a later parallel session |
+| `BOST\registry\` (step1/step2/step3 output CSVs) | 2026-09-10_001 | 2026-09-10_001 | Active | Output artifacts; later renamed/date-stamped by a subsequent parallel session's reorganization |
+| `BOST\BOST_ENRICHMENT_REGISTRY_PLAN.md` | 2026-09-10_001 | 2026-09-09 (design doc), 2026-09-10_001 | Active | Added "## 5. Current status / handoff (as of 2026-09-10)" section |
+| `agents_history\sessions\2026-09-10_001_bost-enrichment-registry-pilot-and-coverage-escalation-checkpoint.md` | 2026-09-10_001 | 2026-09-10_001 | Active | Formal checkpoint log for this session |
+| `agents_history\index.md` | 2026-09-10_001 | (see prior entries), 2026-09-10_001 | Active | Added session row 2026-09-10_001 and THREAD-032 through THREAD-035 |
+| `agents_history\open_threads.md` | 2026-09-10_001 | (see prior entries), 2026-09-10_001 | Active | Added THREAD-032 through THREAD-035 body entries |
+| `agents_history\file_map.md` | 2026-09-10_001 | (see prior entries), 2026-09-10_001 | Active | Added rows for this session's files |
+| `BOST\registry\` (dual-track artifacts: `alias_operation_registry.csv`, `definition_registry_process_defn.csv`, `definition_registry_treatment_rules.csv`, `step4_treatment_rules_pilot.py`, `diag_track_a_vs_track_b.py`), `BOST\docs\`, `BOST\get_generic_decoder_client.md`, `BOST\20260827_NELSON_BOST.md` | 2026-09-10_001 (referenced, not authored) | unknown (separate session) | Open | Discovered, not produced, this session — un-logged parallel "BOST Dual-Track" session (THREAD-034) |
+| `WDS\APEX_ENTITY\` (01-10 scripts, handoff doc, README) | 2026-09-10_001 (referenced, not authored) | unknown (separate session) | Open | Discovered, not produced, this session — un-logged parallel "APEX_ENTITY Enrichment" session (THREAD-034) |
+
+---
+
+## 2026-09-10_002 — BOST Enrichment Investigation Complete — Root Causes Fixed, Production Ready
+
+| File (relative path) | Last Session | All Sessions | Status | Notes |
+|----------------------|-------------|--------------|--------|-------|
+| `BOST\adhoc_bost_gate_rollout.py` | 2026-09-10_002 | 2026-09-10_001, 2026-09-10_002 | Active | Added module suffix mapping for Track B (lines 306-313); migrated to B_WAFER_TREATMENT_RULES + config table joins; fixed wafer-level filtering; added DEFINITION_NAME format conversion function |
+| `FINAL_BOST_FIX_SUMMARY_20260910.md` | 2026-09-10_002 | 2026-09-10_002 | Active | Comprehensive technical summary with root causes, solutions, code changes, validation results, and production-readiness sign-off |
+| `ROOT_CAUSE_ANALYSIS_20260910.md` | 2026-09-10_002 | 2026-09-10_002 | Active | Detailed forensic analysis of investigation methodology, root causes, implications, and resolution status |
+| `agents_history\sessions\2026-09-10_002_bost-enrichment-investigation-complete.md` | 2026-09-10_002 | 2026-09-10_002 | Active | Formal checkpoint log for this session with complete root cause analysis and production deployment readiness |
+| `agents_history\index.md` | 2026-09-10_002 | (see prior entries), 2026-09-10_002 | Active | Added session row 2026-09-10_002; updated open threads for THREAD-032, THREAD-033 |
+| `agents_history\open_threads.md` | 2026-09-10_002 | (see prior entries), 2026-09-10_002 | Active | Moved THREAD-032, THREAD-033 from Open to Resolved section; marked as resolved 2026-09-10_002 |
+
+## 2026-09-11_003 / 2026-09-11_004 — BOST Column Refactoring (registered retroactively 2026-09-21)
+
+Two independent checkpoint logs were written for this same column-refactor session and
+originally collided on session_id `2026-09-11_003`; the second was renumbered to
+`2026-09-11_004` during the 2026-09-21 git-push cleanup. Neither had been added to this
+file map or `index.md` until that cleanup.
+
+| File (relative path) | Last Session | All Sessions | Status | Notes |
+|----------------------|-------------|--------------|--------|-------|
+| `BOST\adhoc_bost_gate_rollout.py` | 2026-09-11_004 | 2026-09-10_001, 2026-09-10_002, 2026-09-11_003, 2026-09-11_004 | Active | Column naming refactor: dropped `_VALUE` suffix, moved module prefix to column start, added comprehensive empty/`'None'`-string column filtering (Gate 6) |
+| `agents_history\sessions\2026-09-11_003_bost-column-refactoring-complete.md` | 2026-09-11_003 | 2026-09-11_003 | Active | Checkpoint log with Bugs Encountered/Open Threads/Recommended Re-Entry detail; cross-references the 004 log |
+| `agents_history\sessions\2026-09-11_004_bost-column-refactor-analysis-and-script-inventory.md` | 2026-09-11_004 | 2026-09-11_004 | Active | Checkpoint log with Files-Created (analysis scripts/docs) and Code-Changes-Summary detail not in the 003 log; renamed from a colliding `2026-09-11_003` filename |
+
+| `agents_history\file_map.md` | 2026-09-10_002 | (see prior entries), 2026-09-10_002 | Active | Added rows for this session's files |
 
 ---
 
@@ -268,6 +346,66 @@ These rows cover sessions that existed as files in `sessions\` but were never re
 | `agents_history\sessions\_template.md` | 2026-08-08 | 2026-08-08_001 | Created |
 | `agents_history\sessions\2026-08-08_001_session-logger-deployment.md` | 2026-08-08 | 2026-08-08_001 | Created |
 | `html\INLINE_CHAMBER_EVENT_REPORT.py` | 2026-08-08 | 2026-08-08_002 | Created |
+| `BOST2\pilot_decoder_client_coverage.py` | 2026-09-12 | 2026-09-12_001 | Created |
+| `BOST2\pilot_decoder_client_raw_output.csv` | 2026-09-12 | 2026-09-12_001 | Created |
+| `BOST2\DECODER_CLIENT_STATUS.md` | 2026-09-12 | 2026-09-12_001 | Created |
+| `dev\wds-decoder-cache\` | 2026-09-12 | 2026-09-12_001 | Created (vendored clone, gitignored) |
+| `WDS\venv_decoder_client\` | 2026-09-12 | 2026-09-12_001 | Created (isolated venv, UNC-accessible) |
+| `agents_history\sessions\2026-09-12_001_decoder-client-pilot-dead-end-and-bost2-scoping.md` | 2026-09-12 | 2026-09-12_001 | Created |
+| `BOST\get_generic_decoder_client.md` | 2026-09-12 | 2026-09-12_001 | Referenced (not modified) |
+| `dev\idealapex\core_support\decoder_utilities_rev1.py` | 2026-09-12 | 2026-09-12_001 | Referenced (not modified) |
+| `BOST\adhoc_bost_gate_rollout.py` | 2026-09-12 | 2026-09-12_001 | Referenced (not modified); known bug not yet fixed, see THREAD-037 |
+| `BOST\wijt_BOST.csv` | 2026-09-12 | 2026-09-12_001 | Referenced (not modified) |
+| `BOST\wijt_BOST2.csv` | 2026-09-12 | 2026-09-12_001 | Referenced (not modified) |
+| `EVIDENCE_REVIEW_WIJT_vs_OURS.md` | 2026-09-12 | 2026-09-12_001 | Referenced (not modified) |
+| `ROOT_CAUSE_ANALYSIS_20260910.md` | 2026-09-12 | 2026-09-12_001 | Referenced (not modified) |
+| `WDS\decoder_client_comms\DG_email.txt` | 2026-09-12 | 2026-09-12_001 | Referenced (not modified) |
+| `WDS\decoder_client_comms\DG_Teams.txt` | 2026-09-12 | 2026-09-12_001 | Referenced (not modified) |
+| `BOST\20260827_NELSON_BOST.md` | 2026-09-12 | 2026-09-12_001 | Referenced (not modified) |
+| `BOST\adhoc_bost_gate_rollout.py` | 2026-09-12 | 2026-09-12_002 | Modified | Rolled back WIJT-specific additions, deleted unused WIJT helpers, and reran rollout validation during baseline cleanup |
+| `BOST\adhoc_bost_pilot_enriched_8M5CL_8M6CL.csv` | 2026-09-12 | 2026-09-12_002 | Modified | Rerun artifact used to confirm pilot behavior during baseline cleanup |
+| `BOST\adhoc_bost_enriched_dryrun_8M5CL_8M6CL.csv` | 2026-09-12 | 2026-09-12_002 | Modified | Rerun artifact used to confirm full dry-run behavior during baseline cleanup |
+| `artifacts\adhoc_bost_pilot_summary.json` | 2026-09-12 | 2026-09-12_002 | Modified | Updated by rerun validation after rollback slices |
+| `artifacts\adhoc_bost_dryrun_summary.json` | 2026-09-12 | 2026-09-12_002 | Modified | Updated by rerun validation after rollback slices |
+| `artifacts\adhoc_bost_full_summary.json` | 2026-09-12 | 2026-09-12_002 | Modified | Updated by rerun validation after rollback slices |
+| `artifacts\adhoc_bost_definition_columns.csv` | 2026-09-12 | 2026-09-12_002 | Modified | Updated by rerun validation after rollback slices |
+| `agents_history\sessions\2026-09-12_002_bost-query-core-baseline-rollback.md` | 2026-09-12 | 2026-09-12_002 | Created | Formal checkpoint log for the rollback and query-core isolation work |
+| `agents_history\index.md` | 2026-09-12 | 2026-09-12_002 | Modified | Added session row 2026-09-12_002 |
+| `agents_history\file_map.md` | 2026-09-12 | 2026-09-12_002 | Modified | Added rows for the new checkpoint and rerun artifacts |
+| `agents_history\sessions\2026-09-13_001_bost-track-a-removal-checkpoint.md` | 2026-09-13 | 2026-09-13_001 | Created | Formal checkpoint log for the Track A removal state |
+| `agents_history\index.md` | 2026-09-13 | 2026-09-13_001 | Modified | Added session row 2026-09-13_001 |
+| `agents_history\file_map.md` | 2026-09-13 | 2026-09-13_001 | Modified | Added rows for the Track A removal checkpoint |
+| `BOST\adhoc_bost_gate_rollout.py` | 2026-09-13 | 2026-09-13_001 | Referenced | Verified clean after Track A removal |
+| `BOST\docs\HANDOFF_01_LAYER_AGNOSTIC_COLUMN_COLLAPSE.md` | 2026-09-13 | 2026-09-13_001 | Referenced | Updated to state Track A is removed |
+
+---
+
+## 2026-09-14_001 — BOST FULL_FLOW_ALIASES Bug Fix, Handoffs 02/03 Closure, and Track-A-Removal Arc Completion
+
+| File (relative path) | Last Session | All Sessions | Status | Notes |
+|----------------------|-------------|--------------|--------|-------|
+| `BOST\adhoc_bost_gate_rollout.py` | 2026-09-14_001 | 2026-09-10_001, 2026-09-10_002, 2026-09-12_002, 2026-09-13_001, 2026-09-14_001 | Active | Fixed `FULL_FLOW_ALIASES` corruption (BUG-001); rebuilt `_materialize_track_b_registry()`/`_load_track_b_registry_scope()`; removed 4 dead functions, `EXPECTED_VALUE_COLUMNS`/`PLACEHOLDER_COLUMNS`, the `[DEBUG]` print, and the `prefix_map`/`_definition_prefix_map()` plumbing |
+| `BOST\docs\HANDOFF_01_LAYER_AGNOSTIC_COLUMN_COLLAPSE.md` | 2026-09-14_001 | 2026-09-13_001, 2026-09-14_001 | Active | Appended "VALIDATION FINDINGS (2026-09-14)" with the `FULL_FLOW_ALIASES` bug writeup and post-fix metrics |
+| `BOST\docs\HANDOFF_02_REGISTRY_TRACK_B_DIFF_TRACKING.md` | 2026-09-14_001 | 2026-09-14_001 | Active | Marked `STATUS: CLOSED (verified 2026-09-14)`; registry rebuild + NEW/EXISTING/RETIRED diffing verified via two runs plus simulated cases |
+| `BOST\docs\HANDOFF_03_CODE_CLEANUP.md` | 2026-09-14_001 | 2026-09-14_001 | Active | Marked `STATUS: CLOSED (implemented and verified 2026-09-14)`; dead-code removal + `prefix_map` retirement verified against final summary metrics |
+| `BOST\registry\definition_registry_treatment_rules.csv` | 2026-09-14_001 | 2026-09-10_001, 2026-09-14_001 | Active | Registry now refreshed every run (no longer frozen); restored to real state after RETIRED/NEW simulation test artifacts were cleaned up |
+| `artifacts\definition_registry_new_2026-09-14.csv` | 2026-09-14_001 | 2026-09-14_001 | Active | NEW-rows snapshot emitted by the rebuilt registry materialization, produced during Handoff 02 verification |
+| `artifacts\adhoc_bost_full_summary.json` | 2026-09-14_001 | 2026-09-10_001, 2026-09-10_002, 2026-09-12_002, 2026-09-14_001 | Active | Final full-pipeline run (`created_at: 2026-09-14 10:31:58`) confirms `match_rate=1.0`, `unmatched_keys=0`, `value_columns=54` |
+| `agents_history\sessions\2026-09-14_001_bost-full-flow-aliases-fix-and-handoffs-closure.md` | 2026-09-14_001 | 2026-09-14_001 | Active | Formal checkpoint log; supersedes and completes the arc `2026-09-13_001` only partially/prematurely captured |
+| `agents_history\index.md` | 2026-09-14_001 | (see prior entries), 2026-09-14_001 | Active | Added session row 2026-09-14_001 |
+| `agents_history\file_map.md` | 2026-09-14_001 | (see prior entries), 2026-09-14_001 | Active | Added this section for 2026-09-14_001's files |
+
+## 2026-09-14_002 — WDS APEX_ENTITY Production Enrichment Checkpoint
+
+| File (relative path) | Last Session | All Sessions | Status | Notes |
+|----------------------|-------------|--------------|--------|-------|
+| `agents_history\sessions\2026-09-14_002_wds-apex-entity-enrichment-checkpoint.md` | 2026-09-14_002 | 2026-09-14_002 | Active | Formal checkpoint log for the WDS/APEX_ENTITY production enrichment session |
+| `agents_history\sessions\2026-09-14_003_wds-apex-entity-incremental-accumulator-checkpoint.md` | 2026-09-14_003 | 2026-09-14_003 | Active | Formal checkpoint log for the WDS/APEX_ENTITY incremental accumulator session |
+| `WDS\APEX_ENTITY\09_enrich_production_csv.py` | 2026-09-14_003 | 2026-09-14_002, 2026-09-14_003 | Active | Incremental accumulator builder, in-place accumulating CSV, `INSPECT_TIME`-ordered missing-key prioritization, and configurable tranche sizing |
+| `WDS\APEX_ENTITY\09_enrich_production_csv.py` | 2026-09-14_002 | 2026-09-14_002 | Active | Enrichment script updated for `INSPECT_TIME` lookback, file-driven ordering, and column pruning |
+| `WDS\APEX_ENTITY\COLUMN_ORDER.txt` | 2026-09-14_002 (referenced) | 2026-09-14_002 | Active | Canonical file-driven column-order contract referenced by the enrichment script |
+| `WDS\APEX_ENTITY\README.md` | 2026-09-14_002 (referenced) | 2026-09-14_002 | Active | User-facing workflow and usage reference for the WDS/APEX_ENTITY tools |
+| `WDS\APEX_ENTITY\08_merge_strategy.md` | 2026-09-14_002 (referenced) | 2026-09-14_002 | Active | Merge/output-shape reference for the WDS/APEX_ENTITY enrichment flow |
 | `html\INLINE_PRODUCTION_SUBENTITY_REPORTS.py` | 2026-08-08 | 2026-08-08_002 | Created |
 | `BE_QUERY_FILES\8M5CL_8M6CL_UPDATE.py` | 2026-08-08 | 2026-08-08_002 | Modified |
 | `docs\FLEET.txt` | 2026-08-08 | 2026-08-08_002 | Modified |
@@ -287,3 +425,5 @@ These rows cover sessions that existed as files in `sessions\` but were never re
 | `images\Alloy_Class\tools\probe_fn_feature_perception.py` | Intermittent empty VLM responses (~40% first-attempt rate, BMK_0050/p2 persistent across 4 attempts) — BUG-001, unresolved | 2026-08-26_002 | Resolved in 2026-08-26_003 — max-token hypothesis confirmed as a real contributing cause; `DEFAULT_MAX_TOKENS` raised 400->1800 |
 | `images\Alloy_Class\tools\score_benchmark_run.py` | Boolean `False` `review_required` mis-flagged as missing due to `str(False or "")` truthiness (THREAD-015) | 2026-08-26_003 | Open (Deferred, out of scope) |
 | `images\Alloy_Class\config\stage_ab_prompt_tests_substrate_tier1_v13.json` | Validated on 15-pair benchmark but not yet promoted to production default (THREAD-011) | 2026-08-26_003 | Open |
+| `BOST\registry\` | Contains substantial un-logged work from a separate parallel session (Dual-Track Implementation: Track A/B, treatment rules, archive reorg) not captured in agents_history (THREAD-034) | 2026-09-10_001 | Open |
+| `WDS\APEX_ENTITY\` | Entire enrichment effort (numbered scripts 01-10, handoff doc) un-logged in agents_history (THREAD-034) | 2026-09-10_001 | Open |

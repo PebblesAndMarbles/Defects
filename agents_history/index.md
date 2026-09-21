@@ -1,7 +1,7 @@
 # Agent Session Index
 
 **Workspace:** BE Defects Workspace
-**Last Updated:** 2026-09-04 (session log for 2026-09-04_001)
+**Last Updated:** 2026-09-21 (session log for 2026-09-11_003 / 2026-09-11_004 backlog registration)
 
 ---
 
@@ -38,6 +38,16 @@ Update this manually when a thread is resolved.
 | THREAD-025 | 2026-08-27 | 2026-08-27_001 | Open | Model non-determinism on borderline/duplicate test cases (BMK_0008, BMK_0011) |
 | THREAD-026 | 2026-08-31 | 2026-08-31_001 | Open | Decide whether to wire the direct INSP_ELEMENT EDX join into the OX pilot pipeline now, or hold off until imaging scope is defined |
 | THREAD-027 | 2026-09-04 | 2026-09-04_001 | Open | Optional cleanup: remove dead inline-style code paths or adjust the progress-message wording in `images\Alloy_Class\tools\build_small_particle_raw_cache.py` |
+| THREAD-028 | 2026-09-06 | 2026-09-06_001 | Open | Decide whether the canonical v9 generic-description probe should become the default production prompt/config everywhere it is invoked |
+| THREAD-029 | 2026-09-07 | 2026-09-07_001 | Open | Decide whether to continue with chunked/incremental VLM submission or move to Step 3's filterable HTML feedback portal |
+| THREAD-030 | 2026-09-09 | 2026-09-09_001 | Open | Align documentation/handoff text to the registry-preserving generic-description artifact (substantially de-risked by 2026-09-09_004) |
+| THREAD-031 | 2026-09-09 | 2026-09-09_004 | Open | Decide whether the 4 filtered VLM report subsets should become a recurring/persistent Step 3 artifact |
+| THREAD-032 | 2026-09-10 | 2026-09-10_001 | Open | BOST Aug 28 coverage cutoff escalated to BOST DB owners; awaiting response, Treatment Rule theory unconfirmed |
+| THREAD-033 | 2026-09-10 | 2026-09-10_001 | Open | BOST registry open items: add DEFINITION_TYPE to Table B, key Table A/B on (STEP/ALIAS, DEFINITION_NAME), hold STATUS logic until Aug 28 boundary resolved |
+| THREAD-034 | 2026-09-10 | 2026-09-10_001 | Resolved | Closed 2026-09-14_003 — WDS/APEX_ENTITY half of the unlogged-session reconciliation is now captured in a formal checkpoint log; BOST dual-track half still needs its own session log |
+| THREAD-035 | 2026-09-10 | 2026-09-10_001 | Open | User's planned separate enrichment work across the same 10 full-flow aliases; not started |
+| THREAD-036 | 2026-09-12 | 2026-09-12_001 | Open (Deferred) | decoder_client cannot recover Treatment-Rule data (triple-confirmed); ask Dave/Kahtan whether loader will ever ingest B_WAFER_TREATMENT_DATA_V/RULES |
+| THREAD-037 | 2026-09-12 | 2026-09-12_001 | Open | Fix known `_extract_def_name_from_track_b()` layer-agnostic-normalization data-loss bug in `BOST\adhoc_bost_gate_rollout.py` — the real fixable root cause of the remaining coverage gap |
 
 ---
 
@@ -80,7 +90,24 @@ Update this manually when a thread is resolved.
 | 2026-08-31_001 | 2026-08-31 | 1K OX SurfScan Pilot Pipeline Build + EDX LAYER_ID Investigation | partial | `agents_history\sessions\2026-08-31_001_1k-ox-surfscan-pilot-pipeline-and-edx-layer-id-investigation.md`, `rollups\1K_OX_PILOT_PIPELINE\ox_pilot_config.py`, `rollups\1K_OX_PILOT_PIPELINE\ox_pilot_coordinates.py`, `rollups\1K_OX_PILOT_PIPELINE\run_seed.py`, `rollups\1K_OX_PILOT_PIPELINE\run_update.py`, `rollups\1K_OX_PILOT_PIPELINE\scope_1k_ox_smoke_test.py`, `rollups\1K_OX_PILOT_PIPELINE\probe_edx_layer_id_v4.py` | THREAD-026 |
 | 2026-09-04_001 | 2026-09-04 | Small Particle Raw Cache Flat RAW_IMAGES Checkpoint | complete | `images\Alloy_Class\tools\build_small_particle_raw_cache.py`, `agents_history\sessions\2026-09-04_001_small-particle-raw-cache-flat-raw-images-checkpoint.md` | THREAD-027 |
 | 2026-09-04_002 | 2026-09-04 | Repo Hygiene Ignore and Untrack Checkpoint | complete | `agents_history\sessions\2026-09-04_002_repo-hygiene-ignore-and-untrack-checkpoint.md` | (none) |
+| 2026-09-04_003 | 2026-09-04 | Tranche Builder Manifest Matching Checkpoint | complete | `agents_history\sessions\2026-09-04_003_tranche-builder-manifest-matching-checkpoint.md`, `images\Alloy_Class\tools\build_beep_labeling_tranche.py`, `images\Alloy_Class\outputs\beep_evidence\tranche_0014_cases.csv` | (none) |
+| 2026-09-06_001 | 2026-09-06 | Generic Description Probe and HTML Report Checkpoint | complete | `agents_history\sessions\2026-09-06_001_generic-description-probe-html-report-checkpoint.md`, `images\Alloy_Class\config\stage_ab_prompt_tests_substrate_tier1_v9.json`, `images\Alloy_Class\reporting\build_probe_html_report.py`, `images\Alloy_Class\tools\normalize_probe_output.py`, `images\Alloy_Class\tools\score_probe_run.py`, `images\Alloy_Class\reporting\run_stage_ab_prompt_tests.py` | THREAD-028 |
+| 2026-09-07_001 | 2026-09-07 | Alloy Step 2 Truth-State Enrichment and Handoff Cleanup | complete | `agents_history\sessions\2026-09-07_001_alloy-step2-truth-state-enrichment-and-handoff-cleanup.md`, `images\Alloy_Class\tools\enrich_production_with_vlm_attributes.py`, `images\Alloy_Class\docs\HANDOFF_PROBE_CONSOLIDATION_AND_ENRICHMENT.md` | THREAD-028, THREAD-029 |
+| 2026-09-09_001 | 2026-09-09 | Alloy Generic Description Registry Consolidation Checkpoint | complete | `agents_history\sessions\2026-09-09_001_alloy-generic-description-registry-consolidation-checkpoint.md`, `images\Alloy_Class\tools\consolidate_generic_description_registry.py` | THREAD-030 |
+| 2026-09-09_003 | 2026-09-09 | Alloy Generic Description Chunked Submission Follow-Through Checkpoint | partial | `agents_history\sessions\2026-09-09_003_alloy-generic-description-chunked-submission-follow-through-checkpoint.md`, `images\Alloy_Class\tools\consolidate_generic_description_registry.py`, `images\Alloy_Class\tools\enrich_production_with_vlm_attributes.py`, `images\Alloy_Class\reporting\build_generic_description_html_report.py` | THREAD-029, THREAD-030 |
+| 2026-09-09_002 | 2026-09-09 | Generic Description Registry Bootstrap and Tranche Fix | partial | `agents_history\sessions\2026-09-09_002_generic-description-registry-bootstrap-and-tranche-fix.md`, `images\Alloy_Class\tools\run_generic_description_chunked.py` | THREAD-029 |
+| 2026-09-09_004 | 2026-09-09 | Generic Description Chunked Submission Bug Fixes and Verification Checkpoint | complete | `agents_history\sessions\2026-09-09_004_generic-description-chunked-submission-bug-fixes-and-verification-checkpoint.md`, `images\Alloy_Class\tools\probe_generic_description.py`, `images\Alloy_Class\tools\run_generic_description_chunked.py`, `images\Alloy_Class\docs\HANDOFF_PROBE_CONSOLIDATION_AND_ENRICHMENT.md` | THREAD-028, THREAD-029, THREAD-030, THREAD-031 |
 | 2026-08-26_005 | 2026-08-26 | Alloy VLM Particle-25 FP Share Pack Checkpoint | complete | `agents_history\sessions\2026-08-26_005_alloy-vlm-particle25-fp-share-pack-checkpoint.md`, `images\Alloy_Class\docs\iGPT_v13_next_step.md`, `images\Alloy_Class\config\stage_ab_prompt_tests_substrate_tier1_v13_particle25.json`, `images\Alloy_Class\artifacts\iGPT_v13_FN_plan_rows.csv`, `images\Alloy_Class\outputs\raw_runs\benchmark_particle25_v13_describe_then_classify_rerun2\scoring\benchmark_particle25_v13_fp21_share.jsonl` | THREAD-011, THREAD-012, THREAD-013, THREAD-014, THREAD-015 |
+| 2026-09-10_001 | 2026-09-10 | BOST Enrichment Registry Pilot (Steps 1-3) and Aug 28 Coverage Escalation Checkpoint | partial | `agents_history\sessions\2026-09-10_001_bost-enrichment-registry-pilot-and-coverage-escalation-checkpoint.md`, `BOST\step1_recent_wafer_registry_pilot.py`, `BOST\step2_14day_lookback_pilot.py`, `BOST\step3_wide_table_build.py`, `BOST\registry\diag_dave_decoder_comparison.py`, `BOST\BOST_ENRICHMENT_REGISTRY_PLAN.md` | THREAD-032, THREAD-033, THREAD-034, THREAD-035 |
+| 2026-09-10_002 | 2026-09-10 | BOST Enrichment Investigation Complete — Root Causes Fixed, Production Ready | complete | `agents_history\sessions\2026-09-10_002_bost-enrichment-investigation-complete.md`, `BOST\adhoc_bost_gate_rollout.py`, `FINAL_BOST_FIX_SUMMARY_20260910.md`, `ROOT_CAUSE_ANALYSIS_20260910.md` | THREAD-032, THREAD-033 |
+| 2026-09-11_003 | 2026-09-11 | BOST Column Refactoring Implementation Complete | complete | `agents_history\sessions\2026-09-11_003_bost-column-refactoring-complete.md`, `BOST\adhoc_bost_gate_rollout.py` | (none) |
+| 2026-09-11_004 | 2026-09-11 | BOST Column Refactoring Complete — Naming Standardization & Empty Column Filtering | complete | `agents_history\sessions\2026-09-11_004_bost-column-refactor-analysis-and-script-inventory.md`, `BOST\adhoc_bost_gate_rollout.py` | (none) |
+| 2026-09-12_001 | 2026-09-12 | decoder_client (wds-decoder-cache) Pilot Investigation — Dead End Confirmed, BOST2 Scoped | complete | `agents_history\sessions\2026-09-12_001_decoder-client-pilot-dead-end-and-bost2-scoping.md`, `BOST2\pilot_decoder_client_coverage.py`, `BOST2\DECODER_CLIENT_STATUS.md`, `dev\wds-decoder-cache\`, `WDS\venv_decoder_client\` | THREAD-036, THREAD-037 |
+| 2026-09-12_002 | 2026-09-12 | BOST Query Core Baseline Rollback and WIJT Import Cleanup | partial | `agents_history\sessions\2026-09-12_002_bost-query-core-baseline-rollback.md`, `BOST\adhoc_bost_gate_rollout.py`, `BOST\wijt_BOST3.log`, `artifacts\adhoc_bost_full_summary.json`, `artifacts\adhoc_bost_definition_columns.csv` | THREAD-037 |
+| 2026-09-13_001 | 2026-09-13 | BOST Track A Removal Checkpoint | complete | `agents_history\sessions\2026-09-13_001_bost-track-a-removal-checkpoint.md` | (none) |
+| 2026-09-14_001 | 2026-09-14 | BOST FULL_FLOW_ALIASES Bug Fix, Handoffs 02/03 Closure, and Track-A-Removal Arc Completion | complete | `agents_history\sessions\2026-09-14_001_bost-full-flow-aliases-fix-and-handoffs-closure.md`, `BOST\adhoc_bost_gate_rollout.py`, `BOST\docs\HANDOFF_01_LAYER_AGNOSTIC_COLUMN_COLLAPSE.md`, `BOST\docs\HANDOFF_02_REGISTRY_TRACK_B_DIFF_TRACKING.md`, `BOST\docs\HANDOFF_03_CODE_CLEANUP.md`, `artifacts\adhoc_bost_full_summary.json` | (none) |
+| 2026-09-14_002 | 2026-09-14 | WDS APEX_ENTITY Production Enrichment Checkpoint | complete | `agents_history\sessions\2026-09-14_002_wds-apex-entity-enrichment-checkpoint.md`, `WDS\APEX_ENTITY\09_enrich_production_csv.py` | (none) |
+| 2026-09-14_003 | 2026-09-14 | WDS APEX_ENTITY Incremental Accumulator Checkpoint | complete | `agents_history\sessions\2026-09-14_003_wds-apex-entity-incremental-accumulator-checkpoint.md`, `WDS\APEX_ENTITY\09_enrich_production_csv.py` | THREAD-034 |
 
 ---
 
@@ -110,3 +137,10 @@ Manually group sessions as patterns emerge.
 
 ### 1K OX SurfScan Pilot / EDX
 - `2026-08-31_001` — Scoped and built a standalone "1K OX SurfScan" pilot pipeline (`LAYER_ID=6OX450GTO_M025_PST`) under `rollups\1K_OX_PILOT_PIPELINE\`, not wired into production; fixed PM RF counter and pilot-status bugs; resolved an EDX LAYER_ID question for lot D629T8V0 by confirming `UDB.INSP_ELEMENT` already joins directly to the original UDE scan
+
+### Generic Description Probe / HTML Report
+- `2026-09-06_001` — Canonical generic-description probe is on v9 prompt config; production coordinate enrichment plus reclass fallback are in place; HTML report title cell now shows case-id + description with left alignment and no outer Case Review wrapper; structured attributes table is content-sized with horizontal overflow; 30-case validation completed successfully
+
+### BOST Enrichment Registry
+- `2026-09-10_001` — Piloted the BOST enrichment registry (Steps 1-3): recent-wafer sample -> 14-day lookback -> final wide table keyed on (STEP, DEFINITION_NAME); found and fixed a 61-collision wide-table design bug; investigated and escalated a hard Aug 28 coverage cutoff affecting ~20 process definitions; identified two un-logged parallel sessions (BOST dual-track, WDS/APEX_ENTITY) needing reconciliation (THREAD-034)
+- `2026-09-13_001` / `2026-09-14_001` — Track A removed entirely from `adhoc_bost_gate_rollout.py` (2026-09-13); 2026-09-14 continuation found and fixed a critical `FULL_FLOW_ALIASES` corruption bug (3 of 5 process steps silently dropped), rebuilt the Track B registry materialization the removal had deleted, closed out all three handoffs (01 layer-agnostic column collapse, 02 registry NEW/EXISTING/RETIRED diffing, 03 dead-code cleanup + `prefix_map` retirement), and confirmed a stable final state: `match_rate=1.0`, `unmatched_keys=0`, `value_columns=54`
