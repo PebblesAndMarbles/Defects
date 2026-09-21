@@ -843,6 +843,45 @@ def render_page(
 </html>"""
 
 
+def render_recent_lots_html(
+        lot_blocks: list[str],
+        n_lots: int,
+        n_chambers: int,
+        lookback_days: int,
+) -> str:
+        meta = (
+                f"{n_lots} lot{'s' if n_lots != 1 else ''}"
+                f" · {n_chambers} chamber{'s' if n_chambers != 1 else ''}"
+                f" · last {lookback_days} days"
+        )
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recent SurfScan Events — Last {lookback_days}D</title>
+<style>
+{PAGE_CSS}
+</style>
+</head>
+<body>
+
+<div class="page-body">
+<div class="event-details">
+    <div class="event-content" style="grid-template-rows:auto; padding: 10px 12px;">
+        <div class="meta-strip ms-full">
+            <span class="ms-subentity">Recent SurfScan Events</span>
+            <span class="ms-lot">{escape(meta)}</span>
+        </div>
+    </div>
+</div>
+{''.join(lot_blocks)}
+</div>
+
+</body>
+</html>"""
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Entry point — importable by batch runner
 # ─────────────────────────────────────────────────────────────────────────────
@@ -985,6 +1024,78 @@ def run_for_chamber(
     print(f"  Log     : {log_path}")
 
     return "ok"
+
+
+def run_recent_lots_report(
+    out_dir: str,
+    fleet: list[str],
+    lookback_days: int = 7,
+) -> None:
+    """
+    Render a single 7-day fleet-wide SurfScan report.
+
+    This mirrors the inline defects RECENT_LOTS_7D page: one HTML file,
+    grouped by lot/chamber, using the same event-section styling as the
+    chamber report renderer.
+    """
+    workspace    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    image_root   = os.path.join(workspace, "images", "surf_scan")
+    coords_csv   = os.path.join(workspace, "outputs", "surf_scan", "SS_COORDINATES.csv")
+    manifest_csv = os.path.join(workspace, "outputs", "surf_scan", "SS_EDX_IMAGES.csv")
+
+    event_blocks: list[tuple[str, str]] = []
+    chambers_seen: set[str] = set()
+
+    for chamber in fleet:
+        image_dir = os.path.join(image_root, chamber)
+        if not os.path.isdir(image_dir):
+            continue
+
+        events, stats = build_inventory(image_dir, lookback_days=lookback_days)
+        if not events:
+            continue
+
+        suspect = _find_cross_chamber_tokens(manifest_csv, chamber)
+        if suspect:
+            events = {t: v for t, v in events.items() if t not in suspect}
+        if not events:
+            continue
+
+        event_meta = load_event_meta(coords_csv, chamber, list(events.keys()))
+        sorted_tokens = sorted(events.keys(), reverse=True)
+        chambers_seen.add(chamber)
+        for idx, token in enumerate(sorted_tokens):
+            meta = event_meta.get(token, {})
+            insp_time = str(meta.get("insp_time", "")).strip()
+            sort_key = insp_time if insp_time else token
+            event_blocks.append(
+                (
+                    sort_key,
+                    _event_section(token, events[token], chamber, meta, idx),
+                )
+            )
+
+    if not event_blocks:
+        print(f"  Recent lots : no surf-scan events found in last {lookback_days}d -- skipped.")
+        return
+
+    event_blocks.sort(key=lambda item: item[0], reverse=True)
+    lot_blocks = [section for _, section in event_blocks]
+
+    html_out = render_recent_lots_html(
+        lot_blocks,
+        n_lots=len(event_blocks),
+        n_chambers=len(chambers_seen),
+        lookback_days=lookback_days,
+    )
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, "RECENT_LOTS_7D.html")
+    with open(out_path, "w", encoding="utf-8") as fh:
+        fh.write(html_out)
+    print(
+        f"  Recent lots : {len(chambers_seen)} chamber(s) in last {lookback_days}d"
+        f"  ->  {out_path}"
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

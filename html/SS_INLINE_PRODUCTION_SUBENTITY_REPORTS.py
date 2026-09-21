@@ -22,7 +22,8 @@ Usage
   python html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS.py
   python html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS.py --dry-run
   python html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS.py --chamber AME409_PM6
-  python html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS.py --lookback-days 30
+    python html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS.py --lookback-days 30
+    python html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS.py --out-dir html/SS_Subentity_Reports_7day --lookback-days 7
 """
 from __future__ import annotations
 
@@ -47,7 +48,7 @@ run_for_chamber = _mod.run_for_chamber
 
 
 # ─── Paths ───────────────────────────────────────────────────────────────────
-OUT_DIR = os.path.join(_HERE, "SS_Subentity_Reports")
+DEFAULT_OUT_DIR = os.path.join(_HERE, "SS_Subentity_Reports")
 
 # Dashboard SS report main — stub path; will be wired once ss_report_main.py exists.
 # See AME_Dash/SS_Report/SS_REPORTS_INTEGRATION.md §9 for the integration plan.
@@ -85,8 +86,8 @@ def _refresh_dashboard_ss_page() -> Path | None:
 
 
 # ─── Fleet ───────────────────────────────────────────────────────────────────
-# 47 chambers that currently have images/surf_scan/<chamber>/ directories.
-# Differs from the inline defect fleet (51) — AME403_PM5, AME417_PM2,
+# 53 chambers that currently have images/surf_scan/<chamber>/ directories.
+# Differs from the inline defect fleet (57) — AME403_PM5, AME417_PM2,
 # AME421_PM5, and AME425_PM5 do not have SS image directories.
 # run_for_chamber() returns "skipped" for any chamber whose image dir is absent,
 # so adding future chambers here before their data arrives is safe.
@@ -94,13 +95,13 @@ FLEET: list[str] = [
     "AME401_PM1", "AME401_PM2", "AME401_PM3",
     "AME403_PM1", "AME403_PM2", "AME403_PM3", "AME403_PM4", "AME403_PM5", "AME403_PM6",
     "AME409_PM1", "AME409_PM2", "AME409_PM3", "AME409_PM4", "AME409_PM5", "AME409_PM6",
-    "AME411_PM1", "AME411_PM2", "AME411_PM3", "AME411_PM4",
+    "AME411_PM1", "AME411_PM2", "AME411_PM3", "AME411_PM4", "AME411_PM5", "AME411_PM6",
     "AME417_PM1", "AME417_PM2", "AME417_PM3", "AME417_PM4", "AME417_PM5", "AME417_PM6",
-    "AME419_PM3", "AME419_PM4", "AME419_PM5", "AME419_PM6",
+    "AME419_PM1", "AME419_PM2", "AME419_PM3", "AME419_PM4", "AME419_PM5", "AME419_PM6",
     "AME421_PM1", "AME421_PM2", "AME421_PM3", "AME421_PM4", "AME421_PM5", "AME421_PM6",
     "AME423_PM1", "AME423_PM2", "AME423_PM3", "AME423_PM4", "AME423_PM5", "AME423_PM6",
     "AME425_PM1", "AME425_PM2", "AME425_PM3", "AME425_PM4", "AME425_PM5", "AME425_PM6",
-    "AME427_PM2", "AME427_PM3", "AME427_PM4", "AME427_PM5", "AME427_PM6",
+    "AME427_PM1", "AME427_PM2", "AME427_PM3", "AME427_PM4", "AME427_PM5", "AME427_PM6",
 ]
 
 
@@ -121,15 +122,20 @@ def main(argv: list[str] | None = None) -> None:
         "--lookback-days", type=int, default=60,
         help="Pass through to run_for_chamber: include only events within N days (default: 60).",
     )
+    parser.add_argument(
+        "--out-dir", default=DEFAULT_OUT_DIR,
+        help="Output directory for the generated chamber HTML reports.",
+    )
     args = parser.parse_args(argv)
 
     chambers     = [args.chamber] if args.chamber else list(FLEET)
     lookback     = args.lookback_days
+    out_dir      = args.out_dir
 
-    os.makedirs(OUT_DIR, exist_ok=True)
+    os.makedirs(out_dir, exist_ok=True)
 
     print(f"Fleet        : {len(chambers)} chamber(s)")
-    print(f"Output dir   : {OUT_DIR}")
+    print(f"Output dir   : {out_dir}")
     print(f"Lookback     : {lookback} days")
 
     if args.dry_run:
@@ -148,7 +154,7 @@ def main(argv: list[str] | None = None) -> None:
     for i, chamber in enumerate(chambers, 1):
         print(f"\n[{i}/{len(chambers)}] {chamber}")
         try:
-            result = run_for_chamber(chamber, OUT_DIR, lookback_days=lookback)
+            result = run_for_chamber(chamber, out_dir, lookback_days=lookback)
             if result == "skipped":
                 n_skip += 1
             else:

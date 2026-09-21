@@ -203,6 +203,7 @@ It also writes an artifact manifest and summary JSON in artifacts.
 
 - html/SS_INLINE_CHAMBER_REPORT.py (single-chamber report engine, `run_for_chamber()`)
 - html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS.py (fleet batch runner, writes html/SS_Subentity_Reports/)
+- html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS_7DAY.py (7-day fleet wrapper, writes html/SS_Subentity_Reports_7day/)
 
 This layer is not part of `surf_scan_update.py`'s orchestrated steps. It is triggered
 separately by the daily entrypoint after the core pipeline succeeds (see below), since it
@@ -223,7 +224,8 @@ Daily entrypoint behavior:
 - runs prune with standard retention behavior,
 - on successful pipeline completion (exit code 0), regenerates the SS inline fleet HTML
   reports via `html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS.py` (default 60-day lookback,
-  full fleet).
+  full fleet), then regenerates the 7-day fleet reports via
+  `html/SS_INLINE_PRODUCTION_SUBENTITY_REPORTS_7DAY.py`.
 
 ### Comparison Utility
 

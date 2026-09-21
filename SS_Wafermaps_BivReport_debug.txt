@@ -1,10 +1,9 @@
-3871028698 | Rows in active table: 534
-3871028698 | BY column configured: STEP_LAYER_ID | present=9
-3871028698 | Distinct BY levels: 1
-3871028698 | BY level sample (up to 20): {"6OX450GTO_M025_PST"}
-3871028698 | BY column reference: Column("STEP_LAYER_ID")
-3871028698 | Bivariate object created: Bivariate[]
-3871028698 | biv << Report returned SINGLE object with title=Bivariate Fit of WAFER_Y_MM By WAFER_X_MM STEP_LAYER_ID=6OX450GTO_M025_PST
-3871028698 | biv XPath OutlineBox count=1
-3871028698 | Panel 1 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM STEP_LAYER_ID=6OX450GTO_M025_PST -> 6OX450GTO_M025_PST
-3871028698 | Processed report objects total: 1
+3872484610 | Rows in active table: 1416
+3872484610 | BY column configured: ELEMENT | present=0
+3872484610 | ERROR: BY column not found; plotting will collapse to a single panel.
+3872484610 | No BY column reference; will plot all data in one panel.
+3872484610 | Bivariate object created: Bivariate[]
+3872484610 | biv << Report returned SINGLE object with title=Bivariate Fit of WAFER_Y_MM By WAFER_X_MM
+3872484610 | biv XPath OutlineBox count=1
+3872484610 | Panel 1 title: Bivariate Fit of WAFER_Y_MM By WAFER_X_MM (no BY column)
+3872484610 | Processed report objects total: 1

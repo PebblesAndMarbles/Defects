@@ -3,7 +3,7 @@
 Names Default To Here( 1 );
 
 dt = Current Data Table();
-by_group_col = "STEP_LAYER_ID";
+by_group_col = "ELEMENT";
 
 // Axis limits for full wafer coverage
 wafer_min = -155;
