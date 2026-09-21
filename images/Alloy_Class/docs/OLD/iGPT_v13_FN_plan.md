@@ -1,0 +1,11 @@
+Start Here — Read Before Touching Anything
+Step 1: Pull 3-4 Representative FP Cases from benchmark_scored_rows.csv
+Do not look at all 21 yet. Pick cases that represent the range:
+Case type A — High confidence FP: Find 2 cases where vlm_stage_b_confidence is high (>0.85) and vlm_coarse_class = possible_beep. These are the cases where the model is not uncertain — it is confidently wrong. These are the most diagnostic.
+Case type B — Low confidence FP: Find 1-2 cases where confidence is lower (0.55-0.70) but still called possible_beep. These may be borderline cases where the architecture is over-sensitive.
+Case type C — Correct particle calls (the 4 that passed): Find the 4 cases that correctly stayed particle. What is different about them?
+Step 2: Read the Call 1 Observation Text for the High-Confidence FPs
+The Call 1 observation text should be in the raw run artifacts. This is the most important diagnostic step. Specifically look for:
+Pattern A — Call 1 is generating false geometric language: Call 1 describes "irregular boundaries," "locally narrowed," "material protruding" on images where a human reviewer would see a clean particle with no trench interaction. If this is happening, Call 1's observation prompt is too comparison-prompting — it is finding "irregularities" in normal SEM image variation.
+Pattern B — Call 1 is accurate but Call 2 over-interprets it: Call 1 correctly describes a particle near a wall with no blocking evidence, but Call 2's V11 evidence framework finds a qualifying yes anyway. If this is happening, the V11 framework's STEP 2 decision rule (one yes on ISL or BC = moderate = possible_beep) is too permissive when fed free-text observation.
+Pattern C — Call 1 is accurate, Call 2 is accurate, but the cases are genuinely ambiguous: The particle cases in this set may be harder than BMK_0020/0024/0100 — wall-adjacent, partially occluding, with some real geometric variation. If this is happening, the architecture is working correctly but the particle set contains cases that are genuinely at the BEEP/particle boundary.
